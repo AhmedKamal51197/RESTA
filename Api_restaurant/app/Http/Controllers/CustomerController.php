@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Customs\Services\EmailResetPasswordService;
 use App\Customs\Services\EmailVerificationService;
 use App\Models\Customer;
-use Illuminate\Http\Request;
-use Illuminate\Notifications\Notifiable;
-
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Http\Requests\ResendEmailVerificationLinkRequest;
 use App\Http\Requests\VerifyEmailRequest;
-use App\Rules\ValidEmail;
+use App\Models\ResetPasswordToken;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
+
 
 class CustomerController extends Controller
 {
     //
     //use Notifiable;
-    protected $service;
+    protected $service,$reset_service;
     /**
      *test auth middleware  
      */
@@ -28,8 +28,9 @@ class CustomerController extends Controller
     {
         return response()->json(["message"=>"success"]);
     }
-    public function __construct(EmailVerificationService $service)
+    public function __construct(EmailVerificationService $service,EmailResetPasswordService $reset_service)
     {
+        $this->reset_service=$reset_service;
         $this->service=$service;
     }
     public function register(RegistrationRequest $request)
@@ -84,6 +85,18 @@ class CustomerController extends Controller
     }
    
     /**
+     * get token for verification 
+     */
+    public function getToken(Request $request)
+    {
+        return response()->json([
+            'status'=>'success',
+            'message'=>'you can verify your email now',
+            'token'=>$request->token,
+            'email'=>$request->email
+        ]);
+    }
+    /**
      * Verify Customer email
      */
     public function verifyCustomerEmail(VerifyEmailRequest $request)
@@ -91,24 +104,33 @@ class CustomerController extends Controller
         //dd($request->email,$request->token);
         return $this->service->verifyEmail($request->email,$request->token);
     }
-    // public function verifyEmail(Request $request)
-    // {
 
-    // }
     public function login(LoginRequest $request)
     {
-       
-        $token = auth('api')->attempt($request->validated());
-        $verify= auth('api')->user()->email_verified_at;
-        // dd($verify);
-        if($token && $verify)
+        $dataValidated=$request->validated();
+        // dd($dataValidated);
+        $token = auth('api')->attempt($dataValidated);
+        // dd($token);
+        if(!$token)
         {
-            return $this->responseWithToken($token,auth('api')->user());
-        }else {
             return response()->json([
                 'status'=>'failed',
                 'message' => 'Invalid email or password or you must verify your email first'
             ], 401);
+        }
+        else
+        {
+
+            $verify= auth('api')->user()->email_verified_at;
+            if($token && $verify)
+            {
+                return $this->responseWithToken($token,auth('api')->user());
+            }else {
+                return response()->json([
+                    'status'=>'failed',
+                    'message' => 'Invalid email or password or you must verify your email first'
+                ], 401);
+            }
         }
     }
     public function logout()
@@ -170,19 +192,24 @@ class CustomerController extends Controller
         }
         else{
 
-            // here customer who is authenticated can update his own profile
-            // I use auth('api')->user()  => this return authenticated customer and it's return as Authenticatabl instance
-            // so I used additional ->customer to return instance as a customer and can do update() method 
-            // casue update method can only work with Eloquent object
-            $updatedCustomer = auth('api')->user()->customer;
+          
+            $updatedCustomer = auth('api')->user();
+            //  dd($updatedCustomer);    
         }
-        $request->validate([
+        $data=$request->validate([
             'name'=>['required','string','min:3','max:20'],
-            'email'=>['required','unique:customers,email,'.$updatedCustomer->id,new ValidEmail()],
+            'email'=>['required','unique:customers,email,'.$updatedCustomer->id],
             'phone' =>['required','string','min:12','max:25']
 
         ]);
-        $updatedCustomer->update($request->validated());
+        // dd($request->validated());
+        $updatedCustomer->update([
+            'name'=>$data['name'],
+            'email'=>$data['email'],
+            'phone'=>$data['phone']
+        ]);
+        $updatedCustomer->email_verified_at=null;
+        $updatedCustomer->save();
         return response()->json([
             'status'=>'success',
             'message'=>'updated done',
@@ -222,6 +249,85 @@ class CustomerController extends Controller
     }
 
 
-    // public function 
+    /**
+     * Forgot password
+     */
+    public function forgotPassword(Request $request)
+    {
+    
+        $validatedData= $request->validate([
+            'email'=>['required','email:filter'],
+
+        ]);
+        // dd($request)
+        //dd($data['email']);
+        $email = $validatedData['email'];
+        $user = Customer::where('email',$email)->first();
+        if(!$user) return response()->json(['status'=>'failed','message'=>'Invalid email'],400);
+        $this->reset_service->sendResetlink($user);
+        return response()->json([
+            'status'=>'success',
+            'message'=>'please check your email to reset your password'
+        ],200);
+    }
+
+
+
+    /**
+     * check Token 
+     */
+    public function showResetPasswordForm(Request $request)
+    {
+       
+        $email = $request->email;
+        $token = $request->token;
+        
+        $verifiedResult= $this->reset_service->verifyEmail($email,$token);
+        if($verifiedResult instanceof ResetPasswordToken)
+        {
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Token verified, you can now reset password ',
+                'token'=>$token,
+                'email'=>$email
+
+            ],200);
+        }
+        return  $verifiedResult;
+    }
+    /**
+     * Reset password  
+    */
+    public function resetPassword(Request $request)
+    {
+        
+        $dataValidated=$request->validate([
+            'email'=>['required','email','exists:customers,email'],
+            'token'=>['required'],
+            'new_password'=>['required','min:8','confirmed'],
+        ]);
+        $token=$dataValidated['token'];
+        $email = $dataValidated['email'];
+        $verifyTokenResult=$this->reset_service->verifyEmail($email,$token);
+        if($verifyTokenResult instanceof ResetPasswordToken)
+        {
+
+            $newPassword = $dataValidated['new_password'];
+            $customer = Customer::where('email',$email)->first();
+            if(!$customer) return response()->json(['status'=>'failed','message'=>'Account not found'],404);
+            
+            $customer->password = Hash::make($newPassword);
+            $customer->save();
+            
+            return response()->json([
+                'status'=>'success',
+                'message'=>'password Reset succeefully'
+            ],200);
+        }
+        return $verifyTokenResult;
+        
+        
+    }
+
     
 }

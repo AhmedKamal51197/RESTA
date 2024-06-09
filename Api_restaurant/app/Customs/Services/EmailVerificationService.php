@@ -4,9 +4,9 @@ namespace App\Customs\Services;
 use App\Mail\VerifyEmail;
 use App\Models\Customer;
 use App\Models\EmailVerificationToken;
-use App\Notifications\EmailVerificationNotification;
+// use App\Notifications\EmailVerificationNotification;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
+// use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class EmailVerificationService 
@@ -121,7 +121,7 @@ class EmailVerificationService
             $checkIfTokenExists = EmailVerificationToken::where('email',$email)->first();
             if($checkIfTokenExists) $checkIfTokenExists->delete();
             $token = Str::uuid(); 
-            $url =  "http://127.0.0.1:8000/api/auth/verify-user-email?token=".$token."&email=".$email;
+            $url =  "http://127.0.0.1:8000/api/auth/get-token?token=".$token."&email=".$email;
             $saveToken = EmailVerificationToken::create([
                 "email"=>$email,
                 "token"=>$token,
