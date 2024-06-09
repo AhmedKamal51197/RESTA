@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jun 09, 2024 at 10:31 AM
+-- Generation Time: Jun 09, 2024 at 10:33 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -111,22 +111,7 @@ INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_veri
 (33, 'aahmed', 'e850f489a3@emailcbox.pro', '01066056996125', '$2y$10$dTVMqj8rv3nEkr3QkvaAiehfMWY.EEpWZEPfmVEDySzy4IffnnFRC', NULL, '2024-06-07 12:45:41', '2024-06-07 12:45:41'),
 (35, 'aahmed', 'asamtabrahym870@gmail.com', '01066056996125', '$2y$10$ZN0yySWuAjcDVKALsZVCxe/PJ7dJuqibYAVR2rCmYeQ6VkLyHBSpq', NULL, '2024-06-08 10:35:06', '2024-06-08 10:35:06'),
 (39, 'aahmed', 'mostafaesam300@gmail.com', '01066056996125', '$2y$10$6T2uJT/JrZy.TJaUvJAXR.m.jRG4Iggc7h4MAfwQ9QDhPV2CrbPFi', NULL, '2024-06-08 12:29:41', '2024-06-08 12:29:41'),
-(41, 'aahmed', 'eng.ahmedkamal357@gmail.com', '01066056996125', '$2y$10$rtBcv6rFE8tCrx.zYG.dyOc1Z3yyrxsK2.CohJPjFwUwyGNWzYh/m', '2024-06-08 18:33:13', '2024-06-08 18:32:05', '2024-06-08 18:33:13');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `customer_reset_password_tokens`
---
-
-CREATE TABLE `customer_reset_password_tokens` (
-  `token_id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` bigint(20) UNSIGNED NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `expiration` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(41, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$cpCvyLzW.D5/rxSgVrSwWOqJaFeFH0wL8EuoVd59UUnkqoZ0EenpW', '2024-06-09 17:17:50', '2024-06-08 18:32:05', '2024-06-09 17:29:46');
 
 -- --------------------------------------------------------
 
@@ -213,21 +198,6 @@ CREATE TABLE `employees` (
 
 INSERT INTO `employees` (`id`, `name`, `is_admin`, `phone`, `email`, `password`, `created_at`, `updated_at`, `identity_card`) VALUES
 (1, 'hosam', 1, '01066056969', 'ahmed@gmail.com', '$2y$10$2WJkOKMdxs.nLhKNfkCmBucbsSwX1gFXRvbwMC7wcCnhBWB/9Kiwa', NULL, NULL, 0);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `employee_reset_password_tokens`
---
-
-CREATE TABLE `employee_reset_password_tokens` (
-  `token_id` bigint(20) UNSIGNED NOT NULL,
-  `employee_id` bigint(20) UNSIGNED NOT NULL,
-  `token` varchar(255) NOT NULL,
-  `expiration` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -369,6 +339,28 @@ CREATE TABLE `personal_access_tokens` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `reset_password_tokens`
+--
+
+CREATE TABLE `reset_password_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expired_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reset_password_tokens`
+--
+
+INSERT INTO `reset_password_tokens` (`id`, `email`, `token`, `expired_at`, `created_at`, `updated_at`) VALUES
+(8, 'eng.ahmedkamal357@gmail.com', 'd2c606fd-516f-434b-a032-891dd803fd33', '2024-06-09 18:28:51', '2024-06-09 17:28:51', '2024-06-09 17:28:51');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `sessions`
 --
 
@@ -404,14 +396,6 @@ ALTER TABLE `customers`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `customer_reset_password_tokens`
---
-ALTER TABLE `customer_reset_password_tokens`
-  ADD PRIMARY KEY (`token_id`),
-  ADD UNIQUE KEY `token` (`token`),
-  ADD KEY `customer_id` (`customer_id`);
-
---
 -- Indexes for table `diningtables`
 --
 ALTER TABLE `diningtables`
@@ -431,14 +415,6 @@ ALTER TABLE `employees`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `employees_email_unique` (`email`),
   ADD UNIQUE KEY `identity_card` (`identity_card`);
-
---
--- Indexes for table `employee_reset_password_tokens`
---
-ALTER TABLE `employee_reset_password_tokens`
-  ADD PRIMARY KEY (`token_id`),
-  ADD UNIQUE KEY `token` (`token`),
-  ADD KEY `employee_id` (`employee_id`);
 
 --
 -- Indexes for table `meals`
@@ -491,6 +467,12 @@ ALTER TABLE `personal_access_tokens`
   ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`);
 
 --
+-- Indexes for table `reset_password_tokens`
+--
+ALTER TABLE `reset_password_tokens`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
@@ -521,12 +503,6 @@ ALTER TABLE `customers`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
--- AUTO_INCREMENT for table `customer_reset_password_tokens`
---
-ALTER TABLE `customer_reset_password_tokens`
-  MODIFY `token_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `diningtables`
 --
 ALTER TABLE `diningtables`
@@ -536,19 +512,13 @@ ALTER TABLE `diningtables`
 -- AUTO_INCREMENT for table `email_verification_tokens`
 --
 ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `employee_reset_password_tokens`
---
-ALTER TABLE `employee_reset_password_tokens`
-  MODIFY `token_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `meals`
@@ -575,20 +545,14 @@ ALTER TABLE `personal_access_tokens`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `reset_password_tokens`
+--
+ALTER TABLE `reset_password_tokens`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `customer_reset_password_tokens`
---
-ALTER TABLE `customer_reset_password_tokens`
-  ADD CONSTRAINT `customer_reset_password_tokens_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `employee_reset_password_tokens`
---
-ALTER TABLE `employee_reset_password_tokens`
-  ADD CONSTRAINT `employee_reset_password_tokens_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `meals`

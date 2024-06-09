@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CustomerResetPasswordToken extends Model
+class ResetPasswordToken extends Model
 {
     use HasFactory;
+    // protected $table= 'reset_password_tokens';
+    protected $guarded =[];
 }

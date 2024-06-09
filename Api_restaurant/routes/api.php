@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 use  App\Http\Controllers\CustomerController;
+use App\Models\Customer;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,11 +22,14 @@ Route::group(['middleware' => 'auth:api','verified'], function() {
     // Protected routes// test authentication 
     Route::get('test',[CustomerController::class,'test']);
     Route::post('auth/logout', [CustomerController::class, 'logout']);
-    Route::put('auth/customers/{id}',[CustomerController::class,'update']);
+    Route::put('auth/customers',[CustomerController::class,'update']);
 });
 Route::post('auth/register', [CustomerController::class, 'register']);
 Route::post('auth/login', [CustomerController::class, 'login']);
-Route::get('auth/verify-user-email',[CustomerController::class,'verifyCustomerEmail']);
+Route::get('auth/get-token',[CustomerController::class,'getToken']);
+Route::post('auth/verify-user-email',[CustomerController::class,'verifyCustomerEmail']);
 Route::post('auth/resend-email-verification-link',[CustomerController::class,'resendVerificationEmailLink']);
-
+Route::post('auth/forgot-password',[CustomerController::class,'forgotPassword']);
+Route::get('auth/reset-password-form',[CustomerController::class,'showResetPasswordForm']);
+Route::post('auth/reset-password',[CustomerController::class,'resetpassword']);
 
