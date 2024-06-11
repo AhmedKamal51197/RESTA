@@ -44,6 +44,12 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('api')
             ->group(base_path('routes/meals.php'));
 
+             Route::middleware('api')
+            ->prefix('api')
+            ->group(base_path('routes/diningTable.php'));
+
+
+
         });
     }
 

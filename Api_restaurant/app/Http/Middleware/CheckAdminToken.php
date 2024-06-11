@@ -20,9 +20,10 @@ class CheckAdminToken
      */
     public function handle(Request $request, Closure $next): Response
     {
+
         try{
             $user=auth('admin-api')->user();
-            dd($user);
+            // dd($user);
                 if(!$user || !$user->is_admin)
                 {
                     return response()->json([

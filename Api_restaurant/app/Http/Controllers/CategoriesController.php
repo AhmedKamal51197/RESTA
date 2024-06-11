@@ -19,7 +19,7 @@ class CategoriesController extends Controller
             return response()->json(['message' => 'No categories found'], 404);//status
         }
         
-        return response()->json(['data' => $categories, 'status' => 200], 200);
+        return response()->json(['data' => $categories, 'status' => 'Ok'], 200);
     }
 
     public function getCategoryById($id)
@@ -28,7 +28,7 @@ class CategoriesController extends Controller
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
         }
-        return response()->json(['data' => $category, 'status' => 200], 200);
+        return response()->json(['data' => $category, 'status' => 'Ok'], 200);
     }
 
     public function addNewCategory(Request $request)
@@ -36,18 +36,19 @@ class CategoriesController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'description' => 'required|string',
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // For image file
+            'status' => 'required|boolean',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
         ]);
     
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 400);
+            return response()->json(['message' => $validator->errors(),'status'=>'Failed'], 400);
         }
     
         if (Category::where('name', $request->name)->exists()) {
-            return response()->json(['message' => 'Category already exists'], 409);
+            return response()->json(['message' => 'Category already exists','status'=>'Conflict'], 409);
         }
     
-        $data = $request->only('name', 'description');
+        $data = $request->only('name', 'description', 'status');
     
         // Handle image file from form data
         if ($request->hasFile('image_file')) {
@@ -55,8 +56,11 @@ class CategoriesController extends Controller
         }
     
         $newCategory = Category::create($data);
-        return response()->json(['data' => $newCategory, 'status' => 201], 201);
+        $responseData = array_merge($newCategory->toArray(), ['status' => $newCategory->status]);
+
+        return response()->json(['data' => $responseData, 'status' => 'Created'], 201);
     }
+    
     
 
     public function updateCategory(Request $request, $id)
@@ -64,19 +68,20 @@ class CategoriesController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string',
             'description' => 'nullable|string',
+            'status' => 'required|string',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
         ]);
     
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'status' => 400], 400);
+            return response()->json(['message' => $validator->errors(), 'status' => 'Bad Request'], 400);
         }
     
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found', 'status' => 404], 404);
+            return response()->json(['message' => 'Category not found', 'status' =>  'Not Found'], 404);
         }
     
-        $data = $request->only('name', 'description');
+        $data = $request->only('name', 'description','status');
     
      
         if ($request->hasFile('image_file')) {
@@ -93,7 +98,7 @@ class CategoriesController extends Controller
         
         
         $updatedCategory = Category::find($id);
-        return response()->json(['data' => $updatedCategory, 'status' => 200], 200);
+        return response()->json(['data' => $updatedCategory, 'status' => 'Ok'], 200);
     }
     
     
@@ -101,7 +106,7 @@ class CategoriesController extends Controller
     {
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found', 'status' => 404], 404);
+            return response()->json(['message' => 'Category not found', 'status' => 'Not Found'], 404);
         }
 
         if ($category->image) {
@@ -109,6 +114,6 @@ class CategoriesController extends Controller
         }
 
         $category->delete();
-        return response()->json(['message' => 'Category deleted successfully', 'status' => 200], 200);
+        return response()->json(['message' => 'Category deleted successfully', 'status' => 'Ok'], 200);
     }
 }
