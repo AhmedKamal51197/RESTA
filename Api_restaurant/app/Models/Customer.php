@@ -19,7 +19,8 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
         'email',
         'password',
         'phone',
-        'email_verified_at'
+        'email_verified_at',
+        'status'
     ];
     protected $hidden = [
         'password',

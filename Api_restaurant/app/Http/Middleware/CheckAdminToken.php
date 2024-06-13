@@ -18,16 +18,17 @@ class CheckAdminToken
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+    // this middleware for rule for superAdmin
     public function handle(Request $request, Closure $next): Response
     {
         try{
             $user=auth('admin-api')->user();
-            dd($user);
+           // dd($user);
                 if(!$user || !$user->is_admin)
                 {
                     return response()->json([
                         'status'=>'falied',
-                        'message'=>'Unauthorized',
+                        'message'=>'You are not Superadmin',
                     ]);
                 }
         }catch(JWTException $e)
