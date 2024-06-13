@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +10,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('admin/login', [EmployeeController::class, 'login']);
 
 Route::get('admin/test', [EmployeeController::class, 'testMiddleware'])->middleware('auth:admin-api');
+
+// for send reset password email & token to employee
+Route::post('admin/employees/forgot-password',[EmployeeController::class,'forogtPassword']);
+// this will display in front-end page to  check email & token then send it to  this route =>admin/employees/reset-passowrd to reset password    
+Route::get('admin/employees/reset-password-form',[EmployeeController::class,'checkResetToken']);
+//  Reset password functional
+Route::post('admin/employees/reset-passowrd',[EmployeeController::class,'resetPassword']);
+
+
 // employee endpoints in dashboard for super admin
 Route::group(['middleware'=>'checkAdminToken'],function(){
     //add  new employee

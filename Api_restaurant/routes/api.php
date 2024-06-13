@@ -33,7 +33,6 @@ Route::post('auth/forgot-password',[CustomerController::class,'forgotPassword'])
 Route::get('auth/reset-password-form',[CustomerController::class,'showResetPasswordForm']);
 Route::post('auth/reset-password',[CustomerController::class,'resetpassword']);
 
-
 // cutomer endpoints in dashboard
 // this for employee admin and this is allow to superadmin also
 Route::group(['middleware'=>'auth:admin-api'],function(){

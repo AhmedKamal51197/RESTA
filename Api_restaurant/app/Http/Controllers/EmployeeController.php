@@ -7,10 +7,16 @@ use App\Models\Employee;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Customs\Services\EmailResetAdminPasswordService;
+use App\Models\ResetPasswordToken;
 
 class EmployeeController extends Controller
 {
-   
+    protected $service;
+    public function __construct(EmailResetAdminPasswordService $service)
+    {
+        $this->service=$service;        
+    }
     public function login(LoginRequest $request)
     {
         $employee = Employee::where('email',$request->email)->first();
@@ -183,5 +189,74 @@ class EmployeeController extends Controller
                 'message'=>'Empolyee not found'
             ],404);
         }
+    }
+
+
+    /**
+     * Forget Password 
+    */
+    public function forogtPassword(Request $request)
+    {
+        $vlaidatedData = $request->validate([
+            'email'=>['required','email']
+        ]);
+        $user = Employee::where('email',$vlaidatedData['email'])->first();
+        if(!$user)
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'User not found'
+            ],404);
+        }
+        $this->service->sendResetlink($user);
+        return response()->json([
+            'status'=>'success',
+            'message'=>'Reset Link send successfully to your email'
+        ],200);
+    }
+    /**
+     * Check Email & Token 
+    */
+    public function checkResetToken(Request $request)
+    {
+        $email = $request->email;
+        $token = $request->token;
+        // return response()->json(['aya 7aga']);
+        $verifiedResult=$this->service->verifyEmail($email,$token);
+        // dd($verifiedResult);
+        if($verifiedResult instanceof ResetPasswordToken)
+        {
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Email & token verified successfully you can now reset your password',
+                'token'=>$token,
+                'email'=>$email
+            ],200);
+        }
+        return $verifiedResult;
+    }
+
+    /**
+     * Reset password
+    */
+    public function resetPassword(Request $request)
+    {
+        $vlaidatedData = $request->validate([
+            'email'=>['required','email'],
+            'token'=>['required'],
+            'new_password'=>['required','min:8','confirmed']
+        ]);
+        $user = Employee::where('email',$vlaidatedData['email'])->first();
+        $verifiedResult = $this->service->verifyEmail($vlaidatedData['email'],$vlaidatedData['token']);
+        if ($verifiedResult instanceof ResetPasswordToken)
+        {
+            $user->password=Hash::make($vlaidatedData['new_password']);
+            $user->save();
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Password reset Successfully'
+            ],200);
+        }
+        return $verifiedResult;
     }
 }
