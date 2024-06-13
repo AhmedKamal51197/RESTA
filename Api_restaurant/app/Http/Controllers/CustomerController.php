@@ -14,6 +14,7 @@ use App\Http\Requests\VerifyEmailRequest;
 use App\Models\ResetPasswordToken;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use PHPOpenSourceSaver\JWTAuth\Claims\Custom;
 
 use function PHPUnit\Framework\isEmpty;
@@ -191,26 +192,47 @@ class CustomerController extends Controller
                 'status' => 'failed',
                 'message' => 'This account not found'
             ], 404);
+            $statusField=$request->validate([
+                'status' => ['sometimes', 'in:active,inactive']
+            ]);
+            
         } else {
-
-
+            
+            
             $updatedCustomer = auth('api')->user();
             //  dd($updatedCustomer);    
+            
         }
+        // dd($updatedCustomer->id);
+       // dd(['id'=>$updatedCustomer->email]);
+       
         $data = $request->validate([
-            'name' => ['required', 'string', 'min:3', 'max:20'],
-            'email' => ['required', 'unique:customers,email,' . $updatedCustomer->id],
-            'phone' => ['required', 'string', 'min:8', 'max:12'],
-            'status' => ['required', 'in:active,inactive']
+            'name' => ['sometimes', 'string', 'min:3', 'max:20'],
+            'email' => ['sometimes','email',
+                Rule::unique('customers','email')->ignore($updatedCustomer->id)], 
+            //'unique:customers,email,' . $updatedCustomer->email],
+            'phone' => ['sometimes', 'string', 'min:8', 'max:12'],
         ]);
-        // dd($request->validated());
-        $updatedCustomer->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'status' => $data['status']
-        ]);
-        $updatedCustomer->email_verified_at = null;
+        
+        foreach($data as $key=>$value)
+        {
+            
+            if(isset($data[$key]) )
+            {
+                    $updatedCustomer->$key=$value;
+            }
+        }
+        if(isset($statusField['status']))
+        {
+            if($statusField['status']==='inactive')
+                $updatedCustomer->status=0;
+            else if($statusField['status']==='active')
+                $updatedCustomer->status=1;
+        }
+        if(array_key_exists('email',$data))
+        {
+            $updatedCustomer->email_verified_at = null;
+        }
         $updatedCustomer->save();
         return response()->json([
             'status' => 'success',
