@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('size');
             $table->integer('num');
             $table->string('status');
+            $table->string('qr_code')->nullable(); 
             $table->unique(['floor','num']);
             $table->timestamps();
         });
