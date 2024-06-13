@@ -3,14 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
-
+use App\Models\Employee;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
    
     public function login(LoginRequest $request)
     {
+        $employee = Employee::where('email',$request->email)->first();
+        if($employee && !$employee->status)
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Admin Block this Account'
+            ],400);
+        }
         $token=auth('admin-api')->attempt($request->validated());
         if($token)
         {
@@ -47,5 +57,131 @@ class EmployeeController extends Controller
     /**
      * add Employee
     */
-    // public function store($)
+    public function store(Request $request)
+    {
+        $datavalidated = $request->validate([
+            'name'=>['required','string','min:3','max:20'],
+            'email'=>['required','string','email','unique:employees,email'],
+            'phone'=>['required','string','min:8','max:12'],
+            'identity_card'=>['required','string','min:6','max:8','unique:employees,identity_card'],
+            'is_admin'=>['required','boolean'],
+            'password'=>['required','min:8','confirmed'],
+            'status'=>['boolean']
+        ]);
+        $employee = Employee::create([
+            'name'=>$datavalidated['name'],
+            'email'=>$datavalidated['email'],
+            'phone'=>$datavalidated['phone'],
+            'identity_card'=>$datavalidated['identity_card'],
+            'is_admin'=>$datavalidated['is_admin'],
+            'password'=>Hash::make($datavalidated['password']),
+            'status'=>$datavalidated['status']
+        ]);
+        if($employee)
+        {
+
+            return response()->json([
+                'request_status'=>'success',
+                'data'=>$employee
+            ],200);
+        }
+        else{
+            return response()->json([
+                'request_status'=>'failed',
+                'message'=>'Internal server error'
+            ],400);
+        }
+
+    }
+    public function show($id)
+    {
+        try{
+            $employee = Employee::findOrFail($id);
+            return response()->json([
+                'status'=>'success',
+                'data'=>$employee
+            ],200);
+
+        }catch(ModelNotFoundException $e){
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Employee not Found'
+            ],404);
+        }
+    }
+
+    public function index()
+    {
+ 
+        $employees = Employee::all();
+        if($employees->isEmpty())
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'No employees Found'
+            ],404);    
+        }
+        return response()->json([
+            'status'=>'success',
+            'data'=>$employees
+        ],200);
+    }
+
+    public function update(Request $request ,$id)
+    {
+        try{
+
+            $employee = Employee::findOrFail($id);
+            $vlaidatedData = $request->validate([
+                'name'=>['string','min:3','max:20'],
+                'email'=>['string','email','unique:employees,email,'.$employee->id], //'unique:employees,email,'.$employee->id to exclude account itself to donot make confilct if it duplicate with same email
+                'phone'=>['string','min:8','max:12'],
+                'identity_card'=>['string','min:6','max:8','unique:employees,identity_card,'.$id],//same thing like email
+                'is_admin'=>['boolean'],
+                'password'=>['min:8','confirmed'],
+                'status'=>['boolean']
+            ]);
+           foreach($vlaidatedData as $key=>$value)
+           {
+            // dd($value);
+            // dd($key);
+
+                if(isset($vlaidatedData[$key]))
+                {
+                     $employee->$key=$value;   
+                }
+           }
+           $employee->save();
+           return response()->json([
+            'status'=>'success',
+            'updated employee ' =>$employee
+           ],200);
+        }catch(ModelNotFoundException $e)
+        {
+                return response()->json([
+                    'status'=>'failed',
+                    'message'=>'employee not found']
+                    ,404);
+        }
+        
+        
+    }
+
+    public function destroy( $id)
+    {
+        try{
+            $employee = Employee::findOrFail($id);
+            $employee->delete();
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Account Deleted done'
+            ],200);
+        }catch (ModelNotFoundException $e)
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'Empolyee not found'
+            ],404);
+        }
+    }
 }

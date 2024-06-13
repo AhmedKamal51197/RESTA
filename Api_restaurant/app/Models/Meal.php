@@ -17,5 +17,9 @@ class Meal extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function extras()
+    {
+        return $this->belongsToMany(Extra::class,'meal_extra');
+    }
 }
 

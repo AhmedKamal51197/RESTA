@@ -32,8 +32,8 @@
                <td bgcolor="#426899" align="center" style="padding: 0px 10px 0px 10px;">
                    <table border="0" cellpadding="0" cellspacing="0" width="480" >
                        <tr>
-                           <td bgcolor="#ffffff" align="left" valign="top" style="padding: 30px 30px 20px 30px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; line-height: 48px;">
-                               <h1 style="font-size: 32px; font-weight: 400; margin: 0;">E-Mail von Company</h1>
+                           <td bgcolor="#ffffff" align="center" valign="top" style="padding: 30px 30px 20px 30px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; line-height: 48px;">
+                               <h1 style="font-size: 32px; font-weight: 400; margin: auto;">RESTA </h1>
                            </td>
                        </tr>
                    </table>
@@ -47,21 +47,12 @@
                                <table width="100%" border="0" cellspacing="0" cellpadding="0">
                  <tr>
                    <td colspan="2" style="padding-left:30px;padding-right:15px;padding-bottom:10px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 25px;">
-                     <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+                     <p>Thanks for you registration we happy for you please click the button bellow to verify your account and happy with your meal</p>
                    </td>
                  </tr>
-                                   <tr>
-                                       <th align="left" valign="top" style="padding-left:30px;padding-right:15px;padding-bottom:10px; font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">E-Mail</th>
-                                       <td align="left" valign="top" style="padding-left:15px;padding-right:30px;padding-bottom:10px;font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">test@testemail.de</td>
-                                   </tr>
-                 <tr>
-                                       <th align="left" valign="top" style="padding-left:30px;padding-right:15px;padding-bottom:10px; font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">Name</th>
-                                       <td align="left" valign="top" style="padding-left:15px;padding-right:30px;padding-bottom:10px;font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">Max Mustermann</td>
-                                   </tr>
-                 <tr>
-                                       <th align="left" valign="top" style="padding-left:30px;padding-right:15px;padding-bottom:30px; font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">Feld</th>
-                                       <td align="left" valign="top" style="padding-left:15px;padding-right:30px;padding-bottom:30px;font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">Feld-Inhalt</td>
-                                   </tr>
+                                   
+                 
+                 
                                </table>
                            </td>
                        </tr>
@@ -85,15 +76,7 @@
                    </table>
                </td>
            </tr>
-           <tr>
-               <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;"> <table border="0" cellpadding="0" cellspacing="0" width="480">
-                   <tr>
-                       <td bgcolor="#f4f4f4" align="left" style="padding: 30px 30px 30px 30px; color: #666666; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 18px;" >
-                           <p style="margin: 0;">Diese E-Mail kommt von "<a href="https://company.de" target="_blank" style="color: #111111; font-weight: 700;">company.de<a>".</p>
-                       </td>
-                   </tr>
-               </td>
-           </tr>
+           
        </table>
    
    </body>
