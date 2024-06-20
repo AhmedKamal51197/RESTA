@@ -10,6 +10,7 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::post('admin/extras', [ExtraController::class, 'store']);
     Route::put('admin/extras/{id}', [ExtraController::class, 'update']);
     Route::delete('admin/extras/{id}', [ExtraController::class, 'destroy']);
+    Route::post('admin/meals/{meal_id}/extras/{extra_id}',[ExtraController::class,'storeExtraMeals']);
 });
 
 Route::post('meals/{id}/extras',[ExtraController::class,'getExtraById']);

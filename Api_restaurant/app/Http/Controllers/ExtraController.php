@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Extra;
 use App\Models\Meal;
+use App\Models\Meal_extra;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Symfony\Component\EventDispatcher\DependencyInjection\ExtractingEventDispatcher;
@@ -148,6 +149,27 @@ class ExtraController extends Controller
         }
     }
 
+
+    // store extra that related to specific meal
+    public function storeExtraMeals($extra_id ,$meal_id )  {
+        $meal = Meal::find($meal_id);
+        $extra = Extra::find($extra_id);
+        if(!$meal) return response()->json([
+            'status'=>'failed',
+            'message'=>'No meal found with that ID '],404);
+        if(!$extra) return response()->json([
+            'status'=>'failed',
+            'message'=>'No extra found with that ID'
+        ],404);
+        $meal_extra = Meal_extra::create([
+            'meal_id'=>$meal_id,
+            'extra_id'=>$extra_id
+        ]);
+        return response()->json([
+            'status'=>'success',
+            'message'=>"Added $extra->name for $meal->name successfully"
+        ,$meal_extra],200);
+    } 
 
     
 }
