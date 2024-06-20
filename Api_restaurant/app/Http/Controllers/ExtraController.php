@@ -151,24 +151,47 @@ class ExtraController extends Controller
 
 
     // store extra that related to specific meal
-    public function storeExtraMeals($extra_id ,$meal_id )  {
+    public function storeExtraMeals(Request $request ,$meal_id )  {
+        $request->validate([
+            'extra_ids' => 'required|array',
+            'extra_ids.*' => 'integer' // Ensure each ID is an integer
+        ]);
+        $extra_ids = $request->query('extra_ids');
+        $extra_ids=array_map('intval',$extra_ids);
+        //dd($request->query('extra_ids'));// to catch array from request->query
+        //dd($extra_ids[0]);
         $meal = Meal::find($meal_id);
-        $extra = Extra::find($extra_id);
+
         if(!$meal) return response()->json([
             'status'=>'failed',
             'message'=>'No meal found with that ID '],404);
-        if(!$extra) return response()->json([
-            'status'=>'failed',
-            'message'=>'No extra found with that ID'
-        ],404);
-        $meal_extra = Meal_extra::create([
-            'meal_id'=>$meal_id,
-            'extra_id'=>$extra_id
-        ]);
+        foreach($extra_ids as $extra_id)
+        {
+            // intval($extra_id);
+              //dd(intval($extra_id));
+            $extra = Extra::find($extra_id);
+            if(!$extra) return response()->json([
+                'status'=>'failed',
+                'message'=>"No extra found with that ID : $extra_id"
+            ],404);
+
+        }
+        
+        foreach($extra_ids as $extra_id)
+        {
+            
+            $extra = Extra::find($extra_id);
+
+            $meal_extra = Meal_extra::updateOrcreate([
+                'meal_id'=>$meal_id,
+                'extra_id'=>$extra_id
+            ]);
+        }
+
         return response()->json([
             'status'=>'success',
-            'message'=>"Added $extra->name for $meal->name successfully"
-        ,$meal_extra],200);
+            'message'=>"Added extras for $meal->name successfully"
+        ],200);
     } 
 
     
