@@ -19,7 +19,7 @@ class Meal extends Model
     }
     public function extras()
     {
-        return $this->belongsToMany(Extra::class,'meal_extra');
+        return $this->belongsToMany(Extra::class,'meal_extras');
     }
 }
 

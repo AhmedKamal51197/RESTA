@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Extra extends Model
 {
-    protected $fillable=['name','cost'];
+    protected $fillable = ['name', 'cost'];
 
 
     public function meals()
     {
-        $this->belongsToMany(Extra::class,'meal_extra');
+        $this->belongsToMany(Extra::class, 'meal_extras');
     }
     use HasFactory;
 }

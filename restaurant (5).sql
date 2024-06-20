@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jun 10, 2024 at 10:46 PM
+-- Generation Time: Jun 20, 2024 at 01:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -97,8 +97,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_verified_at`, `status`, `created_at`, `updated_at`) VALUES
-(8, 'aahmed', 'ahmed@gmail.com', '01066056996125', '$2y$10$8CNqzAd0J7o/dwv4dGx8meW1GhHizi4hYWd6gflMbvlK7VrTE5/EW', NULL, 0, '2024-06-04 15:26:32', '2024-06-04 15:26:32'),
-(9, 'aahmed', 'ahmed@gmail.com', '01066056996125', '$2y$10$7.QR22xM1oC8lpAV5923veAWP21hwZrskelqXUdmd/EsAvVJmYp1u', NULL, 0, '2024-06-04 15:31:22', '2024-06-04 15:31:22'),
+(8, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$vja59NgShDmQk07zbd6My.b5YGvQ/TKHBDPmrTV6PFvKKoIof9lS6', NULL, 1, '2024-06-04 15:26:32', '2024-06-13 12:35:39'),
 (10, 'aahmed', 'sonbaty1937@gmail.com', '01066056996125', '$2y$10$55eWKYgsveJHBUZeoqWlyekVf7Zf7M0GMg38mwHPIXsNHeqS3wyNK', NULL, 0, '2024-06-04 15:31:48', '2024-06-04 15:31:48'),
 (11, 'aahmed', 'sonbaty193s7@gmail.com', '01066056996125', '$2y$10$8BC3GLpdh81mXOVLCgfTae6vZRYsyANGAsOk2iZ1yDhbggbXIWnIq', NULL, 0, '2024-06-04 15:46:26', '2024-06-04 15:46:26'),
 (12, 'aahmed', 'sonbaty193ds7@gmail.com', '01066056996125', '$2y$10$LARlU4WkG0fjJNGrCs/9eepg8nyBWWrp1x5MAGRoPFBglriPkrfse', NULL, 0, '2024-06-04 15:47:29', '2024-06-04 15:47:29'),
@@ -185,7 +184,7 @@ INSERT INTO `email_verification_tokens` (`id`, `email`, `token`, `expired_at`, `
 (27, 'e850f489a3@emailcbox.pro', '05c735aa-2add-4103-86e5-805cb9566496', '2024-06-07 13:45:41', '2024-06-07 12:45:41', '2024-06-07 12:45:41'),
 (29, 'asamtabrahym870@gmail.com', '3f592979-56de-49d1-b619-5551dde6b890', '2024-06-08 11:35:07', '2024-06-08 10:35:07', '2024-06-08 10:35:07'),
 (39, 'mostafaesam300@gmail.com', '576de3df-8ba2-4598-9e8d-10747ff483f4', '2024-06-08 13:29:41', '2024-06-08 12:29:41', '2024-06-08 12:29:41'),
-(53, 'eng.ahmedkamal357@gmail.com', '3f3f7586-15f5-4635-aa9d-d1fd42872170', '2024-06-10 16:34:57', '2024-06-10 15:34:57', '2024-06-10 15:34:57');
+(55, 'eng.ahmedkamal357@gmail.com', '59d11e20-e198-4976-973e-2d12bef5818b', '2024-06-13 13:28:48', '2024-06-13 12:28:48', '2024-06-13 12:28:48');
 
 -- --------------------------------------------------------
 
@@ -202,8 +201,8 @@ CREATE TABLE `employees` (
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `identity_card` int(11) NOT NULL,
-  `status` tinyint(1) DEFAULT NULL COMMENT 'true = active  , false = inactive'
+  `identity_card` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT 1 COMMENT 'true = active  , false = inactive'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -211,7 +210,9 @@ CREATE TABLE `employees` (
 --
 
 INSERT INTO `employees` (`id`, `name`, `is_admin`, `phone`, `email`, `password`, `created_at`, `updated_at`, `identity_card`, `status`) VALUES
-(1, 'hosam', 1, '01066056969', 'ahmed@gmail.com', '$2y$10$2WJkOKMdxs.nLhKNfkCmBucbsSwX1gFXRvbwMC7wcCnhBWB/9Kiwa', NULL, NULL, 0, NULL);
+(1, 'hosam', 1, '01066056969', 'ahmed@gmail.com', '$2y$10$2WJkOKMdxs.nLhKNfkCmBucbsSwX1gFXRvbwMC7wcCnhBWB/9Kiwa', NULL, NULL, '22152554', 1),
+(7, 'tarek', 1, '01021122115', 'tarek@gmail.com', '$2y$10$1PZ0R/Kh3hBOFy7iFVqpYuI7bBmnICu7rxkPNlk368zMKyXNa75.K', '2024-06-11 02:50:08', '2024-06-11 05:48:05', '12451548', 1),
+(9, 'Ahmed Kamal', 0, '01021122115', 'ahmed.ka51197@gmail.com', '$2y$10$LEVSUBnxgFjWZCzgVkZ.z.tzGd8sC2OVhla5JZbqe1s2yBqemMneO', '2024-06-13 08:55:40', '2024-06-13 09:21:06', '12451559', 1);
 
 -- --------------------------------------------------------
 
@@ -222,10 +223,23 @@ INSERT INTO `employees` (`id`, `name`, `is_admin`, `phone`, `email`, `password`,
 CREATE TABLE `extras` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
   `cost` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `extras`
+--
+
+INSERT INTO `extras` (`id`, `name`, `status`, `cost`, `created_at`, `updated_at`) VALUES
+(1, 'Katchab', 0, 15, '2024-06-12 15:53:27', '2024-06-12 16:19:05'),
+(2, 'onion', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(3, 'Potato', 1, 55, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(4, 'Rice', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(5, 'Soap', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(6, 'Salt', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17');
 
 -- --------------------------------------------------------
 
@@ -261,17 +275,6 @@ INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `ca
 -- --------------------------------------------------------
 
 --
--- Table structure for table `meals_extras`
---
-
-CREATE TABLE `meals_extras` (
-  `meal_id` bigint(20) UNSIGNED NOT NULL,
-  `extra_id` bigint(20) UNSIGNED NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `meals_size_cost`
 --
 
@@ -294,6 +297,30 @@ INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `Number_of_piece
 (4, 1, 2, 60, NULL),
 (5, 1, 4, 150, NULL),
 (6, 1, 3, 105, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `meal_extras`
+--
+
+CREATE TABLE `meal_extras` (
+  `meal_id` bigint(20) UNSIGNED NOT NULL,
+  `extra_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `meal_extras`
+--
+
+INSERT INTO `meal_extras` (`meal_id`, `extra_id`, `created_at`, `updated_at`) VALUES
+(1, 1, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
+(1, 3, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
+(1, 4, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
+(1, 5, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
+(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03');
 
 -- --------------------------------------------------------
 
@@ -447,7 +474,7 @@ CREATE TABLE `reset_password_tokens` (
 --
 
 INSERT INTO `reset_password_tokens` (`id`, `email`, `token`, `expired_at`, `created_at`, `updated_at`) VALUES
-(8, 'eng.ahmedkamal357@gmail.com', 'd2c606fd-516f-434b-a032-891dd803fd33', '2024-06-09 18:28:51', '2024-06-09 17:28:51', '2024-06-09 17:28:51');
+(20, 'eng.ahmedkamal357@gmail.com', 'bb4eb670-d06c-40ea-83df-fdcb955a187d', '2024-06-13 13:25:22', '2024-06-13 12:25:22', '2024-06-13 12:25:22');
 
 -- --------------------------------------------------------
 
@@ -522,18 +549,18 @@ ALTER TABLE `meals`
   ADD KEY `meals_category_id_foreign` (`category_id`);
 
 --
--- Indexes for table `meals_extras`
---
-ALTER TABLE `meals_extras`
-  ADD PRIMARY KEY (`meal_id`,`extra_id`),
-  ADD KEY `extra_id` (`extra_id`);
-
---
 -- Indexes for table `meals_size_cost`
 --
 ALTER TABLE `meals_size_cost`
   ADD PRIMARY KEY (`id`),
   ADD KEY `meal_id` (`meal_id`);
+
+--
+-- Indexes for table `meal_extras`
+--
+ALTER TABLE `meal_extras`
+  ADD PRIMARY KEY (`meal_id`,`extra_id`),
+  ADD KEY `extra_id` (`extra_id`);
 
 --
 -- Indexes for table `meal_with_addons`
@@ -619,7 +646,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `diningtables`
@@ -631,13 +658,19 @@ ALTER TABLE `diningtables`
 -- AUTO_INCREMENT for table `email_verification_tokens`
 --
 ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `employees`
 --
 ALTER TABLE `employees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `extras`
+--
+ALTER TABLE `extras`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `meals`
@@ -673,7 +706,7 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `reset_password_tokens`
 --
 ALTER TABLE `reset_password_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Constraints for dumped tables
@@ -686,17 +719,17 @@ ALTER TABLE `meals`
   ADD CONSTRAINT `meals_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `meals_extras`
---
-ALTER TABLE `meals_extras`
-  ADD CONSTRAINT `meals_extras_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `meals_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Constraints for table `meals_size_cost`
 --
 ALTER TABLE `meals_size_cost`
   ADD CONSTRAINT `meals_size_cost_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `meal_extras`
+--
+ALTER TABLE `meal_extras`
+  ADD CONSTRAINT `meal_extras_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `meal_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `meal_with_addons`
