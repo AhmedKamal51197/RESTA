@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 
 
 
@@ -34,6 +35,20 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
     {
         return $this->getKey();
     }
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
 
 
     public function getJWTCustomClaims()
@@ -41,5 +56,10 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
         return [];
     }
 
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
     use HasFactory;
 }

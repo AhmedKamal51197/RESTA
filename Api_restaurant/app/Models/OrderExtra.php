@@ -6,23 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class OrderAddon extends Model
+class OrderExtra extends Model
 {
-    protected $table='order_addons';
-    protected $fillable=[
+
+    protected $table = 'order_extras';
+    protected $fillable = [
+        'id',
         'order_id',
-        'addon_id',
+        'extra_id',
         'quantity',
         'total_cost'
     ];
-
     public function order()
     {
         return $this->belongsTo(Order::class);
     }
-    public function addon()
+    public function extra()
     {
-        return $this->belongsTo(Addon::class);
+        return $this->belongsTo(Extra::class);
     }
     protected $casts = [
         'created_at' => 'datetime',

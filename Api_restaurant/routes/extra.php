@@ -13,4 +13,4 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::post('admin/meals/{meal_id}/extras',[ExtraController::class,'storeExtraMeals']);
 });
 
-Route::post('meals/{id}/extras',[ExtraController::class,'getExtraById']);
+Route::get('meals/{id}/extras',[ExtraController::class,'getExtraById']);
