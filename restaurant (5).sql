@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Generation Time: Jun 20, 2024 at 01:30 PM
+-- Generation Time: Jun 22, 2024 at 05:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -97,7 +97,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_verified_at`, `status`, `created_at`, `updated_at`) VALUES
-(8, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$vja59NgShDmQk07zbd6My.b5YGvQ/TKHBDPmrTV6PFvKKoIof9lS6', NULL, 1, '2024-06-04 15:26:32', '2024-06-13 12:35:39'),
+(8, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$vja59NgShDmQk07zbd6My.b5YGvQ/TKHBDPmrTV6PFvKKoIof9lS6', '2024-06-22 14:27:44', 1, '2024-06-04 15:26:32', '2024-06-13 12:35:39'),
 (10, 'aahmed', 'sonbaty1937@gmail.com', '01066056996125', '$2y$10$55eWKYgsveJHBUZeoqWlyekVf7Zf7M0GMg38mwHPIXsNHeqS3wyNK', NULL, 0, '2024-06-04 15:31:48', '2024-06-04 15:31:48'),
 (11, 'aahmed', 'sonbaty193s7@gmail.com', '01066056996125', '$2y$10$8BC3GLpdh81mXOVLCgfTae6vZRYsyANGAsOk2iZ1yDhbggbXIWnIq', NULL, 0, '2024-06-04 15:46:26', '2024-06-04 15:46:26'),
 (12, 'aahmed', 'sonbaty193ds7@gmail.com', '01066056996125', '$2y$10$LARlU4WkG0fjJNGrCs/9eepg8nyBWWrp1x5MAGRoPFBglriPkrfse', NULL, 0, '2024-06-04 15:47:29', '2024-06-04 15:47:29'),
@@ -139,6 +139,13 @@ CREATE TABLE `diningtables` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `diningtables`
+--
+
+INSERT INTO `diningtables` (`id`, `floor`, `size`, `num`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 3, 1, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -184,7 +191,7 @@ INSERT INTO `email_verification_tokens` (`id`, `email`, `token`, `expired_at`, `
 (27, 'e850f489a3@emailcbox.pro', '05c735aa-2add-4103-86e5-805cb9566496', '2024-06-07 13:45:41', '2024-06-07 12:45:41', '2024-06-07 12:45:41'),
 (29, 'asamtabrahym870@gmail.com', '3f592979-56de-49d1-b619-5551dde6b890', '2024-06-08 11:35:07', '2024-06-08 10:35:07', '2024-06-08 10:35:07'),
 (39, 'mostafaesam300@gmail.com', '576de3df-8ba2-4598-9e8d-10747ff483f4', '2024-06-08 13:29:41', '2024-06-08 12:29:41', '2024-06-08 12:29:41'),
-(55, 'eng.ahmedkamal357@gmail.com', '59d11e20-e198-4976-973e-2d12bef5818b', '2024-06-13 13:28:48', '2024-06-13 12:28:48', '2024-06-13 12:28:48');
+(56, 'eng.ahmedkamal357@gmail.com', 'e2b48cd4-d5c1-421d-a0a0-fe6fdba5bda2', '2024-06-22 12:26:52', '2024-06-22 11:26:52', '2024-06-22 11:26:52');
 
 -- --------------------------------------------------------
 
@@ -320,7 +327,13 @@ INSERT INTO `meal_extras` (`meal_id`, `extra_id`, `created_at`, `updated_at`) VA
 (1, 3, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
 (1, 4, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
 (1, 5, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03');
+(2, 1, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
+(2, 2, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
+(2, 3, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
+(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03'),
+(8, 1, '2024-06-20 19:42:34', '2024-06-20 19:42:34'),
+(8, 2, '2024-06-20 19:42:34', '2024-06-20 19:42:34'),
+(8, 3, '2024-06-20 19:42:34', '2024-06-20 19:42:34');
 
 -- --------------------------------------------------------
 
@@ -386,11 +399,18 @@ CREATE TABLE `orders` (
   `total_cost` double NOT NULL,
   `customer_id` bigint(20) UNSIGNED NOT NULL,
   `DiningTable_id` bigint(20) UNSIGNED NOT NULL,
-  `status` int(11) NOT NULL COMMENT '1 => processing 2=>out of delivery,3=>done',
+  `status` int(11) NOT NULL COMMENT '1 => processing 2=>out of delivery,3=>done\r\n4=>canceled\r\n',
   `notes` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `total_cost`, `customer_id`, `DiningTable_id`, `status`, `notes`, `created_at`, `updated_at`) VALUES
+(3, 120, 12, 1, 1, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -399,13 +419,21 @@ CREATE TABLE `orders` (
 --
 
 CREATE TABLE `order_addons` (
-  `order_id` bigint(20) UNSIGNED NOT NULL,
-  `addon_id` bigint(20) UNSIGNED NOT NULL,
-  `quantity` int(11) NOT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `order_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `addon_id` bigint(20) UNSIGNED DEFAULT NULL,
   `total_cost` double NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `quantity` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_addons`
+--
+
+INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantity`, `created_at`, `updated_at`) VALUES
+(1, 3, 2, 50, 10, '2024-06-21 17:27:40', '2024-06-21 17:27:40');
 
 -- --------------------------------------------------------
 
@@ -414,10 +442,36 @@ CREATE TABLE `order_addons` (
 --
 
 CREATE TABLE `order_extras` (
+  `id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
-  `extra_id` bigint(20) UNSIGNED NOT NULL,
+  `extra_id` bigint(20) UNSIGNED DEFAULT NULL,
   `qunatity` int(11) NOT NULL,
-  `total_cost` double NOT NULL
+  `total_cost` double NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_extras`
+--
+
+INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `qunatity`, `total_cost`, `created_at`, `updated_at`) VALUES
+(1, 3, 3, 15, 50, '2024-06-21 17:28:03', '2024-06-21 17:28:03');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_locations`
+--
+
+CREATE TABLE `order_locations` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `customer_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `street` varchar(255) NOT NULL,
+  `building` varchar(255) NOT NULL,
+  `area` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -427,12 +481,13 @@ CREATE TABLE `order_extras` (
 --
 
 CREATE TABLE `order_meals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `meal_id` bigint(20) UNSIGNED NOT NULL,
   `qunatity` int(11) NOT NULL,
   `total_cost` double NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -587,22 +642,32 @@ ALTER TABLE `orders`
 -- Indexes for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  ADD PRIMARY KEY (`order_id`,`addon_id`),
-  ADD KEY `order_addons_addon_id_foreign` (`addon_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `addon_id` (`addon_id`),
+  ADD KEY `order_id` (`order_id`);
 
 --
 -- Indexes for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  ADD PRIMARY KEY (`extra_id`,`order_id`),
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `extra_id` (`extra_id`),
   ADD KEY `order_id` (`order_id`);
+
+--
+-- Indexes for table `order_locations`
+--
+ALTER TABLE `order_locations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `customer_id` (`customer_id`);
 
 --
 -- Indexes for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  ADD PRIMARY KEY (`meal_id`,`order_id`),
-  ADD KEY `order_meals_order_id_foreign` (`order_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_meals_order_id_foreign` (`order_id`),
+  ADD KEY `meal_id` (`meal_id`);
 
 --
 -- Indexes for table `personal_access_tokens`
@@ -652,13 +717,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `diningtables`
 --
 ALTER TABLE `diningtables`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `email_verification_tokens`
 --
 ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -694,7 +759,31 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `order_addons`
+--
+ALTER TABLE `order_addons`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `order_extras`
+--
+ALTER TABLE `order_extras`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `order_locations`
+--
+ALTER TABLE `order_locations`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `order_meals`
+--
+ALTER TABLE `order_meals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -749,20 +838,28 @@ ALTER TABLE `orders`
 -- Constraints for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  ADD CONSTRAINT `order_addons_addon_id_foreign` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_addons_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `order_addons_ibfk_1` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_addons_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  ADD CONSTRAINT `order_extras_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `order_extras_ibfk_1` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `order_extras_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `order_locations`
+--
+ALTER TABLE `order_locations`
+  ADD CONSTRAINT `order_locations_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order_meals`
 --
 ALTER TABLE `order_meals`
+  ADD CONSTRAINT `order_meals_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `order_meals_meal_id_foreign` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `order_meals_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
