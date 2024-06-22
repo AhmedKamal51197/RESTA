@@ -5,24 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-
-class OrderAddon extends Model
+class OrderLocation extends Model
 {
-    protected $table='order_addons';
-    protected $fillable=[
-        'order_id',
-        'addon_id',
-        'quantity',
-        'total_cost'
-    ];
 
-    public function order()
+    protected $table = 'order_locations';
+    protected $fillable =[
+        'id',
+        'customer_id',
+        'street',
+        'building',
+        'area'
+    ] ;
+    public function customer()
     {
-        return $this->belongsTo(Order::class);
-    }
-    public function addon()
-    {
-        return $this->belongsTo(Addon::class);
+        return $this->belongsTo(Customer::class);
     }
     protected $casts = [
         'created_at' => 'datetime',
