@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: Jun 22, 2024 at 05:02 PM
+-- Host: 127.0.0.1
+-- Generation Time: Jun 23, 2024 at 12:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `restaurant`
+-- Database: `test_project`
 --
 
 -- --------------------------------------------------------
@@ -44,7 +44,7 @@ CREATE TABLE `addons` (
 
 INSERT INTO `addons` (`id`, `name`, `cost`, `description`, `image`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'onoin', 20, 'aya 7aga', 'aaaa', 0, NULL, NULL),
-(2, 'bate5', 24, 'aaaaa', '', 0, '2024-06-10 20:34:00', '2024-06-10 20:34:00');
+(2, 'bate5', 24, 'aaaaa', '', 1, '2024-06-10 20:34:00', '2024-06-10 20:34:00');
 
 -- --------------------------------------------------------
 
@@ -257,7 +257,7 @@ INSERT INTO `extras` (`id`, `name`, `status`, `cost`, `created_at`, `updated_at`
 CREATE TABLE `meals` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `type` enum('vegetarian','non-vegetarian') NOT NULL,
+  `type` enum('vegetarian','non-vegetarian') NOT NULL DEFAULT 'vegetarian',
   `description` text NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT 'true = active , flase = inactive',
   `image` varchar(255) NOT NULL,
@@ -271,13 +271,27 @@ CREATE TABLE `meals` (
 --
 
 INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `category_id`, `created_at`, `updated_at`) VALUES
-(1, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/eVToMJzFOxM1OQ7HDcKLj4j9SyMNBL41pnZiN6ZT.jpeg', 4, '2024-06-06 12:32:19', '2024-06-06 12:32:19'),
+(1, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/eVToMJzFOxM1OQ7HDcKLj4j9SyMNBL41pnZiN6ZT.jpeg', 4, '2024-06-06 12:32:19', '2024-06-06 12:32:19'),
 (2, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/tTfRRzaooH5dqfISNz51DIA9grPPQTQDfbbVf5k7.jpeg', 4, '2024-06-06 12:32:52', '2024-06-06 12:32:52'),
-(4, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/Oxue8UHDFZdGhubJFDsOnl8fkMjTdDuAhy4Xxtwq.jpeg', 5, '2024-06-06 12:34:30', '2024-06-06 12:34:30'),
-(5, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/aXeozt7XyFqmlEQftqOXJYq2kxFhupnNeo932eIv.jpeg', 5, '2024-06-06 12:34:56', '2024-06-06 12:34:56'),
+(4, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/Oxue8UHDFZdGhubJFDsOnl8fkMjTdDuAhy4Xxtwq.jpeg', 5, '2024-06-06 12:34:30', '2024-06-06 12:34:30'),
+(5, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/aXeozt7XyFqmlEQftqOXJYq2kxFhupnNeo932eIv.jpeg', 5, '2024-06-06 12:34:56', '2024-06-06 12:34:56'),
 (6, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/cg7NOQEZyXs2wLf7jq4hKaGh6kPwzEiwyDPHe3OS.jpg', 5, '2024-06-06 12:35:10', '2024-06-06 12:35:10'),
 (7, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/WZUpISt5auZWittm0MHCiSZ19RiCbUqbqcj2pr5x.jpeg', 1, '2024-06-06 12:36:40', '2024-06-06 12:36:40'),
-(8, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/w1jlJGgUNxslJO8iA6XDOvFXQHJZSbVtqTMRy3Ue.jpeg', 1, '2024-06-06 12:37:06', '2024-06-06 12:37:06');
+(8, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/w1jlJGgUNxslJO8iA6XDOvFXQHJZSbVtqTMRy3Ue.jpeg', 1, '2024-06-06 12:37:06', '2024-06-06 12:37:06'),
+(9, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/ubkk5cQ0qcaDRAsezZNZoHW1nSeSF5DSg8J4PUPN.png', 1, '2024-06-22 20:49:08', '2024-06-22 20:49:08'),
+(10, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/HoBPSP8foIDISPJebnPs69unx012Eni1RfaJ2iOC.png', 1, '2024-06-22 20:51:31', '2024-06-22 20:51:31'),
+(11, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/1NQOv0oec5vDA1dZm7nva0A9AW3RCExgt3JtMDIB.png', 1, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
+(12, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/bBEdrx0W0OhbEkcUs5tXGFbVlosAMmmdPrDRlahi.png', 1, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
+(13, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/EpWDC8YuJQZK6l0B4cF2wod0fl0KETNRhASATh9Q.png', 1, '2024-06-22 20:55:44', '2024-06-22 20:55:44'),
+(14, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/xdFZUbhrxWmS5SAR3wNSAB2yMzHI4wNFUMyPbLtm.png', 1, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
+(15, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/CmCELnszdIPpvkF8cEcLBIhHCrL0yuz9Nn3OmaBe.png', 1, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
+(16, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/tkRCATn24MAUmmG6z7Mz6GL5J8k0rLRtrXNPIXDt.png', 1, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
+(17, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/CY5Uzm5pG7iH2kksKhE9ZWFIk2z3hqfuTlc5SgH1.png', 1, '2024-06-22 21:02:27', '2024-06-22 21:02:27'),
+(18, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/XSY2L8e4UpauqeAP0AwOspK4gVMQBYMqWCC9fdlc.png', 1, '2024-06-22 21:02:29', '2024-06-22 21:02:29'),
+(19, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/iWsdMG8XiwamZP8gOj2rdT1XZ072NcoMjlfiB7gM.png', 1, '2024-06-22 21:02:43', '2024-06-22 21:02:43'),
+(20, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/Sw17cfdL0t4cIvtmivWwzOJlWGNWZIZU2uUyuhu9.png', 1, '2024-06-22 21:03:04', '2024-06-22 21:03:04'),
+(21, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/AoR5Cz5ZBwfeGhCjLGuOQ8KdCq3uCYhzxpHd1uPV.png', 1, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
+(22, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/XUwID1doQ5NIkeDKS8C2T6AsB0w6IsQR1Pg6l9l3.png', 1, '2024-06-22 21:05:23', '2024-06-22 21:05:23');
 
 -- --------------------------------------------------------
 
@@ -287,23 +301,39 @@ INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `ca
 
 CREATE TABLE `meals_size_cost` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `meal_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `size` int(11) NOT NULL COMMENT '1=SMALL, 2=Medium, 3=BIG, 4=FAMILY',
+  `meal_id` bigint(20) UNSIGNED NOT NULL,
+  `size` int(11) DEFAULT NULL COMMENT '1=SMALL, 2=Medium, 3=BIG, 4=FAMILY',
   `cost` double NOT NULL,
-  `Number_of_pieces` int(11) DEFAULT NULL
+  `number_of_pieces` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `meals_size_cost`
 --
 
-INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `Number_of_pieces`) VALUES
-(1, 1, 3, 105, NULL),
-(2, 1, 1, 50, NULL),
-(3, 1, 3, 105, NULL),
-(4, 1, 2, 60, NULL),
-(5, 1, 4, 150, NULL),
-(6, 1, 3, 105, NULL);
+INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `number_of_pieces`, `created_at`, `updated_at`) VALUES
+(1, 1, 3, 105, 1, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
+(2, 1, 3, 105, 0, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
+(4, 1, 1, 60, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
+(5, 1, 4, 150, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
+(7, 11, 1, 120, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
+(8, 11, 2, 150, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
+(9, 12, 1, 120, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
+(10, 12, 2, 150, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
+(11, 14, 1, 120, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
+(12, 14, 2, 150, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
+(13, 15, 1, 120, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
+(14, 15, 2, 150, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
+(15, 15, 4, 80, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
+(16, 16, 1, 120, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
+(17, 16, 2, 150, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
+(18, 21, 1, 80, 4, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
+(19, 21, 2, 150, NULL, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
+(20, 22, NULL, 80, 4, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
+(21, 22, 1, 120, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
+(22, 22, 2, 150, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23');
 
 -- --------------------------------------------------------
 
@@ -608,6 +638,8 @@ ALTER TABLE `meals`
 --
 ALTER TABLE `meals_size_cost`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `id` (`id`),
+  ADD UNIQUE KEY `unique_index` (`meal_id`,`cost`,`size`,`number_of_pieces`),
   ADD KEY `meal_id` (`meal_id`);
 
 --
@@ -699,7 +731,7 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT for table `addons`
 --
 ALTER TABLE `addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -741,13 +773,13 @@ ALTER TABLE `extras`
 -- AUTO_INCREMENT for table `meals`
 --
 ALTER TABLE `meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `meals_size_cost`
 --
 ALTER TABLE `meals_size_cost`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `migrations`
