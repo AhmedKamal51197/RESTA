@@ -56,10 +56,16 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-
-            'meal_id' => ['integer'],
+            'customer_id'=>['required'],
+            'location_id'=>['integer'],
+            'diningtable_id'=>['integer'],
+            'meal_ids'=>['array'],
+            'meal_ids.*' => ['integer'],
             'meal_quantity' => ['required_with:meal_id', 'integer'],
             'meal_cost' => ['required_with:meal_id', 'numeric'],
+            'addon_ids'=>['array'],
+            'addon_ids.*'=>['integer'],
+            'addon_quantity'=>['required_with:']
 
         ]);
     }

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class Order extends Model
 {
     //status field => [1 => processing 2=>out of delivery,3=>done,4=>cancled]
-    protected $fillable = ['customer_id','DiningTable_id','total_cost','status','notes','created_at'];
+    protected $fillable = ['customer_id','location_id','DiningTable_id','total_cost','status','notes','created_at'];
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -48,6 +48,10 @@ class Order extends Model
         return $this->hasMany(OrderExtra::class);
     }
     
+    public function orderLocation()
+    {
+        return $this->belongsTo(OrderLocation::class);
+    }
     
     use HasFactory;
 }
