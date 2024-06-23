@@ -25,7 +25,7 @@ class Meal extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
     protected $fillable = [
-        'name', 'size', 'cost', 'description', 'type', 'category_id','image'
+        'name', 'description', 'type', 'category_id','image','status'
     ];
 
     public function category()
@@ -39,6 +39,19 @@ class Meal extends Model
     public function ordermeals()
     {
         return $this->hasMany(OrderMeal::class);
+    }
+
+    public function mealSizeCosts()
+    {
+        return $this->hasMany(MealsSizeCost::class);
+    }
+    public function MealWithAddon()
+    {
+        return $this->hasMany(MealWithAddon::class);
+    }
+    public function addons()
+    {
+        return $this->belongsToMany(Addon::class, 'meal_with_addons', 'meal_id', 'addon_id');
     }
 }
 
