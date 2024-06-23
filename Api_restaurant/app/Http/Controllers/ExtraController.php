@@ -18,17 +18,24 @@ class ExtraController extends Controller
     // get all extras for admin 
     public function index()
     {
-
-        $extras = Extra::all();
+        $perPage=12;
+        $extras = Extra::paginate($perPage);
         if ($extras->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'No extra exist'
             ], 404);
         }
+        $pagination = [
+            'total'=>$extras->total(),
+            'per_page'=>$extras->perPage(),
+            'current_page'=>$extras->currentPage(),
+            'last_page'=>$extras->lastPage()
+        ];
         return response()->json([
             'status' => 'success',
-            'data' => $extras
+            'data' => $extras->items(),
+            'pagination'=>$pagination
         ], 200);
     }
     // get specific extra by id for admin 

@@ -243,17 +243,25 @@ class CustomerController extends Controller
     // get all customers
     public function index()
     {
-        $customers = Customer::all();
+        $perPage=12;
+        $customers = Customer::paginate($perPage);
         if ($customers->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'No customers found'
             ], 404);
         }
+        $pagination = [
+            'total'=>$customers->total(),
+            'per_page'=>$customers->perPage(),
+            'curent_page'=>$customers->currentPage(),
+            'last_page'=>$customers->lastPage()
+        ];
         return response()->json([
             'status' => 'success',
-            'data' => $customers
-        ]);
+            'data' => $customers->items(),
+            'pagination'=>$pagination
+        ],200);
     }
     public function show($id)
     {
@@ -349,16 +357,24 @@ class CustomerController extends Controller
     // for dashboard 
     public function filterByName($name)
     {
-        $customer = Customer::where('name', $name)->get();
-        if ($customer->isEmpty()) {
+        $perPage=12;
+        $customers = Customer::where('name', $name)->paginate($perPage);
+        if ($customers->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => "No customers existing with name : $name"
             ], 400);
         }
+        $pagination = [
+            'total'=>$customers->total(),
+            'per_page'=>$customers->perPage(),
+            'current_page'=>$customers->currentPage(),
+            'last_page'=>$customers->lastPage()
+        ];
         return response()->json([
             'status' => 'success',
-            'data' => $customer
+            'data' => $customers->items(),
+            'pagination'=>$pagination
         ], 200);
     }
 }
