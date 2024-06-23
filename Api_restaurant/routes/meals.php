@@ -15,13 +15,14 @@ use  App\Http\Controllers\MealController;
 */
 
 Route::group(['middleware' => 'auth:admin-api'], function () {
-    Route::post('/meals', [MealController::class, 'addMeal']);
-    Route::put('/meals/{id}', [MealController::class, 'updateMeal']);
+    Route::post('/meals', [MealController::class, 'store']);
+    Route::put('/meals/{id}', [MealController::class, 'update']);
     Route::delete('/meals/{id}', [MealController::class, 'deleteMeal']);
+    Route::get('/meals/status/{status}',[MealController::class,'filterByStatus']);
 });
 
-Route::get('/meals', [MealController::class, 'getAllMeals']);
-Route::get('/meals/{id}', [MealController::class, 'getMealById']);
+Route::get('/meals', [MealController::class, 'index']);
+Route::get('/meals/{id}', [MealController::class, 'show']);
 Route::get('/categories/{categoryId}/meals', [MealController::class, 'filterByCategory']);
 Route::get('/meals/type/{type}', [MealController::class, 'filterByType']);
 

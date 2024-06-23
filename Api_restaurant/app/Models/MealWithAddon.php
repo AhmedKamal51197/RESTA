@@ -8,6 +8,12 @@ use Carbon\Carbon;
 
 class MealWithAddon extends Model
 {
+    protected $table = 'meal_with_addons';
+
+    protected $fillable = [
+        'meal_id', 'addon_id'
+    ];
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -23,4 +29,14 @@ class MealWithAddon extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
     use HasFactory;
+    
+    public function meal()
+    {
+        return $this->belongsTo(Meal::class, 'meal_id');
+    }
+
+    public function addon()
+    {
+        return $this->belongsTo(Addon::class, 'addon_id');
+    }
 }
