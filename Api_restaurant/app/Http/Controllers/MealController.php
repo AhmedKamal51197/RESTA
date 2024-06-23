@@ -58,7 +58,7 @@ class MealController extends Controller
                     ];
                 }
                 return null;
-            })->filter();
+            })->filter()->values();
     
             $extras = $meal->extras->map(function ($extra) {
                 if (Auth::guard('admin-api')->check() || $extra->status) {
@@ -77,6 +77,7 @@ class MealController extends Controller
                 'description' => $meal->description,
                 'image' => $meal->image,
                 'meal_size_costs' => $mealCosts,
+                'category_id' => $meal->category_id,
                 'addons' => $addons,
                 'extras' => $extras,
             ];
@@ -382,7 +383,7 @@ class MealController extends Controller
         $addons = $meal->MealWithAddon->map(function ($mealWithAddon) {
             $addon = $mealWithAddon->addon; // all addons
             
-            if (Auth::guard('admin-api')->check() || $addon->status === 'true') { 
+            if (Auth::guard('admin-api')->check() || $addon->status) { 
                 return [
                     'id' => $addon->id,
                     'name' => $addon->name,
@@ -393,7 +394,7 @@ class MealController extends Controller
             }
 
             return null;
-        })->filter();
+        })->filter()->values();
 
         $extras = $meal->extras->map(function ($extra) {
             if (Auth::guard('admin-api')->check() || $extra->status) {
