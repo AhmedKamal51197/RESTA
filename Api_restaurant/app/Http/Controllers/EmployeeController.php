@@ -118,8 +118,8 @@ class EmployeeController extends Controller
 
     public function index()
     {
- 
-        $employees = Employee::all();
+        $perPage=12;
+        $employees = Employee::paginate($perPage);
         if($employees->isEmpty())
         {
             return response()->json([
@@ -127,9 +127,16 @@ class EmployeeController extends Controller
                 'message'=>'No employees Found'
             ],404);    
         }
+        $pagination = [
+            'total'=>$employees->total(),
+            'per_page'=>$employees->perPage(),
+            'current_page'=>$employees->currentPage(),
+            'last_page'=>$employees->lastPage()
+        ];
         return response()->json([
             'status'=>'success',
-            'data'=>$employees
+            'data'=>$employees->items(),
+            'pagination'=>$pagination
         ],200);
     }
 
