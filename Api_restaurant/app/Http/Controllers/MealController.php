@@ -76,8 +76,9 @@ class MealController extends Controller
                 'name' => $meal->name,
                 'description' => $meal->description,
                 'image' => $meal->image,
-                'meal_size_costs' => $mealCosts,
+                'type' => $meal->type,
                 'category_id' => $meal->category_id,
+                'meal_size_costs' => $mealCosts,
                 'addons' => $addons,
                 'extras' => $extras,
             ];
