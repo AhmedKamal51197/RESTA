@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 23, 2024 at 12:54 PM
+-- Generation Time: Jun 26, 2024 at 01:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `test_project`
+-- Database: `restaurant`
 --
 
 -- --------------------------------------------------------
@@ -30,6 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `addons` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
+  `category_id` bigint(20) UNSIGNED DEFAULT NULL,
   `cost` double NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `image` varchar(255) NOT NULL,
@@ -42,9 +43,9 @@ CREATE TABLE `addons` (
 -- Dumping data for table `addons`
 --
 
-INSERT INTO `addons` (`id`, `name`, `cost`, `description`, `image`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'onoin', 20, 'aya 7aga', 'aaaa', 0, NULL, NULL),
-(2, 'bate5', 24, 'aaaaa', '', 1, '2024-06-10 20:34:00', '2024-06-10 20:34:00');
+INSERT INTO `addons` (`id`, `name`, `category_id`, `cost`, `description`, `image`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'onoin', NULL, 20, 'aya 7aga', 'aaaa', 0, NULL, NULL),
+(2, 'bate5', NULL, 24, 'aaaaa', '', 0, '2024-06-10 20:34:00', '2024-06-10 20:34:00');
 
 -- --------------------------------------------------------
 
@@ -97,7 +98,7 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_verified_at`, `status`, `created_at`, `updated_at`) VALUES
-(8, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$vja59NgShDmQk07zbd6My.b5YGvQ/TKHBDPmrTV6PFvKKoIof9lS6', '2024-06-22 14:27:44', 1, '2024-06-04 15:26:32', '2024-06-13 12:35:39'),
+(8, 'ali', 'eng.ahmedkamal357@gmail.com', '010554488545', '$2y$10$vja59NgShDmQk07zbd6My.b5YGvQ/TKHBDPmrTV6PFvKKoIof9lS6', NULL, 1, '2024-06-04 15:26:32', '2024-06-13 12:35:39'),
 (10, 'aahmed', 'sonbaty1937@gmail.com', '01066056996125', '$2y$10$55eWKYgsveJHBUZeoqWlyekVf7Zf7M0GMg38mwHPIXsNHeqS3wyNK', NULL, 0, '2024-06-04 15:31:48', '2024-06-04 15:31:48'),
 (11, 'aahmed', 'sonbaty193s7@gmail.com', '01066056996125', '$2y$10$8BC3GLpdh81mXOVLCgfTae6vZRYsyANGAsOk2iZ1yDhbggbXIWnIq', NULL, 0, '2024-06-04 15:46:26', '2024-06-04 15:46:26'),
 (12, 'aahmed', 'sonbaty193ds7@gmail.com', '01066056996125', '$2y$10$LARlU4WkG0fjJNGrCs/9eepg8nyBWWrp1x5MAGRoPFBglriPkrfse', NULL, 0, '2024-06-04 15:47:29', '2024-06-04 15:47:29'),
@@ -136,6 +137,7 @@ CREATE TABLE `diningtables` (
   `size` int(11) NOT NULL,
   `num` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'true = active , false = inactive',
+  `qr_code` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -144,8 +146,34 @@ CREATE TABLE `diningtables` (
 -- Dumping data for table `diningtables`
 --
 
-INSERT INTO `diningtables` (`id`, `floor`, `size`, `num`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 3, 1, 1, NULL, NULL);
+INSERT INTO `diningtables` (`id`, `floor`, `size`, `num`, `status`, `qr_code`, `created_at`, `updated_at`) VALUES
+(1, 2, 5, 1250, 1, NULL, '2024-06-23 19:41:41', '2024-06-23 19:41:41'),
+(2, 2, 5, 1251, 1, NULL, '2024-06-24 03:23:07', '2024-06-24 03:23:07'),
+(3, 2, 5, 1252, 1, NULL, '2024-06-24 03:34:01', '2024-06-24 03:34:01'),
+(4, 2, 5, 1253, 0, NULL, '2024-06-24 03:35:40', '2024-06-24 03:35:40'),
+(5, 2, 3, 1, 0, NULL, '2024-06-24 03:37:34', '2024-06-24 06:58:20'),
+(6, 2, 5, 1256, 0, NULL, '2024-06-24 03:43:47', '2024-06-24 03:43:47'),
+(7, 2, 5, 1257, 0, NULL, '2024-06-24 03:57:16', '2024-06-24 03:57:16'),
+(8, 2, 5, 1259, 0, NULL, '2024-06-24 04:40:41', '2024-06-24 04:40:41'),
+(9, 2, 5, 1260, 0, NULL, '2024-06-24 05:28:10', '2024-06-24 05:28:10'),
+(10, 2, 5, 1262, 0, NULL, '2024-06-24 06:15:11', '2024-06-24 06:15:11'),
+(11, 2, 5, 1263, 0, NULL, '2024-06-24 06:18:35', '2024-06-24 06:18:35'),
+(12, 2, 5, 1265, 0, NULL, '2024-06-24 06:24:38', '2024-06-24 06:24:38'),
+(13, 2, 5, 1266, 0, NULL, '2024-06-24 06:27:55', '2024-06-24 06:27:55'),
+(14, 2, 5, 1268, 0, NULL, '2024-06-24 06:39:12', '2024-06-24 06:39:12'),
+(15, 2, 5, 1270, 0, 'qr_codes/mPsGlvjAZZRRNAZ354L3FkloSXXn529lyKYuy7aH.png', '2024-06-24 06:40:42', '2024-06-24 06:40:42'),
+(16, 2, 5, 1271, 0, '88fe2d86e28450ed91768c6f9ef9106f', '2024-06-25 20:42:32', '2024-06-25 20:42:32'),
+(17, 2, 5, 1272, 0, '6b5b8181bd54df8888c1df982560459c', '2024-06-25 20:56:37', '2024-06-25 20:56:37'),
+(18, 2, 5, 1273, 0, NULL, '2024-06-25 21:43:09', '2024-06-25 21:43:09'),
+(19, 2, 5, 1274, 0, NULL, '2024-06-25 22:10:30', '2024-06-25 22:10:30'),
+(20, 2, 5, 1275, 0, NULL, '2024-06-25 22:13:08', '2024-06-25 22:13:08'),
+(21, 2, 5, 1276, 0, NULL, '2024-06-25 22:19:53', '2024-06-25 22:19:53'),
+(22, 2, 5, 1277, 0, NULL, '2024-06-25 22:47:37', '2024-06-25 22:47:37'),
+(23, 2, 5, 1278, 0, NULL, '2024-06-25 22:59:08', '2024-06-25 22:59:08'),
+(24, 2, 5, 1280, 0, NULL, '2024-06-25 23:00:22', '2024-06-25 23:00:22'),
+(25, 2, 5, 1281, 0, 'storage/qr_codes/qrcode_25_1719367249.png', '2024-06-25 23:00:49', '2024-06-25 23:00:49'),
+(26, 2, 5, 1282, 0, 'storage/qr_codes/qrcode_26_1719399209.png', '2024-06-26 07:53:26', '2024-06-26 07:53:30'),
+(27, 2, 5, 1283, 0, 'storage/qr_codes/qrcode_27_1719399317.png', '2024-06-26 07:55:17', '2024-06-26 07:55:17');
 
 -- --------------------------------------------------------
 
@@ -191,7 +219,7 @@ INSERT INTO `email_verification_tokens` (`id`, `email`, `token`, `expired_at`, `
 (27, 'e850f489a3@emailcbox.pro', '05c735aa-2add-4103-86e5-805cb9566496', '2024-06-07 13:45:41', '2024-06-07 12:45:41', '2024-06-07 12:45:41'),
 (29, 'asamtabrahym870@gmail.com', '3f592979-56de-49d1-b619-5551dde6b890', '2024-06-08 11:35:07', '2024-06-08 10:35:07', '2024-06-08 10:35:07'),
 (39, 'mostafaesam300@gmail.com', '576de3df-8ba2-4598-9e8d-10747ff483f4', '2024-06-08 13:29:41', '2024-06-08 12:29:41', '2024-06-08 12:29:41'),
-(56, 'eng.ahmedkamal357@gmail.com', 'e2b48cd4-d5c1-421d-a0a0-fe6fdba5bda2', '2024-06-22 12:26:52', '2024-06-22 11:26:52', '2024-06-22 11:26:52');
+(55, 'eng.ahmedkamal357@gmail.com', '59d11e20-e198-4976-973e-2d12bef5818b', '2024-06-13 13:28:48', '2024-06-13 12:28:48', '2024-06-13 12:28:48');
 
 -- --------------------------------------------------------
 
@@ -230,6 +258,9 @@ INSERT INTO `employees` (`id`, `name`, `is_admin`, `phone`, `email`, `password`,
 CREATE TABLE `extras` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
+  `category_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1,
   `cost` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -240,13 +271,13 @@ CREATE TABLE `extras` (
 -- Dumping data for table `extras`
 --
 
-INSERT INTO `extras` (`id`, `name`, `status`, `cost`, `created_at`, `updated_at`) VALUES
-(1, 'Katchab', 0, 15, '2024-06-12 15:53:27', '2024-06-12 16:19:05'),
-(2, 'onion', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(3, 'Potato', 1, 55, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(4, 'Rice', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(5, 'Soap', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(6, 'Salt', 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17');
+INSERT INTO `extras` (`id`, `name`, `category_id`, `description`, `image`, `status`, `cost`, `created_at`, `updated_at`) VALUES
+(1, 'Katchab', NULL, NULL, NULL, 0, 15, '2024-06-12 15:53:27', '2024-06-12 16:19:05'),
+(2, 'onion', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(3, 'Potato', NULL, NULL, NULL, 1, 55, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(4, 'Rice', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(5, 'Soap', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
+(6, 'Salt', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17');
 
 -- --------------------------------------------------------
 
@@ -257,7 +288,7 @@ INSERT INTO `extras` (`id`, `name`, `status`, `cost`, `created_at`, `updated_at`
 CREATE TABLE `meals` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `type` enum('vegetarian','non-vegetarian') NOT NULL DEFAULT 'vegetarian',
+  `type` enum('vegetarian','non-vegetarian') NOT NULL,
   `description` text NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT 'true = active , flase = inactive',
   `image` varchar(255) NOT NULL,
@@ -271,27 +302,13 @@ CREATE TABLE `meals` (
 --
 
 INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `category_id`, `created_at`, `updated_at`) VALUES
-(1, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/eVToMJzFOxM1OQ7HDcKLj4j9SyMNBL41pnZiN6ZT.jpeg', 4, '2024-06-06 12:32:19', '2024-06-06 12:32:19'),
+(1, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/eVToMJzFOxM1OQ7HDcKLj4j9SyMNBL41pnZiN6ZT.jpeg', 4, '2024-06-06 12:32:19', '2024-06-06 12:32:19'),
 (2, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/tTfRRzaooH5dqfISNz51DIA9grPPQTQDfbbVf5k7.jpeg', 4, '2024-06-06 12:32:52', '2024-06-06 12:32:52'),
-(4, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/Oxue8UHDFZdGhubJFDsOnl8fkMjTdDuAhy4Xxtwq.jpeg', 5, '2024-06-06 12:34:30', '2024-06-06 12:34:30'),
-(5, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 1, 'meals/aXeozt7XyFqmlEQftqOXJYq2kxFhupnNeo932eIv.jpeg', 5, '2024-06-06 12:34:56', '2024-06-06 12:34:56'),
+(4, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/Oxue8UHDFZdGhubJFDsOnl8fkMjTdDuAhy4Xxtwq.jpeg', 5, '2024-06-06 12:34:30', '2024-06-06 12:34:30'),
+(5, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/aXeozt7XyFqmlEQftqOXJYq2kxFhupnNeo932eIv.jpeg', 5, '2024-06-06 12:34:56', '2024-06-06 12:34:56'),
 (6, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/cg7NOQEZyXs2wLf7jq4hKaGh6kPwzEiwyDPHe3OS.jpg', 5, '2024-06-06 12:35:10', '2024-06-06 12:35:10'),
 (7, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/WZUpISt5auZWittm0MHCiSZ19RiCbUqbqcj2pr5x.jpeg', 1, '2024-06-06 12:36:40', '2024-06-06 12:36:40'),
-(8, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/w1jlJGgUNxslJO8iA6XDOvFXQHJZSbVtqTMRy3Ue.jpeg', 1, '2024-06-06 12:37:06', '2024-06-06 12:37:06'),
-(9, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/ubkk5cQ0qcaDRAsezZNZoHW1nSeSF5DSg8J4PUPN.png', 1, '2024-06-22 20:49:08', '2024-06-22 20:49:08'),
-(10, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/HoBPSP8foIDISPJebnPs69unx012Eni1RfaJ2iOC.png', 1, '2024-06-22 20:51:31', '2024-06-22 20:51:31'),
-(11, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/1NQOv0oec5vDA1dZm7nva0A9AW3RCExgt3JtMDIB.png', 1, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
-(12, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/bBEdrx0W0OhbEkcUs5tXGFbVlosAMmmdPrDRlahi.png', 1, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
-(13, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/EpWDC8YuJQZK6l0B4cF2wod0fl0KETNRhASATh9Q.png', 1, '2024-06-22 20:55:44', '2024-06-22 20:55:44'),
-(14, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/xdFZUbhrxWmS5SAR3wNSAB2yMzHI4wNFUMyPbLtm.png', 1, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
-(15, 'Pizza Margarita', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/CmCELnszdIPpvkF8cEcLBIhHCrL0yuz9Nn3OmaBe.png', 1, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(16, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/tkRCATn24MAUmmG6z7Mz6GL5J8k0rLRtrXNPIXDt.png', 1, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
-(17, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/CY5Uzm5pG7iH2kksKhE9ZWFIk2z3hqfuTlc5SgH1.png', 1, '2024-06-22 21:02:27', '2024-06-22 21:02:27'),
-(18, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/XSY2L8e4UpauqeAP0AwOspK4gVMQBYMqWCC9fdlc.png', 1, '2024-06-22 21:02:29', '2024-06-22 21:02:29'),
-(19, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/iWsdMG8XiwamZP8gOj2rdT1XZ072NcoMjlfiB7gM.png', 1, '2024-06-22 21:02:43', '2024-06-22 21:02:43'),
-(20, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/Sw17cfdL0t4cIvtmivWwzOJlWGNWZIZU2uUyuhu9.png', 1, '2024-06-22 21:03:04', '2024-06-22 21:03:04'),
-(21, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/AoR5Cz5ZBwfeGhCjLGuOQ8KdCq3uCYhzxpHd1uPV.png', 1, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
-(22, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/XUwID1doQ5NIkeDKS8C2T6AsB0w6IsQR1Pg6l9l3.png', 1, '2024-06-22 21:05:23', '2024-06-22 21:05:23');
+(8, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/w1jlJGgUNxslJO8iA6XDOvFXQHJZSbVtqTMRy3Ue.jpeg', 1, '2024-06-06 12:37:06', '2024-06-06 12:37:06');
 
 -- --------------------------------------------------------
 
@@ -301,39 +318,23 @@ INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `ca
 
 CREATE TABLE `meals_size_cost` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `meal_id` bigint(20) UNSIGNED NOT NULL,
-  `size` int(11) DEFAULT NULL COMMENT '1=SMALL, 2=Medium, 3=BIG, 4=FAMILY',
+  `meal_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `size` int(11) NOT NULL COMMENT '1=SMALL, 2=Medium, 3=BIG, 4=FAMILY',
   `cost` double NOT NULL,
-  `number_of_pieces` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `Number_of_pieces` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `meals_size_cost`
 --
 
-INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `number_of_pieces`, `created_at`, `updated_at`) VALUES
-(1, 1, 3, 105, 1, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(2, 1, 3, 105, 0, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(4, 1, 1, 60, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(5, 1, 4, 150, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(7, 11, 1, 120, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
-(8, 11, 2, 150, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
-(9, 12, 1, 120, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
-(10, 12, 2, 150, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
-(11, 14, 1, 120, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
-(12, 14, 2, 150, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
-(13, 15, 1, 120, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(14, 15, 2, 150, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(15, 15, 4, 80, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(16, 16, 1, 120, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
-(17, 16, 2, 150, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
-(18, 21, 1, 80, 4, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
-(19, 21, 2, 150, NULL, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
-(20, 22, NULL, 80, 4, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
-(21, 22, 1, 120, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
-(22, 22, 2, 150, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23');
+INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `Number_of_pieces`) VALUES
+(1, 1, 3, 105, NULL),
+(2, 1, 1, 50, NULL),
+(3, 1, 3, 105, NULL),
+(4, 1, 2, 60, NULL),
+(5, 1, 4, 150, NULL),
+(6, 1, 3, 105, NULL);
 
 -- --------------------------------------------------------
 
@@ -357,13 +358,7 @@ INSERT INTO `meal_extras` (`meal_id`, `extra_id`, `created_at`, `updated_at`) VA
 (1, 3, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
 (1, 4, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
 (1, 5, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(2, 1, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
-(2, 2, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
-(2, 3, '2024-06-20 18:11:16', '2024-06-20 18:11:16'),
-(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03'),
-(8, 1, '2024-06-20 19:42:34', '2024-06-20 19:42:34'),
-(8, 2, '2024-06-20 19:42:34', '2024-06-20 19:42:34'),
-(8, 3, '2024-06-20 19:42:34', '2024-06-20 19:42:34');
+(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03');
 
 -- --------------------------------------------------------
 
@@ -429,18 +424,11 @@ CREATE TABLE `orders` (
   `total_cost` double NOT NULL,
   `customer_id` bigint(20) UNSIGNED NOT NULL,
   `DiningTable_id` bigint(20) UNSIGNED NOT NULL,
-  `status` int(11) NOT NULL COMMENT '1 => processing 2=>out of delivery,3=>done\r\n4=>canceled\r\n',
+  `status` int(11) NOT NULL COMMENT '1 => processing 2=>out of delivery,3=>done',
   `notes` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`id`, `total_cost`, `customer_id`, `DiningTable_id`, `status`, `notes`, `created_at`, `updated_at`) VALUES
-(3, 120, 12, 1, 1, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -449,21 +437,13 @@ INSERT INTO `orders` (`id`, `total_cost`, `customer_id`, `DiningTable_id`, `stat
 --
 
 CREATE TABLE `order_addons` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `order_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `addon_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `total_cost` double NOT NULL,
+  `order_id` bigint(20) UNSIGNED NOT NULL,
+  `addon_id` bigint(20) UNSIGNED NOT NULL,
   `quantity` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `order_addons`
---
-
-INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantity`, `created_at`, `updated_at`) VALUES
-(1, 3, 2, 50, 10, '2024-06-21 17:27:40', '2024-06-21 17:27:40');
+  `total_cost` double NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -472,36 +452,10 @@ INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantit
 --
 
 CREATE TABLE `order_extras` (
-  `id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
-  `extra_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `extra_id` bigint(20) UNSIGNED NOT NULL,
   `qunatity` int(11) NOT NULL,
-  `total_cost` double NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `order_extras`
---
-
-INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `qunatity`, `total_cost`, `created_at`, `updated_at`) VALUES
-(1, 3, 3, 15, 50, '2024-06-21 17:28:03', '2024-06-21 17:28:03');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `order_locations`
---
-
-CREATE TABLE `order_locations` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `customer_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `street` varchar(255) NOT NULL,
-  `building` varchar(255) NOT NULL,
-  `area` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `total_cost` double NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -511,13 +465,12 @@ CREATE TABLE `order_locations` (
 --
 
 CREATE TABLE `order_meals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `meal_id` bigint(20) UNSIGNED NOT NULL,
   `qunatity` int(11) NOT NULL,
   `total_cost` double NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -585,7 +538,8 @@ CREATE TABLE `sessions` (
 --
 ALTER TABLE `addons`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`);
+  ADD UNIQUE KEY `name` (`name`),
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- Indexes for table `categories`
@@ -624,7 +578,8 @@ ALTER TABLE `employees`
 -- Indexes for table `extras`
 --
 ALTER TABLE `extras`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- Indexes for table `meals`
@@ -638,8 +593,6 @@ ALTER TABLE `meals`
 --
 ALTER TABLE `meals_size_cost`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id` (`id`),
-  ADD UNIQUE KEY `unique_index` (`meal_id`,`cost`,`size`,`number_of_pieces`),
   ADD KEY `meal_id` (`meal_id`);
 
 --
@@ -674,32 +627,22 @@ ALTER TABLE `orders`
 -- Indexes for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `addon_id` (`addon_id`),
-  ADD KEY `order_id` (`order_id`);
+  ADD PRIMARY KEY (`order_id`,`addon_id`),
+  ADD KEY `order_addons_addon_id_foreign` (`addon_id`);
 
 --
 -- Indexes for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `extra_id` (`extra_id`),
+  ADD PRIMARY KEY (`extra_id`,`order_id`),
   ADD KEY `order_id` (`order_id`);
-
---
--- Indexes for table `order_locations`
---
-ALTER TABLE `order_locations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `customer_id` (`customer_id`);
 
 --
 -- Indexes for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `order_meals_order_id_foreign` (`order_id`),
-  ADD KEY `meal_id` (`meal_id`);
+  ADD PRIMARY KEY (`meal_id`,`order_id`),
+  ADD KEY `order_meals_order_id_foreign` (`order_id`);
 
 --
 -- Indexes for table `personal_access_tokens`
@@ -731,7 +674,7 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT for table `addons`
 --
 ALTER TABLE `addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -749,13 +692,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `diningtables`
 --
 ALTER TABLE `diningtables`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `email_verification_tokens`
 --
 ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -773,13 +716,13 @@ ALTER TABLE `extras`
 -- AUTO_INCREMENT for table `meals`
 --
 ALTER TABLE `meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `meals_size_cost`
 --
 ALTER TABLE `meals_size_cost`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -791,31 +734,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `order_addons`
---
-ALTER TABLE `order_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `order_extras`
---
-ALTER TABLE `order_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `order_locations`
---
-ALTER TABLE `order_locations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `order_meals`
---
-ALTER TABLE `order_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -832,6 +751,18 @@ ALTER TABLE `reset_password_tokens`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `addons`
+--
+ALTER TABLE `addons`
+  ADD CONSTRAINT `addons_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `extras`
+--
+ALTER TABLE `extras`
+  ADD CONSTRAINT `extras_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `meals`
@@ -870,28 +801,20 @@ ALTER TABLE `orders`
 -- Constraints for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  ADD CONSTRAINT `order_addons_ibfk_1` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_addons_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `order_addons_addon_id_foreign` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `order_addons_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  ADD CONSTRAINT `order_extras_ibfk_1` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_extras_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `order_locations`
---
-ALTER TABLE `order_locations`
-  ADD CONSTRAINT `order_locations_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `order_extras_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `order_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  ADD CONSTRAINT `order_meals_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `order_meals_meal_id_foreign` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `order_meals_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
