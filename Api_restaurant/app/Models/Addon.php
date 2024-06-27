@@ -17,8 +17,12 @@ class Addon extends Model
         'status',
         'image',
         'category_id',
-        
+        'type',
     ];
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     public function orderaddons()
     {
         return $this->hasMany(OrderAddon::class);

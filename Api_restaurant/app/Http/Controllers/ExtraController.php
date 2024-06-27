@@ -67,7 +67,8 @@ class ExtraController extends Controller
             'cost' => ['required', 'numeric','min:1'],
             'status' => ['sometimes', 'boolean'],
             'category_id' => ['required','exists:categories,id'],
-            'image' => ['required','image','mimes:jpeg,png,jpg,gif,bmp,svg']
+            'image' => ['required','image','mimes:jpeg,png,jpg,gif,bmp,svg'],
+            'type' => 'sometimes|in:vegetarian,non-vegetarian',
         ]);
 
         $imagePath = '';
@@ -79,9 +80,10 @@ class ExtraController extends Controller
 
         $extra = Extra::create([
             'name' => $validatedData['name'],
-            'cost' => $validatedData['cost'],
+            'description' => $validatedData['description'],
             'cost' => $validatedData['cost'],
             'status' => $validatedData['status'] ?? true,
+            'type' => $validatedData['type'] ?? 'vegetarian',
             'category_id' => $validatedData['category_id'],
             'image' => $imagePath,
         ]);
@@ -93,7 +95,8 @@ class ExtraController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'message' => 'added done'
+            'message' => 'added done',
+             'data' => $extra,
         ], 200);
     }
 
@@ -113,6 +116,7 @@ class ExtraController extends Controller
             'cost' => ['sometimes', 'numeric','min:1'],
             'status' => ['sometimes', 'boolean'],
             'category_id' => ['sometimes','exists:categories,id'],
+            'type' => 'sometimes|in:vegetarian,non-vegetarian',
             'image' => ['sometimes','image','mimes:jpeg,png,jpg,gif,bmp,svg']
         ]);
 
