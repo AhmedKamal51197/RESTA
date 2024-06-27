@@ -23,6 +23,7 @@ class Category extends Model
     {
         return $this->hasMany(Extra::class);
     }
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
