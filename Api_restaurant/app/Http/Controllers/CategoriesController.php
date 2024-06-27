@@ -51,13 +51,13 @@ class CategoriesController extends Controller
             // Make addons visible based on admin status
             $category->addons->each(function ($addon) use ($isAdmin) {
                 $addon->status = $isAdmin || $addon->status;
-                $addon->makeVisible(['id', 'category_id', 'name', 'description', 'cost', 'status', 'image']);
+                $addon->makeVisible(['id', 'category_id', 'name', 'description', 'type','cost', 'status', 'image']);
             });
     
             // Make extras visible based on admin status
             $category->extras->each(function ($extra) use ($isAdmin) {
                 $extra->status = $isAdmin || $extra->status;
-                $extra->makeVisible(['id', 'category_id', 'name', 'description', 'cost', 'status', 'image']);
+                $extra->makeVisible(['id', 'category_id', 'name', 'description', 'type','cost', 'status', 'image']);
             });
     
             return [
@@ -65,9 +65,9 @@ class CategoriesController extends Controller
                 'name' => $category->name,
                 'description' => $category->description,
                 'image' => $category->image,
-                'meals' => $meals, // Assign the array of meals directly
-                'addons' => $category->addons->toArray(), // Convert addons collection to array
-                'extras' => $category->extras->toArray(), // Convert extras collection to array
+                'meals' => $meals, 
+                'addons' => $category->addons->toArray(), 
+                'extras' => $category->extras->toArray(),
             ];
         });
     
@@ -144,7 +144,7 @@ class CategoriesController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('categories')->ignore($id)],
-            'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
         ]);
     

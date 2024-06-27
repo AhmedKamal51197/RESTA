@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 27, 2024 at 01:16 PM
+-- Generation Time: Jun 28, 2024 at 12:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `last_project`
+-- Database: `scan_food`
 --
 
 -- --------------------------------------------------------
@@ -33,6 +33,7 @@ CREATE TABLE `addons` (
   `category_id` bigint(20) UNSIGNED DEFAULT NULL,
   `cost` double NOT NULL,
   `description` varchar(255) DEFAULT NULL,
+  `type` enum('vegetarian','non-vegetarian') NOT NULL DEFAULT 'vegetarian',
   `image` varchar(255) NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT 'true = active , false = inactive',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
@@ -43,9 +44,18 @@ CREATE TABLE `addons` (
 -- Dumping data for table `addons`
 --
 
-INSERT INTO `addons` (`id`, `name`, `category_id`, `cost`, `description`, `image`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'onoin', NULL, 20, 'aya 7aga', 'aaaa', 0, NULL, NULL),
-(2, 'bate5', NULL, 24, 'aaaaa', '', 0, '2024-06-10 20:34:00', '2024-06-10 20:34:00');
+INSERT INTO `addons` (`id`, `name`, `category_id`, `cost`, `description`, `type`, `image`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Ice Mocha', 13, 1.5, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/PemWoX8xkf87G6uGSk8aacAeWGaFJCDh7sU6xqpZ.jpg', 1, '2024-06-27 15:55:01', '2024-06-27 15:55:01'),
+(2, 'Ice Latte', 13, 1.9, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/kA7Lamt634BThr9WoMi2Smoyd1D1fA6qMrTV0dDe.jpeg', 1, '2024-06-27 15:57:21', '2024-06-27 15:57:21'),
+(3, 'Frappucccino', 13, 2, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/75ncLkEDDKcvTnSYJR2g0HlPpOLVJjN5EHEfIirT.jpg', 1, '2024-06-27 15:59:28', '2024-06-27 15:59:28'),
+(4, 'Frabie', 13, 2.5, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/VM7gszVlfregI2RPuRj5DKxv4Kgc3OI9TWZMhxKF.jpg', 0, '2024-06-27 16:00:48', '2024-06-27 16:27:49'),
+(5, 'Frabie test', 11, 2, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/UOY5bwchqgvaKF95eeL3iREW1pQjFwoyIgllE6Av.jpg', 1, '2024-06-27 16:05:11', '2024-06-27 16:05:11'),
+(7, 'Frabie test\'s', 13, 2, 'Dark, rich espresso lies in wait under a smoothed and stretched', 'vegetarian', 'addons/DQSS6CQV7Im28ivyRwNrGdwYGvQD63uxYmnqWSA9.jpg', 1, '2024-06-27 16:26:57', '2024-06-27 16:26:57'),
+(8, 'Cappuccino', 12, 2, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/QbOKgEjnxrDYOCofzoYqR18kjlf3HxQd4kE5D8mM.jpg', 1, '2024-06-27 17:19:29', '2024-06-27 17:19:29'),
+(9, 'Cafe Latte', 12, 2.3, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/uhZn5hFaDqBnlfAVYcgv2vmgkuZdiBl6pbbkHLhV.jpg', 1, '2024-06-27 17:21:24', '2024-06-27 17:21:24'),
+(10, 'Mohcha latte', 12, 2.3, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/CDrdW9ry8Va5Q0YGL40ry5ke7pe6ky6ueMICGxCL.jpg', 0, '2024-06-27 17:23:36', '2024-06-27 17:23:36'),
+(11, 'Soda Can', 11, 1, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/8WygOThujOmQaqR9kU6mKk36LvBeJzjviLX34WPv.jpeg', 1, '2024-06-27 18:59:41', '2024-06-27 18:59:41'),
+(12, 'Soda  Bottle', 11, 1, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/lbnuhNZ1rdeL7MncJj4HKxCco90BsfRQWPrHBjN4.jpg', 1, '2024-06-27 19:00:30', '2024-06-27 19:00:30');
 
 -- --------------------------------------------------------
 
@@ -67,12 +77,19 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`, `description`, `image`, `created_at`, `updated_at`) VALUES
-(1, 'Test', 'test_description', NULL, '2024-06-06 10:51:59', '2024-06-06 10:51:59'),
-(2, 'Test2', 'test_description', NULL, '2024-06-06 10:55:17', '2024-06-06 10:55:17'),
-(3, 'Checken', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s', NULL, '2024-06-06 12:24:05', '2024-06-06 12:24:05'),
-(4, 'Pizza', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s', NULL, '2024-06-06 12:24:43', '2024-06-06 12:24:43'),
-(5, 'Burger', 'update description', NULL, '2024-06-06 12:24:58', '2024-06-06 12:28:53'),
-(7, 'soup', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s', NULL, '2024-06-06 12:25:56', '2024-06-06 12:25:56');
+(1, 'Appetizers', 'LMIV - Allergen - i). Contains cereals and products thereof containing gluten. ii). Wheat.', 'categories/dInkh8Sn08xidlcTCsVlbVLPT4XCkAam9wpJkENE.jpg', '2024-06-27 15:04:25', '2024-06-27 15:11:04'),
+(2, 'Flame Grill Burgers', 'LMIV - Allergen - i). Contains cereals and products thereof containing gluten. ii). Wheat.', 'categories/8LtudJIK4Q7cBMefpVhh23eWbml0lMDnSx6xC2NG.jpg', '2024-06-27 15:13:33', '2024-06-27 15:13:33'),
+(3, 'Veggie & Plant Based Burgers', 'LMIV - Allergen - i). Contains cereals and products thereof containing gluten. ii). Wheat.', 'categories/FzCnZiER3wsrUiz3YiojP22MyUf7BxgQ4qiDG8QA.jpg', '2024-06-27 15:16:35', '2024-06-27 15:16:35'),
+(4, 'Sandwich From The Grill', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/gqSc4lx53OhluEs4rYCWF2SFq7IQWhTd0xoD7otY.jpg', '2024-06-27 15:20:46', '2024-06-27 15:20:46'),
+(5, 'Hot Chicken Entrees', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/QLiH5PkZ3vJuow0ThKBOhzsYV688zQvCouKbKhkA.jpg', '2024-06-27 15:22:08', '2024-06-27 15:22:08'),
+(6, 'Beef Entrees', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/E5kONaoPh2IbGVpgMvHo8R4f2JylaK4VzgdUpzZS.jpg', '2024-06-27 15:23:56', '2024-06-27 15:23:56'),
+(7, 'Seafood Entrees', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/ipTXvwTpntym9Q11x1jsCt95QasLIApM8b9NeetC.jpg', '2024-06-27 15:24:51', '2024-06-27 15:24:51'),
+(8, 'House Special Salads', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/NhaZQ8A2rgj6yfMEbj63sFgOG40LQZPCH9Iy1NrS.jpg', '2024-06-27 15:26:01', '2024-06-27 15:26:01'),
+(9, 'Zoop Soups', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/jNwt7qtMEghKDdrY1NuCMfwZhEwsiiWslRsJzRVH.jpg', '2024-06-27 15:27:41', '2024-06-27 15:27:41'),
+(10, 'Side Orders', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/OMWxiTO9hfLcRqobASRscwcHrAqS1FOt5JPsfNwb.jpg', '2024-06-27 15:28:57', '2024-06-27 15:28:57'),
+(11, 'Beverages', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/x973C2Ckcx6DusN4xkqHj2LJRx4pt1rOJdWPd2pM.jpg', '2024-06-27 15:29:59', '2024-06-27 15:29:59'),
+(12, 'Hot Drinks', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/v4SNzZw1DPp0mbVYN4x3yYmQTYS74F8brWTxOiHE.jpg', '2024-06-27 15:31:28', '2024-06-27 17:16:13'),
+(13, 'Iced Drinks', 'Sweet and tangy BBQ Chicken Sandwiches made with juicy slow cooke..', 'categories/xMiLSTD6wEDK4PL6SRy9yqUpKhI4DdIB9iZOqfcv.jpg', '2024-06-27 15:32:11', '2024-06-27 15:51:05');
 
 -- --------------------------------------------------------
 
@@ -140,40 +157,6 @@ CREATE TABLE `diningtables` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `diningtables`
---
-
-INSERT INTO `diningtables` (`id`, `floor`, `size`, `num`, `status`, `qr_code`, `created_at`, `updated_at`) VALUES
-(1, 2, 5, 1250, 1, NULL, '2024-06-23 19:41:41', '2024-06-23 19:41:41'),
-(2, 2, 5, 1251, 1, NULL, '2024-06-24 03:23:07', '2024-06-24 03:23:07'),
-(3, 2, 5, 1252, 1, NULL, '2024-06-24 03:34:01', '2024-06-24 03:34:01'),
-(4, 2, 5, 1253, 0, NULL, '2024-06-24 03:35:40', '2024-06-24 03:35:40'),
-(5, 2, 3, 1, 0, NULL, '2024-06-24 03:37:34', '2024-06-24 06:58:20'),
-(6, 2, 5, 1256, 0, NULL, '2024-06-24 03:43:47', '2024-06-24 03:43:47'),
-(7, 2, 5, 1257, 0, NULL, '2024-06-24 03:57:16', '2024-06-24 03:57:16'),
-(8, 2, 5, 1259, 0, NULL, '2024-06-24 04:40:41', '2024-06-24 04:40:41'),
-(9, 2, 5, 1260, 0, NULL, '2024-06-24 05:28:10', '2024-06-24 05:28:10'),
-(10, 2, 5, 1262, 0, NULL, '2024-06-24 06:15:11', '2024-06-24 06:15:11'),
-(11, 2, 5, 1263, 0, NULL, '2024-06-24 06:18:35', '2024-06-24 06:18:35'),
-(12, 2, 5, 1265, 0, NULL, '2024-06-24 06:24:38', '2024-06-24 06:24:38'),
-(13, 2, 5, 1266, 0, NULL, '2024-06-24 06:27:55', '2024-06-24 06:27:55'),
-(14, 2, 5, 1268, 0, NULL, '2024-06-24 06:39:12', '2024-06-24 06:39:12'),
-(15, 2, 5, 1270, 0, 'qr_codes/mPsGlvjAZZRRNAZ354L3FkloSXXn529lyKYuy7aH.png', '2024-06-24 06:40:42', '2024-06-24 06:40:42'),
-(16, 2, 5, 1271, 0, '88fe2d86e28450ed91768c6f9ef9106f', '2024-06-25 20:42:32', '2024-06-25 20:42:32'),
-(17, 2, 5, 1272, 0, '6b5b8181bd54df8888c1df982560459c', '2024-06-25 20:56:37', '2024-06-25 20:56:37'),
-(18, 2, 5, 1273, 0, NULL, '2024-06-25 21:43:09', '2024-06-25 21:43:09'),
-(19, 2, 5, 1274, 0, NULL, '2024-06-25 22:10:30', '2024-06-25 22:10:30'),
-(20, 2, 5, 1275, 0, NULL, '2024-06-25 22:13:08', '2024-06-25 22:13:08'),
-(21, 2, 5, 1276, 0, NULL, '2024-06-25 22:19:53', '2024-06-25 22:19:53'),
-(22, 2, 5, 1277, 0, NULL, '2024-06-25 22:47:37', '2024-06-25 22:47:37'),
-(23, 2, 5, 1278, 0, NULL, '2024-06-25 22:59:08', '2024-06-25 22:59:08'),
-(24, 2, 5, 1280, 0, NULL, '2024-06-25 23:00:22', '2024-06-25 23:00:22'),
-(25, 2, 5, 1281, 0, 'storage/qr_codes/qrcode_25_1719367249.png', '2024-06-25 23:00:49', '2024-06-25 23:00:49'),
-(26, 2, 5, 1282, 0, 'storage/qr_codes/qrcode_26_1719399209.png', '2024-06-26 07:53:26', '2024-06-26 07:53:30'),
-(27, 2, 5, 1283, 0, 'storage/qr_codes/qrcode_27_1719399317.png', '2024-06-26 07:55:17', '2024-06-26 07:55:17'),
-(28, 2, 5, 172001, 1, 'storage/qr_codes/qrcode_28_1719451126.png', '2024-06-26 22:18:46', '2024-06-26 22:18:46');
 
 -- --------------------------------------------------------
 
@@ -262,6 +245,7 @@ CREATE TABLE `extras` (
   `description` varchar(255) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1,
+  `type` enum('vegetarian','non-vegetarian') NOT NULL DEFAULT 'vegetarian',
   `cost` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -271,13 +255,17 @@ CREATE TABLE `extras` (
 -- Dumping data for table `extras`
 --
 
-INSERT INTO `extras` (`id`, `name`, `category_id`, `description`, `image`, `status`, `cost`, `created_at`, `updated_at`) VALUES
-(1, 'flfl', NULL, NULL, 'extras/S46MHdW5YUVGBjVLNDJZQHcNNxeJOLmBRbbXoUd6.jpeg', 0, 15, '2024-06-12 15:53:27', '2024-06-26 22:20:21'),
-(2, 'onion', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(3, 'Potato', NULL, NULL, NULL, 1, 55, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(4, 'Rice', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(5, 'Soap', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17'),
-(6, 'Salt', NULL, NULL, NULL, 1, 35, '2024-06-12 20:08:17', '2024-06-12 20:08:17');
+INSERT INTO `extras` (`id`, `name`, `category_id`, `description`, `image`, `status`, `type`, `cost`, `created_at`, `updated_at`) VALUES
+(1, 'Onion Rings', 10, 'Serve with mayo and green chili sauce.', 'extras/3qZpDTa0ydMxZH6xOUdLZWw435M9gOAHN8JVSVOs.jpg', 1, 'vegetarian', 2, '2024-06-27 18:30:45', '2024-06-27 18:30:45'),
+(2, 'Baked Potato', 10, 'Serve with mayo and green chili sauce.', 'extras/bLBI60Ki5i7mu0AeWLm0M0wAG0ytDsdvm8ln3ejw.jpg', 1, 'vegetarian', 2, '2024-06-27 18:33:21', '2024-06-27 18:33:21'),
+(3, 'French Fries', 10, 'Serve with mayo and green chili sauce.', 'extras/cYKzBV8DWALLS6q2iWqcoOc249Qo6bTbmhlZbZWF.jpg', 1, 'vegetarian', 2, '2024-06-27 18:34:22', '2024-06-27 18:34:22'),
+(4, 'Hot & Sour Soup', 9, 'Serve with mayo and green chili sauce.', 'extras/LzdnjThwlZqlNDwEeulrsJWFI1eYObkXqfhrHwfN.jpg', 1, 'vegetarian', 2, '2024-06-27 18:35:36', '2024-06-27 18:45:09'),
+(5, 'Chicken Noodles Soup', 9, 'Serve with mayo and green chili sauce.', 'extras/pxBAzZAgM8XGVWb7N7v5BzxWR1YY7EZHYq36uX9M.jpg', 1, 'non-vegetarian', 2, '2024-06-27 18:36:49', '2024-06-27 18:45:14'),
+(6, 'Wonton Soup', 9, 'Serve with mayo and green chili sauce.', 'extras/Gq9Lb00PBZqF7nq3qD0LDBL6e2QJanG0bSIwZKW8.jpg', 1, 'non-vegetarian', 2.3, '2024-06-27 18:37:40', '2024-06-27 18:45:19'),
+(7, 'Fresh Tuna Salad', 8, 'Serve with mayo and green chili sauce.', 'extras/D3IqOBHrsJzknPxzXD8OG8QPrtzTAoMQB53jrpxW.jpg', 1, 'non-vegetarian', 4, '2024-06-27 18:38:35', '2024-06-27 18:44:08'),
+(8, 'Roasted Salmon Salad', 8, 'Serve with mayo and green chili sauce.', 'extras/dkLJ21AVbxaXr7d98evbt0EmVVpC0b6Kz1EhPGvf.jpg', 1, 'non-vegetarian', 4, '2024-06-27 18:39:47', '2024-06-27 18:44:18'),
+(9, 'Classic Caesar Salad', 8, 'Serve with mayo and green chili sauce.', 'extras/PZOgPSWs9feFQphepr8w8e6bA4uKATkX2tV6pqWF.jpg', 1, 'vegetarian', 1.2, '2024-06-27 18:40:59', '2024-06-27 18:40:59'),
+(10, 'Poached Pear Salad', 8, 'Serve with mayo and green chili sauce.', 'extras/vE5KWi0CRpXI8VlFvtJxXw4YAj7omm9Anh4uLh2Y.jpeg', 1, 'vegetarian', 1.2, '2024-06-27 18:41:49', '2024-06-27 18:41:49');
 
 -- --------------------------------------------------------
 
@@ -287,12 +275,12 @@ INSERT INTO `extras` (`id`, `name`, `category_id`, `description`, `image`, `stat
 
 CREATE TABLE `meals` (
   `id` bigint(20) UNSIGNED NOT NULL,
+  `category_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `type` enum('vegetarian','non-vegetarian') NOT NULL,
   `description` text NOT NULL,
+  `type` enum('vegetarian','non-vegetarian') NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT 'true = active , flase = inactive',
   `image` varchar(255) NOT NULL,
-  `category_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -301,21 +289,26 @@ CREATE TABLE `meals` (
 -- Dumping data for table `meals`
 --
 
-INSERT INTO `meals` (`id`, `name`, `type`, `description`, `status`, `image`, `category_id`, `created_at`, `updated_at`) VALUES
-(1, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/eVToMJzFOxM1OQ7HDcKLj4j9SyMNBL41pnZiN6ZT.jpeg', 4, '2024-06-06 12:32:19', '2024-06-06 12:32:19'),
-(2, 'Margarita', 'vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/tTfRRzaooH5dqfISNz51DIA9grPPQTQDfbbVf5k7.jpeg', 4, '2024-06-06 12:32:52', '2024-06-06 12:32:52'),
-(4, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/Oxue8UHDFZdGhubJFDsOnl8fkMjTdDuAhy4Xxtwq.jpeg', 5, '2024-06-06 12:34:30', '2024-06-06 12:34:30'),
-(5, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/aXeozt7XyFqmlEQftqOXJYq2kxFhupnNeo932eIv.jpeg', 5, '2024-06-06 12:34:56', '2024-06-06 12:34:56'),
-(6, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/cg7NOQEZyXs2wLf7jq4hKaGh6kPwzEiwyDPHe3OS.jpg', 5, '2024-06-06 12:35:10', '2024-06-06 12:35:10'),
-(7, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/WZUpISt5auZWittm0MHCiSZ19RiCbUqbqcj2pr5x.jpeg', 1, '2024-06-06 12:36:40', '2024-06-06 12:36:40'),
-(8, 'Margarita', 'non-vegetarian', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem', 0, 'meals/w1jlJGgUNxslJO8iA6XDOvFXQHJZSbVtqTMRy3Ue.jpeg', 1, '2024-06-06 12:37:06', '2024-06-06 12:37:06'),
-(9, 'Pizza Margarita d', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/nhG3tpHnAJwAJVaQTw1OFE4RmugYldQJIJ5vPLiO.jpeg', 1, '2024-06-26 22:25:05', '2024-06-26 22:25:05'),
-(10, 'Pizza Margarita s', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/vBZEKJHMcu2UCbUgQSuyqN1AG3UKoD6xP7NKlywo.jpeg', 1, '2024-06-26 22:43:43', '2024-06-26 22:43:43'),
-(11, 'Pizza Margarita ss', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/eIA01cjpMfmMqlPYZMPjUNnWsjDws4KaF641VqG0.jpeg', 1, '2024-06-26 22:48:23', '2024-06-26 22:48:23'),
-(12, 'Pizza Margarita sss', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/cqpxBg9jlMarWTLfKKU4G9qnd8aHvXBCdSEm3hmf.jpeg', 1, '2024-06-26 22:48:47', '2024-06-26 22:48:47'),
-(13, 'Pizza Margarita fdd', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/Eccf2sfuHrsfrg8q1Hz3XwcvIK9WQy9pGcYtRbk8.jpeg', 1, '2024-06-26 22:52:32', '2024-06-26 22:52:32'),
-(14, 'Pizza Margarita oil', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/92cmQnRzB5garC1QE5NYN8FWkKVXDe21VOpiiM7c.jpeg', 1, '2024-06-26 22:52:51', '2024-06-26 22:52:51'),
-(15, 'Pizza Margarita oil\'s', 'vegetarian', 'Delicious pizza with assorted vegetables', 1, 'meals/MpBKKgJsXerSjgfbijh3LeKKKDL1fZztfxnzoRlZ.jpeg', 1, '2024-06-27 08:02:42', '2024-06-27 08:02:42');
+INSERT INTO `meals` (`id`, `category_id`, `name`, `description`, `type`, `status`, `image`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Chicken Dumplings', 'With a side of fried rice or supreme soy noodles, and steamed', 'vegetarian', 1, 'meals/yrz6APSccLVQu2yFcw7bx44CUmib9vs8YpIlyDVW.jpeg', '2024-06-27 16:43:27', '2024-06-27 16:43:27'),
+(2, 1, 'Vegetable Dumplings', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/d7LUdwRQv3CjKoM1HsKG8lF14W2enug8rC4JXQIY.jpg', '2024-06-27 16:47:19', '2024-06-27 16:47:19'),
+(3, 1, 'Fried Cheese Wonton', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/WfIZyNw5UwprkNZCG08KmslgM64KTj8jRRLxlOFr.jpg', '2024-06-27 16:53:11', '2024-06-27 16:53:11'),
+(4, 2, 'American BBQ Double', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/MXSRRVGS8psUfmrkixWoQehXNNNq4DBpI4v0phfr.jpeg', '2024-06-27 17:27:45', '2024-06-27 17:27:45'),
+(5, 2, 'American BBQ Single', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/pryCYgiCnPn9GTkdeQNft84kWdqu7thlywqXcxit.jpeg', '2024-06-27 17:28:24', '2024-06-27 17:28:24'),
+(6, 2, 'Cheeseburger', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/Ag1gBM14mNvkLnQi9TrlvbJyNpr3UtRTZgMfuo23.jpeg', '2024-06-27 17:28:41', '2024-06-27 17:28:41'),
+(7, 2, 'Whopper', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 0, 'meals/eBTPnGKuc120Jg3XDz1r1Ha9UFbi8c8aHwx8eg1g.jpeg', '2024-06-27 17:28:56', '2024-06-27 17:28:56'),
+(8, 2, 'Peppercorn Anger', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 0, 'meals/gBOYEQjSrXUt1u3DN3uqzURhfjUW8LEixnjIO7W7.jpeg', '2024-06-27 17:29:18', '2024-06-27 17:29:18'),
+(9, 3, 'Plant Based Bacon', 'With a side of fried rice or supreme soy noodles, and steamed', 'vegetarian', 0, 'meals/JngivZFIt3ClQ496tX6fqEciKG66L341jdLB2fcq.jpg', '2024-06-27 17:32:08', '2024-06-27 17:32:08'),
+(10, 3, 'Plant Based Whopper', 'With a side of fried rice or supreme soy noodles, and steamed', 'vegetarian', 1, 'meals/dtqcJbHVJX2onpxPdRyVvf31sOqM2IloQpbA0AEr.jpg', '2024-06-27 17:32:25', '2024-06-27 17:32:25'),
+(11, 3, 'Vegan Hum Burger', 'With a side of fried rice or supreme soy noodles, and steamed', 'vegetarian', 1, 'meals/yvJbr2PMkHUfE2Hxqz4f8xNvdIR4JSkUv4tdLZab.jpg', '2024-06-27 17:33:15', '2024-06-27 17:33:15'),
+(12, 4, 'BBQ Chicken', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/PF2cxnqK6Q5mooX5qrWwPzrSaAqplVqAyjW8Os2G.jpg', '2024-06-27 17:38:02', '2024-06-27 17:38:02'),
+(13, 4, 'Steak Sandwich', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/HZxVHBsdDNQJMcJHXqQnZy31HFcQwgQS00OotCOd.jpg', '2024-06-27 17:38:22', '2024-06-27 17:38:22'),
+(14, 5, 'Hentai Chicken', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/mJSULVrH33w82YbXrkGfqZz1tnjGdnRRVbsTQmUm.jpg', '2024-06-27 17:43:20', '2024-06-27 17:43:20'),
+(15, 5, 'Kung Pao Chicken', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/0vceb3p0pNd3eyBrc6N29aTr37KrL3I6GD2ZEbux.jpg', '2024-06-27 17:43:53', '2024-06-27 17:43:53'),
+(16, 6, 'Beef With Broccoli', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/hnIlwMCd2fatSDgTsCRNJCI57xKlarSq1jQ0NW0w.jpg', '2024-06-27 17:47:08', '2024-06-27 17:47:08'),
+(17, 6, 'Szechuan Beef', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/4ONHgzP0ObJsjlT0dJAhRRNnQJb3vgRUPEDJ0oi6.jpg', '2024-06-27 17:47:21', '2024-06-27 17:47:21'),
+(18, 7, 'Kung Pao Squid', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/xpLBiweObuuH77mt9ci0icl1FcdMOdPKUgrct4fq.jpeg', '2024-06-27 17:49:22', '2024-06-27 17:49:22'),
+(19, 7, 'Shrimp With Broccoli', 'With a side of fried rice or supreme soy noodles, and steamed', 'non-vegetarian', 1, 'meals/ZNfUR6sALsHsCUAHE2bs4T8C0a4jaAJlOmgymUvw.jpeg', '2024-06-27 17:50:15', '2024-06-27 17:50:15');
 
 -- --------------------------------------------------------
 
@@ -338,35 +331,54 @@ CREATE TABLE `meals_size_cost` (
 --
 
 INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `number_of_pieces`, `created_at`, `updated_at`) VALUES
-(1, 1, 3, 105, 1, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(2, 1, 3, 105, 0, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(4, 1, 1, 60, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(5, 1, 4, 150, NULL, '2024-06-22 23:52:13', '2024-06-22 23:51:16'),
-(7, 11, 1, 120, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
-(8, 11, 2, 150, NULL, '2024-06-22 20:52:30', '2024-06-22 20:52:30'),
-(9, 12, 1, 120, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
-(10, 12, 2, 150, NULL, '2024-06-22 20:52:33', '2024-06-22 20:52:33'),
-(11, 14, 1, 120, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
-(12, 14, 2, 150, NULL, '2024-06-22 20:57:03', '2024-06-22 20:57:03'),
-(13, 15, 1, 120, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(14, 15, 2, 150, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(15, 15, 4, 80, NULL, '2024-06-22 20:58:52', '2024-06-22 20:58:52'),
-(16, 16, 1, 120, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
-(17, 16, 2, 150, NULL, '2024-06-22 21:01:37', '2024-06-22 21:01:37'),
-(18, 21, 1, 80, 4, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
-(19, 21, 2, 150, NULL, '2024-06-22 21:04:45', '2024-06-22 21:04:45'),
-(20, 22, NULL, 80, 4, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
-(21, 22, 1, 120, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
-(22, 22, 2, 150, NULL, '2024-06-22 21:05:23', '2024-06-22 21:05:23'),
-(23, 13, 3, 80, 4, '2024-06-26 22:52:32', '2024-06-26 22:52:32'),
-(24, 13, 1, 120, NULL, '2024-06-26 22:52:32', '2024-06-26 22:52:32'),
-(25, 13, 2, 150, NULL, '2024-06-26 22:52:32', '2024-06-26 22:52:32'),
-(26, 14, NULL, 80, 4, '2024-06-26 22:52:51', '2024-06-26 22:52:51'),
-(27, 14, 1, 120, NULL, '2024-06-26 22:52:51', '2024-06-26 22:52:51'),
-(28, 14, 2, 150, NULL, '2024-06-26 22:52:51', '2024-06-26 22:52:51'),
-(29, 15, NULL, 80, 4, '2024-06-27 08:02:42', '2024-06-27 08:02:42'),
-(30, 15, 1, 120, NULL, '2024-06-27 08:02:42', '2024-06-27 08:02:42'),
-(31, 15, 2, 150, NULL, '2024-06-27 08:02:42', '2024-06-27 08:02:42');
+(1, 1, 1, 2, 6, '2024-06-27 16:43:27', '2024-06-27 16:43:27'),
+(2, 1, 2, 2.5, 8, '2024-06-27 16:43:27', '2024-06-27 16:43:27'),
+(3, 1, 3, 3, 10, '2024-06-27 16:43:27', '2024-06-27 16:43:27'),
+(4, 2, 1, 2, 4, '2024-06-27 16:47:19', '2024-06-27 16:47:19'),
+(5, 2, 2, 2.5, 6, '2024-06-27 16:47:19', '2024-06-27 16:47:19'),
+(6, 2, 3, 3, 8, '2024-06-27 16:47:19', '2024-06-27 16:47:19'),
+(7, 3, 1, 2.3, 6, '2024-06-27 16:53:11', '2024-06-27 16:53:11'),
+(8, 3, 2, 2.5, 8, '2024-06-27 16:53:11', '2024-06-27 16:53:11'),
+(9, 3, 3, 10, 3, '2024-06-27 16:53:11', '2024-06-27 16:53:11'),
+(10, 4, 1, 2.3, NULL, '2024-06-27 17:27:45', '2024-06-27 17:27:45'),
+(11, 4, 2, 2.5, NULL, '2024-06-27 17:27:45', '2024-06-27 17:27:45'),
+(12, 4, 3, 10, NULL, '2024-06-27 17:27:45', '2024-06-27 17:27:45'),
+(13, 5, 1, 2.3, NULL, '2024-06-27 17:28:24', '2024-06-27 17:28:24'),
+(14, 5, 2, 2.5, NULL, '2024-06-27 17:28:24', '2024-06-27 17:28:24'),
+(15, 6, 1, 2.3, NULL, '2024-06-27 17:28:41', '2024-06-27 17:28:41'),
+(16, 6, 2, 2.5, NULL, '2024-06-27 17:28:41', '2024-06-27 17:28:41'),
+(17, 7, 1, 2.3, NULL, '2024-06-27 17:28:56', '2024-06-27 17:28:56'),
+(18, 7, 2, 2.5, NULL, '2024-06-27 17:28:56', '2024-06-27 17:28:56'),
+(19, 8, 1, 2.3, NULL, '2024-06-27 17:29:18', '2024-06-27 17:29:18'),
+(20, 8, 2, 2.5, NULL, '2024-06-27 17:29:18', '2024-06-27 17:29:18'),
+(21, 9, 1, 2.3, NULL, '2024-06-27 17:32:08', '2024-06-27 17:32:08'),
+(22, 9, 2, 2.5, NULL, '2024-06-27 17:32:08', '2024-06-27 17:32:08'),
+(23, 10, 1, 2.3, NULL, '2024-06-27 17:32:25', '2024-06-27 17:32:25'),
+(24, 10, 2, 2.5, NULL, '2024-06-27 17:32:25', '2024-06-27 17:32:25'),
+(25, 11, 1, 2.3, NULL, '2024-06-27 17:33:15', '2024-06-27 17:33:15'),
+(26, 11, 2, 2.5, NULL, '2024-06-27 17:33:15', '2024-06-27 17:33:15'),
+(27, 12, 1, 2.3, NULL, '2024-06-27 17:38:02', '2024-06-27 17:38:02'),
+(28, 12, 2, 2.5, NULL, '2024-06-27 17:38:02', '2024-06-27 17:38:02'),
+(29, 13, 1, 2.3, NULL, '2024-06-27 17:38:22', '2024-06-27 17:38:22'),
+(30, 13, 2, 2.5, NULL, '2024-06-27 17:38:22', '2024-06-27 17:38:22'),
+(31, 14, 1, 2.3, 6, '2024-06-27 17:43:20', '2024-06-27 17:43:20'),
+(32, 14, 2, 2.5, 8, '2024-06-27 17:43:20', '2024-06-27 17:43:20'),
+(33, 14, 3, 10, 3, '2024-06-27 17:43:20', '2024-06-27 17:43:20'),
+(34, 15, 1, 2.3, 6, '2024-06-27 17:43:53', '2024-06-27 17:43:53'),
+(35, 15, 2, 2.5, 8, '2024-06-27 17:43:53', '2024-06-27 17:43:53'),
+(36, 15, 3, 10, 3, '2024-06-27 17:43:53', '2024-06-27 17:43:53'),
+(37, 16, 1, 2.3, NULL, '2024-06-27 17:47:08', '2024-06-27 17:47:08'),
+(38, 16, 2, 2.5, NULL, '2024-06-27 17:47:08', '2024-06-27 17:47:08'),
+(39, 16, 3, 10, NULL, '2024-06-27 17:47:08', '2024-06-27 17:47:08'),
+(40, 17, 1, 2.3, NULL, '2024-06-27 17:47:21', '2024-06-27 17:47:21'),
+(41, 17, 2, 2.5, NULL, '2024-06-27 17:47:21', '2024-06-27 17:47:21'),
+(42, 17, 3, 10, NULL, '2024-06-27 17:47:21', '2024-06-27 17:47:21'),
+(43, 18, 1, 2.3, NULL, '2024-06-27 17:49:22', '2024-06-27 17:49:22'),
+(44, 18, 2, 2.5, NULL, '2024-06-27 17:49:22', '2024-06-27 17:49:22'),
+(45, 18, 3, 10, NULL, '2024-06-27 17:49:22', '2024-06-27 17:49:22'),
+(46, 19, 1, 2.3, 6, '2024-06-27 17:50:15', '2024-06-27 17:50:15'),
+(47, 19, 2, 2.5, 8, '2024-06-27 17:50:15', '2024-06-27 17:50:15'),
+(48, 19, 3, 10, 3, '2024-06-27 17:50:15', '2024-06-27 17:50:15');
 
 -- --------------------------------------------------------
 
@@ -386,11 +398,9 @@ CREATE TABLE `meal_extras` (
 --
 
 INSERT INTO `meal_extras` (`meal_id`, `extra_id`, `created_at`, `updated_at`) VALUES
-(1, 1, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(1, 3, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(1, 4, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(1, 5, '2024-06-20 11:27:40', '2024-06-20 11:27:58'),
-(4, 2, '2024-06-20 08:28:03', '2024-06-20 08:28:03');
+(4, 2, '2024-06-27 21:50:40', '2024-06-27 21:50:40'),
+(9, 1, '2024-06-27 21:51:42', '2024-06-27 21:51:42'),
+(12, 4, '2024-06-27 21:51:07', '2024-06-27 21:51:07');
 
 -- --------------------------------------------------------
 
@@ -410,9 +420,9 @@ CREATE TABLE `meal_with_addons` (
 --
 
 INSERT INTO `meal_with_addons` (`meal_id`, `addon_id`, `created_at`, `updated_at`) VALUES
-(1, 1, NULL, NULL),
 (1, 2, NULL, NULL),
-(2, 1, NULL, NULL);
+(8, 4, NULL, NULL),
+(14, 4, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -463,14 +473,6 @@ CREATE TABLE `orders` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `status`, `notes`, `total_cost`, `created_at`, `updated_at`) VALUES
-(8, 8, NULL, 3, 1, NULL, 1640, '2024-06-24 19:18:45', '2024-06-24 19:18:45'),
-(9, 8, NULL, 3, 1, NULL, 1640, '2024-06-24 19:36:49', '2024-06-24 19:36:49');
-
 -- --------------------------------------------------------
 
 --
@@ -486,16 +488,6 @@ CREATE TABLE `order_addons` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `order_addons`
---
-
-INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantity`, `created_at`, `updated_at`) VALUES
-(6, 8, 1, 200, 10, '2024-06-24 19:18:45', '2024-06-24 19:18:45'),
-(7, 8, 2, 240, 10, '2024-06-24 19:18:45', '2024-06-24 19:18:45'),
-(8, 9, 1, 200, 10, '2024-06-24 19:36:49', '2024-06-24 19:36:49'),
-(9, 9, 2, 240, 10, '2024-06-24 19:36:49', '2024-06-24 19:36:49');
 
 -- --------------------------------------------------------
 
@@ -513,14 +505,6 @@ CREATE TABLE `order_extras` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `order_extras`
---
-
-INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `quantity`, `total_cost`, `created_at`, `updated_at`) VALUES
-(3, 8, 1, 10, 150, '2024-06-24 19:18:45', '2024-06-24 19:18:45'),
-(4, 9, 1, 10, 150, '2024-06-24 19:36:49', '2024-06-24 19:36:49');
-
 -- --------------------------------------------------------
 
 --
@@ -537,13 +521,6 @@ CREATE TABLE `order_locations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `order_locations`
---
-
-INSERT INTO `order_locations` (`id`, `customer_id`, `street`, `building`, `area`, `created_at`, `updated_at`) VALUES
-(3, 8, '32-elkasam-street', '23', 'Elhelaly', '2024-06-24 19:05:49', '2024-06-24 19:05:49');
-
 -- --------------------------------------------------------
 
 --
@@ -559,14 +536,6 @@ CREATE TABLE `order_meals` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `order_meals`
---
-
-INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `total_cost`, `created_at`, `updated_at`) VALUES
-(4, 8, 1, 10, 1050, '2024-06-24 19:18:45', '2024-06-24 19:18:45'),
-(5, 9, 1, 10, 1050, '2024-06-24 19:36:49', '2024-06-24 19:36:49');
 
 -- --------------------------------------------------------
 
@@ -782,13 +751,13 @@ ALTER TABLE `sessions`
 -- AUTO_INCREMENT for table `addons`
 --
 ALTER TABLE `addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `customers`
@@ -800,7 +769,7 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `diningtables`
 --
 ALTER TABLE `diningtables`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `email_verification_tokens`
@@ -818,19 +787,19 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `extras`
 --
 ALTER TABLE `extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `meals`
 --
 ALTER TABLE `meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `meals_size_cost`
 --
 ALTER TABLE `meals_size_cost`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `migrations`
@@ -842,31 +811,31 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_locations`
 --
 ALTER TABLE `order_locations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`

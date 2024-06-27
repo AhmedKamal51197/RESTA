@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
-
 class AddonController extends Controller
 {
     // Fetch all addons 
@@ -83,6 +82,7 @@ class AddonController extends Controller
             'category_id' => 'required|exists:categories,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,svg',
             'status' => 'sometimes|boolean',
+            'type' => 'sometimes|in:vegetarian,non-vegetarian',
         ]);
 
         // Handle the image upload
@@ -94,8 +94,8 @@ class AddonController extends Controller
         }
 
         $new_addon = Addon::create(array_merge(
-            $request->only('name', 'description', 'cost'),
-            ['image' => $imagePath, 'status' => $request->input('status', true)]
+            $request->only('name', 'description', 'cost','category_id'),
+            ['image' => $imagePath, 'status' => $request->input('status', true) , 'type' => $request->input('type', 'vegetarian')]
         ));
 
         if ($new_addon) {
@@ -117,6 +117,7 @@ class AddonController extends Controller
                 'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
                 'status' => 'sometimes|boolean',
                 'category_id' => 'sometimes|exists:categories,id',
+                'type' => 'sometimes|in:vegetarian,non-vegetarian',
             ]);
     
             // Handle the image upload
@@ -160,42 +161,45 @@ class AddonController extends Controller
                 'error' => 'Invalid status value. Please enter active or inactive'
             ], 400);
         }
-
+    
         $perPage = 12;
-
-        $addons = $status === 'active' ?
+    
+        $query = $status === 'active' ?
             Addon::where('status', true) :
             Addon::where('status', false);
-
-        $addons = $addons->paginate($perPage);
-
+    
+        $addons = $query->get();
+    
+        if ($addons->isEmpty()) {
+            return response()->json([
+                'status' => 'failed',
+                'error' => 'Not found addons'
+            ], 400);
+        }
+    
+        $paginatedAddons = $query->paginate($perPage);
+    
         $pagination = [
-            'total' => $addons->total(),
-            'per_page' => $addons->perPage(),
-            'current_page' => $addons->currentPage(),
-            'last_page' => $addons->lastPage(),
+            'total' => $paginatedAddons->total(),
+            'per_page' => $paginatedAddons->perPage(),
+            'current_page' => $paginatedAddons->currentPage(),
+            'last_page' => $paginatedAddons->lastPage(),
         ];
-
-        if ($addons->currentPage() > $addons->lastPage()) {
+    
+        if ($paginatedAddons->currentPage() > $paginatedAddons->lastPage()) {
             return response()->json([
                 'status' => 'failed',
                 'error' => 'Page number exceeds the last available page'
             ], 400);
         }
-
-        if ($addons->currentPage() > $addons->lastPage()) {
-            return response()->json([
-                'status' => 'failed',
-                'error' => 'Page number exceeds the last available page'
-            ], 400);
-        }
-        
+    
         return response()->json([
             'status' => 'success',
-            'data' => $addons->items(),
-            "pagination"=>$pagination
+            'data' => $paginatedAddons->items(),
+            'pagination' => $pagination
         ], 200);
     }
+    
    
     // add Addon With Meal
     public function storeAddonsWithMeal(Request $request)

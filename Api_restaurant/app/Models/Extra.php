@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class Extra extends Model
 {
-    protected $fillable = ['name', 'cost'];
+    protected $fillable = ['name', 'cost','category_id','image','description','status','type'];
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -31,6 +31,10 @@ class Extra extends Model
     public function orderextras()
     {
         return $this->hasMany(OrderExtra::class);
+    }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
     use HasFactory;
 }
