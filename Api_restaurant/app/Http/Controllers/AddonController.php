@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+
 
 class AddonController extends Controller
 {
@@ -40,6 +42,13 @@ class AddonController extends Controller
             ], 400);
         }
     
+        if ($addons->isEmpty()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No addon exist'
+            ], 404);
+        } 
+
         return response()->json([
             'status' => 'success',
             'data' => $addons->items(), 
@@ -68,17 +77,13 @@ class AddonController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'cost' => 'required|numeric',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif',
-            'status' => 'sometimes|in:true,false',
+            'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:addons'],
+            'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'cost' => 'required|numeric|min:1',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,svg',
+            'status' => 'sometimes|boolean',
         ]);
-
-        $existingAddon = Addon::where('name', $request->name)->exists();
-        if ($existingAddon) {
-            return response()->json(['status' => 'failed', 'error' => 'Addon with this name already exists'], 409);
-        }
 
         // Handle the image upload
         $imagePath = '';
@@ -106,18 +111,13 @@ class AddonController extends Controller
         $addon = Addon::find($id);
         if ($addon) {
             $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'description' => 'sometimes|required|string',
-                'cost' => 'sometimes|required|numeric',
-                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'sometimes|in:true,false',
+                'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('addons')->ignore($id)],
+                'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+                'cost' => ['sometimes','numeric','min:1'],
+                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
+                'status' => 'sometimes|boolean',
+                'category_id' => 'sometimes|exists:categories,id',
             ]);
-    
-            // Check if addon with the same name already exists
-            $existingAddon = Addon::where('name', $request->name)->where('id', '!=', $id)->first();
-            if ($existingAddon) {
-                return response()->json(['status' => 'failed', 'error' => 'Addon with this name already exists'], 409);
-            }
     
             // Handle the image upload
             if ($request->hasFile('image')) {
@@ -215,7 +215,7 @@ class AddonController extends Controller
         $mealWithAddon = MealWithAddon::create($request->all());
         $newDataAddon = [
                 'meal_name' => $mealWithAddon->meal->name,
-                'addon_name' => $mealWithAddon->addon->name,               
+                'addon_name' => $mealWithAddon->addon->name,  
         ];
 
         return response()->json(['status' => 'success', 'data' => $newDataAddon], 201);
@@ -251,13 +251,11 @@ class AddonController extends Controller
             return [
                 'addon_id' => $mealWithAddon->addon->id,
                 'addon_name' => $mealWithAddon->addon->name,
+                'category_id' => $mealWithAddon->addon->category_id,                            
             ];
         });
 
         return response()->json(['status' => 'success', 'data' => $addonsData], 200);
     }
-
-
-
 
 }

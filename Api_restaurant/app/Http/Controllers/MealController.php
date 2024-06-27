@@ -13,6 +13,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+
+
 
 class MealController extends Controller
 {
@@ -53,6 +57,7 @@ class MealController extends Controller
                         'id' => $addon->id,
                         'name' => $addon->name,
                         'cost' => $addon->cost,
+                        'category_id' => $addon->category_id,
                         'description' => $addon->description,
                         'image' => $addon->image,
                     ];
@@ -66,6 +71,8 @@ class MealController extends Controller
                         'id' => $extra->id,
                         'name' => $extra->name,
                         'cost' => $extra->cost,
+                        'category_id' => $extra->category_id,
+
                     ];
                 }
                 return null;
@@ -121,44 +128,55 @@ class MealController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
+            'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:meals'],
+            'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'type' => 'required|in:vegetarian,non-vegetarian',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,svg',
             'status' => 'sometimes|boolean',
             'meal_size_costs' => 'required|array',
-            'meal_size_costs.*.number_of_pieces' => 'required_without_all:meal_size_costs.*.size|integer',
-            'meal_size_costs.*.size' => 'required_without_all:meal_size_costs.*.number_of_pieces|integer',
-            'meal_size_costs.*.cost' => 'required|numeric',
+            'meal_size_costs.*.number_of_pieces' => ['required_without_all:meal_size_costs.*.size','integer','min:1'],
+            'meal_size_costs.*.size' => ['required_without_all:meal_size_costs.*.number_of_pieces','integer','min:1' ,' max:4'],
+            'meal_size_costs.*.cost' => ['required', 'numeric', 'min:1'],
         ]);
     
         $imagePath = $this->handleImageUpload($request);
-    
-        $newMeal = Meal::create([
-            'name' => $validatedData['name'],
-            'description' => $validatedData['description'],
-            'type' => $validatedData['type'],
-            'category_id' => $validatedData['category_id'],
-            'image' => $imagePath,
-            'status' => $validatedData['status'] ?? true,
-        ]);
-    
-        if (isset($validatedData['meal_size_costs'])) {
-            foreach ($validatedData['meal_size_costs'] as $sizeCost) {
-                if (isset($sizeCost['size']) || isset($sizeCost['number_of_pieces'])) {
-                    $newMeal->mealSizeCosts()->create([
-                        'size' => $sizeCost['size'] ?? null,
-                        'cost' => $sizeCost['cost'],
-                        'number_of_pieces' => $sizeCost['number_of_pieces'] ?? null,
-                    ]);
+
+        DB::beginTransaction();
+
+        try {
+            
+            $newMeal = Meal::create([
+                'name' => $validatedData['name'],
+                'description' => $validatedData['description'],
+                'type' => $validatedData['type'],
+                'category_id' => $validatedData['category_id'],
+                'image' => $imagePath,
+                'status' => $validatedData['status'] ?? true,
+            ]);
+        
+            if (isset($validatedData['meal_size_costs'])) {
+                foreach ($validatedData['meal_size_costs'] as $sizeCost) {
+                    if (isset($sizeCost['cost'])) {
+                        $newMeal->mealSizeCosts()->create([
+                            'size' => $sizeCost['size'] ?? null,
+                            'cost' => $sizeCost['cost'],
+                            'number_of_pieces' => $sizeCost['number_of_pieces'] ?? null,
+                        ]);
+                    }
                 }
             }
+             DB::commit();
+        
+            $newMealData = $this->DataMeal($newMeal);
+        
+            return response()->json(['status' => 'success', 'data' => $newMealData], 201);
+        
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['status' => 'error', 'message' => $e->message()], 500);
         }
-
-        $newMealData = $this->DataMeal($newMeal);
-   
-        return response()->json(['status' => 'success', 'data' => $newMealData], 201);
+        
     }
 
     // Update a meal
@@ -172,18 +190,19 @@ class MealController extends Controller
         }
         
         $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'type' => 'sometimes|required|in:vegetarian,non-vegetarian',
-            'status' => 'sometimes|required|boolean',
-            'category_id' => 'sometimes|required|exists:categories,id',
-            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('meals')->ignore($id)],
+            'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'type' => 'sometimes|in:vegetarian,non-vegetarian',
+            'category_id' => 'sometimes|exists:categories,id',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
+            'status' => 'sometimes|boolean',
             'meal_size_costs' => 'sometimes|array',
             'meal_size_costs.*.id' => 'sometimes|required|integer|exists:meals_size_costs,id',
-            'meal_size_costs.*.size' => 'required_without_all:meal_size_costs.*.number_of_pieces|integer',
-            'meal_size_costs.*.number_of_pieces' => 'required_without_all:meal_size_costs.*.size|integer',
-            'meal_size_costs.*.cost' => 'required|numeric',
+            'meal_size_costs.*.number_of_pieces' => ['sometimes','integer','min:1'],
+            'meal_size_costs.*.size' => ['required','integer','min:1' ,' max:4'],
+            'meal_size_costs.*.cost' => ['required', 'numeric', 'min:1'],
         ]);
+
         
         if ($request->hasFile('image')) {
             $this->deleteOldImage($meal);
@@ -201,6 +220,29 @@ class MealController extends Controller
         
         if (isset($validatedData['meal_size_costs'])) 
         {
+            $mealSizeCostRules = [];
+            foreach ($validatedData['meal_size_costs'] as $key => $value) {
+                $mealSizeCostRules["meal_size_costs.$key"] = [
+                    function ($attribute, $value, $fail) use ($id, $key, $validatedData) {
+                        $size = $validatedData['meal_size_costs'][$key]['size'] ?? null;
+                        $number_of_pieces = $validatedData['meal_size_costs'][$key]['number_of_pieces'] ?? null;
+                        $cost = $validatedData['meal_size_costs'][$key]['cost'];
+            
+                        $exists = MealsSizeCost::where('meal_id', $id)
+                            ->where('size', $size)
+                            ->where('number_of_pieces', $number_of_pieces)
+                            ->where('cost', $cost)
+                            ->exists();
+            
+                        if ($exists) {
+                            $fail("The of size, number of pieces, and cost is  already taken.");
+                        }
+                    },
+                ];
+            }            
+            $request->validate($mealSizeCostRules);
+
+            
             foreach ($validatedData['meal_size_costs'] as $sizeCostData) 
             {
                 if (isset($sizeCostData['id'])) 
@@ -390,6 +432,7 @@ class MealController extends Controller
                     'name' => $addon->name,
                     'cost' => $addon->cost,
                     'description' => $addon->description,
+                    'category_id' => $addon->category_id,
                     'image' => $addon->image,
                 ];
             }
@@ -403,6 +446,7 @@ class MealController extends Controller
                     'id' => $extra->id,
                     'name' => $extra->name,
                     'cost' => $extra->cost,
+                    'category_id' => $extra->category_id,
                 ];
             }
             return null;
@@ -415,7 +459,7 @@ class MealController extends Controller
             'type' => $meal->type,
             'category_id' => $meal->category_id,
             'image' => $meal->image,
-            // 'status' => $meal->status,
+            'status' => $meal->status,
             'meal_size_costs' => $mealCosts->isEmpty() ? null : $mealCosts,
             'addons' => $addons->isEmpty() ? null : $addons,
             'extras' =>$extras->isEmpty() ? null : $extras
