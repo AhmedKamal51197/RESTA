@@ -10,10 +10,18 @@ class Category extends Model
 {
     use HasFactory;
     //New
-    protected $fillable =['name', 'description','image','status'];
+    protected $fillable =['name', 'description','image'];
     public function meals()
     {
         return $this->hasMany(Meal::class);
+    }
+    public function extras()
+    {
+        return $this->hasMany(Extra::class);
+    }
+    public function addons()
+    {
+        return $this->hasMany(Addon::class);
     }
     protected $casts = [
         'created_at' => 'datetime',
