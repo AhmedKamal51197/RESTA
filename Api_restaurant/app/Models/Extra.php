@@ -32,5 +32,9 @@ class Extra extends Model
     {
         return $this->hasMany(OrderExtra::class);
     }
+      public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     use HasFactory;
 }
