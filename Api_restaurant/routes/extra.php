@@ -12,5 +12,6 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::delete('admin/extras/{id}', [ExtraController::class, 'destroy']);
     Route::post('admin/meals/{meal_id}/extras',[ExtraController::class,'storeExtraMeals']);
 });
-
 Route::get('meals/{id}/extras',[ExtraController::class,'getExtraById']);
+
+

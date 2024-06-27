@@ -11,6 +11,9 @@ use Symfony\Component\EventDispatcher\DependencyInjection\ExtractingEventDispatc
 
 use function Laravel\Prompts\error;
 use function PHPUnit\Framework\throwException;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ExtraController extends Controller
 {
@@ -59,12 +62,28 @@ class ExtraController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => ['required', 'string', 'min:3', 'max:20'],
-            'cost' => ['required', 'numeric']
+            'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:extras'],
+            'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'cost' => ['required', 'numeric','min:1'],
+            'status' => ['sometimes', 'boolean'],
+            'category_id' => ['required','exists:categories,id'],
+            'image' => ['required','image','mimes:jpeg,png,jpg,gif,bmp,svg']
         ]);
+
+        $imagePath = '';
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('extras', $imageName, 'public');
+        }
+
         $extra = Extra::create([
             'name' => $validatedData['name'],
-            'cost' => $validatedData['cost']
+            'cost' => $validatedData['cost'],
+            'cost' => $validatedData['cost'],
+            'status' => $validatedData['status'] ?? true,
+            'category_id' => $validatedData['category_id'],
+            'image' => $imagePath,
         ]);
         if (!$extra) {
             return response()->json([
@@ -89,11 +108,26 @@ class ExtraController extends Controller
             ], 404);
         }
         $validatedData = $request->validate([
-            'name' => ['sometimes', 'string', 'min:3', 'max:20'],
-            'cost' => ['sometimes', 'numeric']
+            'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('extras')->ignore($id)],
+            'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'cost' => ['sometimes', 'numeric','min:1'],
+            'status' => ['sometimes', 'boolean'],
+            'category_id' => ['sometimes','exists:categories,id'],
+            'image' => ['sometimes','image','mimes:jpeg,png,jpg,gif,bmp,svg']
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($extra->image) {
+                Storage::disk('public')->delete($extra->image);
+            }
+            $image = $request->file('image');
+            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('extras', $imageName, 'public');
+            $extra->image = $imagePath;
+        }
+
         foreach ($validatedData as $key => $value) {
-            if (isset($validatedData[$key])) {
+            if (isset($validatedData[$key])&& $key != 'image') {
                 $extra->$key = $value;
             }
         }
@@ -109,6 +143,11 @@ class ExtraController extends Controller
     {
         try {
             $extra = Extra::findOrFail($id);
+            if ($extra) {
+                if ($extra->image) {
+                    Storage::disk('public')->delete($extra->image);
+                }
+            }
             $extra->delete();
             return response()->json([
                 'status' => 'success',
