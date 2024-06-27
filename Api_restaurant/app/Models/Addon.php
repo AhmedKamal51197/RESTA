@@ -16,6 +16,8 @@ class Addon extends Model
         'description',
         'status',
         'image',
+        'category_id',
+        
     ];
     public function orderaddons()
     {
