@@ -41,5 +41,9 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     use HasFactory;
 }

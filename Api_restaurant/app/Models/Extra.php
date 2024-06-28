@@ -9,6 +9,8 @@ use Carbon\Carbon;
 class Extra extends Model
 {
     protected $fillable = ['name', 'cost','category_id','image','description','status','type'];
+    
+ 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
