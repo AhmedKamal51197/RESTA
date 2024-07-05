@@ -21,74 +21,58 @@ class CategoriesController extends Controller
     public function AllItems(Request $request)
     {
         $perPage = 12;
-    
-        $categories = Category::with([
-            'meals' => function ($query) {
-                $query->where('status', 1);
-                }, 
-            'extras' => function ($query) {
-            $query->where('status', 1);
-            }, 
-            'addons' => function ($query) {
-            $query->where('status', 1);
-           },
-         ])->paginate($perPage);
-    
-        if ($categories->isEmpty()) {
-            return response()->json(['message' => 'No categories found'], 404);
+        
+        $meals = [];
+        $addons = [];
+        $extras = [];
+
+        $mealsQuery = Meal::where('status', 1);
+        if ($request->has('category_id')) {
+            $mealsQuery->where('category_id', $request->category_id);
         }
-    
-        $isAdmin = Auth::guard('admin-api')->check();
-    
-        $categories->getCollection()->transform(function ($category) use ($isAdmin) {
-            // Filter and map meals based on admin status and meal status
-            $meals = $category->meals->filter(function ($meal) use ($isAdmin) {
-                return $isAdmin || $meal->status != 0;
-            })->map(function ($meal) {
-                return $this->DataMeal($meal);
-            })->values()->toArray(); // Convert filtered meals collection to array
-    
-            // Make addons visible based on admin status
-            $category->addons->each(function ($addon) use ($isAdmin) {
-                $addon->status = $isAdmin || $addon->status;
-                $addon->makeVisible(['id', 'category_id', 'name', 'description', 'type','cost', 'status', 'image']);
-            });
-    
-            // Make extras visible based on admin status
-            $category->extras->each(function ($extra) use ($isAdmin) {
-                $extra->status = $isAdmin || $extra->status;
-                $extra->makeVisible(['id', 'category_id', 'name', 'description', 'type','cost', 'status', 'image']);
-            });
-    
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'description' => $category->description,
-                'image' => $category->image,
-                'meals' => $meals, 
-                'addons' => $category->addons->toArray(), 
-                'extras' => $category->extras->toArray(),
-            ];
-        });
-    
+        $meals = $mealsQuery->get()->map(function ($meal) {
+            $mealData = $this->DataMeal($meal);
+            $mealData['table_name'] = 'meals';
+            return $mealData;
+        })->toArray();
+
+        $addonsQuery = Addon::where('status', 1);
+        if ($request->has('category_id')) {
+            $addonsQuery->where('category_id', $request->category_id);
+        }
+        $addons = $addonsQuery->get()->map(function ($addon) {
+            $addon['table_name'] = 'addons'; 
+            return $addon;
+        })->toArray();
+
+        $extrasQuery = Extra::where('status', 1);
+        if ($request->has('category_id')) {
+            $extrasQuery->where('category_id', $request->category_id);
+        }
+        $extras = $extrasQuery->get()->map(function ($extra) {
+            $extra['table_name'] = 'extras'; 
+            return $extra;
+        })->toArray();
+
+        $allItems = array_merge($meals, $addons, $extras);
+
+        $totalItems = count($allItems);
+        $currentPage = $request->query('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $itemsForPage = array_slice($allItems, $offset, $perPage);
+        $lastPage = ceil($totalItems / $perPage);
+
         $pagination = [
-            'total' => $categories->total(),
-            'per_page' => $categories->perPage(),
-            'current_page' => $categories->currentPage(),
-            'last_page' => $categories->lastPage(),
+            'total' => $totalItems,
+            'per_page' => $perPage,
+            'current_page' => $currentPage,
+            'last_page' => $lastPage,
         ];
-    
-        if ($categories->currentPage() > $categories->lastPage()) {
-            return response()->json([
-                'status' => 'failed',
-                'error' => 'Page number exceeds the last available page'
-            ], 400);
-        }
-    
+
         return response()->json([
             'status' => 'success',
-            'data' => $categories->items(),
-            'pagination' => $pagination
+            'data' => $itemsForPage,
+            'pagination' => $pagination,
         ], 200);
     }
 
@@ -99,7 +83,7 @@ class CategoriesController extends Controller
             return response()->json(['status'=>'failed','message' => 'No categories found'], 404);
         }
 
-        return response()->json(['status'=>'Ok','data' => $categories], 404);
+        return response()->json(['status'=>'Ok','data' => $categories], 200);
 
     }
     public function getCategoryById($id)
