@@ -5,27 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
-
-class Addon extends Model
+class OrderLocation extends Model
 {
 
-    protected $fillable=[
+    protected $table = 'order_locations';
+    protected $fillable =[
         'id',
-        'name',
-        'cost',
-        'description',
-        'status',
-        'image',
-        'category_id',
-        'type',
-    ];
-    public function category()
+        'customer_id',
+        'street',
+        'building',
+        'area'
+    ] ;
+    public function customer()
     {
-        return $this->belongsTo(Category::class);
-    }
-    public function orderaddons()
-    {
-        return $this->hasMany(OrderAddon::class);
+        return $this->belongsTo(Customer::class);
     }
     protected $casts = [
         'created_at' => 'datetime',
@@ -41,6 +34,5 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
- 
     use HasFactory;
 }

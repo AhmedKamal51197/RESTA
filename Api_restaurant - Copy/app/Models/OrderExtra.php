@@ -6,26 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Addon extends Model
+class OrderExtra extends Model
 {
 
-    protected $fillable=[
+    protected $table = 'order_extras';
+    protected $fillable = [
         'id',
-        'name',
-        'cost',
-        'description',
-        'status',
-        'image',
-        'category_id',
-        'type',
+        'order_id',
+        'extra_id',
+        'quantity',
+        'total_cost'
     ];
-    public function category()
+    public function order()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Order::class);
     }
-    public function orderaddons()
+    public function extra()
     {
-        return $this->hasMany(OrderAddon::class);
+        return $this->belongsTo(Extra::class);
     }
     protected $casts = [
         'created_at' => 'datetime',
@@ -41,6 +39,5 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
- 
     use HasFactory;
 }

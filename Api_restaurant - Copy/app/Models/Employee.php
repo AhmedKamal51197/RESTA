@@ -4,29 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 use Carbon\Carbon;
 
-class Addon extends Model
+class Employee extends Authenticatable implements JWTSubject
 {
 
-    protected $fillable=[
-        'id',
+    protected $fillable= [
         'name',
-        'cost',
-        'description',
-        'status',
-        'image',
-        'category_id',
-        'type',
+        'is_admin',
+        'phone',
+        'email',
+        'password',
+        'identity_card',
+        'status'
     ];
-    public function category()
+   
+    protected $hidden = [
+        'password',
+        
+    ];
+  
+    public function getJWTIdentifier()
     {
-        return $this->belongsTo(Category::class);
+        return $this->getKey();
     }
-    public function orderaddons()
+
+
+    public function getJWTCustomClaims()
     {
-        return $this->hasMany(OrderAddon::class);
+        return [];
     }
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -41,6 +51,5 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
- 
     use HasFactory;
 }

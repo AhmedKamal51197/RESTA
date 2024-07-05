@@ -6,27 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Addon extends Model
+class MealWithAddon extends Model
 {
+    protected $table = 'meal_with_addons';
 
-    protected $fillable=[
-        'id',
-        'name',
-        'cost',
-        'description',
-        'status',
-        'image',
-        'category_id',
-        'type',
+    protected $fillable = [
+        'meal_id', 'addon_id'
     ];
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
-    public function orderaddons()
-    {
-        return $this->hasMany(OrderAddon::class);
-    }
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -41,6 +28,15 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
- 
     use HasFactory;
+    
+    public function meal()
+    {
+        return $this->belongsTo(Meal::class, 'meal_id');
+    }
+
+    public function addon()
+    {
+        return $this->belongsTo(Addon::class, 'addon_id');
+    }
 }
