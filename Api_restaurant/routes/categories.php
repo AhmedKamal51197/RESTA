@@ -19,8 +19,10 @@ use  App\Http\Controllers\CategoriesController;
 
 
 
-    Route::get('/categories',[CategoriesController::class,'getAllCategories'] );
+    Route::get('/AllItems',[CategoriesController::class,'AllItems'] );
+    Route::get('/categories',[CategoriesController::class,'index'] );
     Route::get('/categories/{id}', [CategoriesController::class, 'getCategoryById']);
+
     // Authorize for admin only  
     Route::group(['middleware'=>['auth:admin-api','checkAdminToken']],function(){
         Route::post('/categories', [CategoriesController::class,'addNewCategory']);

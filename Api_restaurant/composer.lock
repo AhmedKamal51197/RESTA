@@ -4,7 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc41803a3671bcc604264007e812ba2a",
+
+    "content-hash": "14bccaec320f07f311226c7401ba48ec",
+
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -609,6 +611,79 @@
                 }
             ],
             "time": "2023-10-06T06:47:41+00:00"
+        },
+        {
+            "name": "endroid/qr-code",
+            "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/endroid/qr-code.git",
+                "reference": "6fa27c4bcc87eddd4f8eb4f1ba796552a7d85f1e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/endroid/qr-code/zipball/6fa27c4bcc87eddd4f8eb4f1ba796552a7d85f1e",
+                "reference": "6fa27c4bcc87eddd4f8eb4f1ba796552a7d85f1e",
+                "shasum": ""
+            },
+            "require": {
+                "bacon/bacon-qr-code": "^2.0",
+                "php": "^7.3||^8.0"
+            },
+            "require-dev": {
+                "endroid/quality": "dev-master",
+                "ext-gd": "*",
+                "khanamiryan/qrcode-detector-decoder": "^1.0.4",
+                "setasign/fpdf": "^1.8.2"
+            },
+            "suggest": {
+                "ext-gd": "Enables you to write PNG images",
+                "khanamiryan/qrcode-detector-decoder": "Enables you to use the image validator",
+                "roave/security-advisories": "Makes sure package versions with known security issues are not installed",
+                "setasign/fpdf": "Enables you to use the PDF writer.",
+                "symfony/security-checker": "Checks your composer.lock for vulnerabilities"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Endroid\\QrCode\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeroen van den Enden",
+                    "email": "info@endroid.nl"
+                }
+            ],
+            "description": "Endroid QR Code",
+            "homepage": "https://github.com/endroid/qr-code",
+            "keywords": [
+                "code",
+                "endroid",
+                "php",
+                "qr",
+                "qrcode"
+            ],
+            "support": {
+                "issues": "https://github.com/endroid/qr-code/issues",
+                "source": "https://github.com/endroid/qr-code/tree/4.0.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/endroid",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-02-28T00:21:41+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -3578,22 +3653,26 @@
         },
         {
             "name": "simplesoftwareio/simple-qrcode",
-            "version": "4.2.0",
+
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/SimpleSoftwareIO/simple-qrcode.git",
-                "reference": "916db7948ca6772d54bb617259c768c9cdc8d537"
+                "reference": "c0f86e7c6ee88833ec100244d3f56aaa9d8e314e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SimpleSoftwareIO/simple-qrcode/zipball/916db7948ca6772d54bb617259c768c9cdc8d537",
-                "reference": "916db7948ca6772d54bb617259c768c9cdc8d537",
+                "url": "https://api.github.com/repos/SimpleSoftwareIO/simple-qrcode/zipball/c0f86e7c6ee88833ec100244d3f56aaa9d8e314e",
+                "reference": "c0f86e7c6ee88833ec100244d3f56aaa9d8e314e",
+
                 "shasum": ""
             },
             "require": {
                 "bacon/bacon-qr-code": "^2.0",
                 "ext-gd": "*",
-                "php": ">=7.2|^8.0"
+
+                "php": ">=7.2"
+
             },
             "require-dev": {
                 "mockery/mockery": "~1",
@@ -3630,7 +3709,9 @@
                 }
             ],
             "description": "Simple QrCode is a QR code generator made for Laravel.",
-            "homepage": "https://www.simplesoftware.io/#/docs/simple-qrcode",
+
+            "homepage": "http://www.simplesoftware.io",
+
             "keywords": [
                 "Simple",
                 "generator",
@@ -3640,9 +3721,11 @@
             ],
             "support": {
                 "issues": "https://github.com/SimpleSoftwareIO/simple-qrcode/issues",
-                "source": "https://github.com/SimpleSoftwareIO/simple-qrcode/tree/4.2.0"
+
+                "source": "https://github.com/SimpleSoftwareIO/simple-qrcode/tree/4.0.0"
             },
-            "time": "2021-02-08T20:43:55+00:00"
+            "time": "2020-10-03T14:22:53+00:00"
+
         },
         {
             "name": "stella-maris/clock",
@@ -6600,16 +6683,18 @@
         },
         {
             "name": "laravel/sail",
-            "version": "v1.30.1",
+
+            "version": "v1.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/sail.git",
-                "reference": "8ba049b6c06e0330b6aa1fb7af2746fb4da445e4"
+                "reference": "e08b594052385ab9891dd86047e52da8a953c827"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/sail/zipball/8ba049b6c06e0330b6aa1fb7af2746fb4da445e4",
-                "reference": "8ba049b6c06e0330b6aa1fb7af2746fb4da445e4",
+                "url": "https://api.github.com/repos/laravel/sail/zipball/e08b594052385ab9891dd86047e52da8a953c827",
+                "reference": "e08b594052385ab9891dd86047e52da8a953c827",
+
                 "shasum": ""
             },
             "require": {
@@ -6659,7 +6744,9 @@
                 "issues": "https://github.com/laravel/sail/issues",
                 "source": "https://github.com/laravel/sail"
             },
-            "time": "2024-07-01T20:55:03+00:00"
+
+            "time": "2024-06-18T17:36:56+00:00"
+
         },
         {
             "name": "mockery/mockery",
@@ -8421,16 +8508,18 @@
         },
         {
             "name": "spatie/error-solutions",
-            "version": "1.0.4",
+
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/error-solutions.git",
-                "reference": "264a7eef892aceb2fd65e206127ad3af4f3a2d6b"
+                "reference": "9782ba6e25cb026cc653619e01ca695d428b3f03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/264a7eef892aceb2fd65e206127ad3af4f3a2d6b",
-                "reference": "264a7eef892aceb2fd65e206127ad3af4f3a2d6b",
+                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/9782ba6e25cb026cc653619e01ca695d428b3f03",
+                "reference": "9782ba6e25cb026cc653619e01ca695d428b3f03",
+
                 "shasum": ""
             },
             "require": {
@@ -8483,7 +8572,9 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/error-solutions/issues",
-                "source": "https://github.com/spatie/error-solutions/tree/1.0.4"
+
+                "source": "https://github.com/spatie/error-solutions/tree/1.0.2"
+
             },
             "funding": [
                 {
@@ -8491,7 +8582,9 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-28T13:33:04+00:00"
+
+            "time": "2024-06-26T13:09:17+00:00"
+
         },
         {
             "name": "spatie/flare-client-php",

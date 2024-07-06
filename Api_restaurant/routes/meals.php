@@ -14,15 +14,19 @@ use  App\Http\Controllers\MealController;
 |
 */
 
+
 Route::group(['middleware' => 'checkAdminToken'], function () {
-    Route::post('/meals', [MealController::class, 'store']);
-    Route::put('/meals/{id}', [MealController::class, 'update']);
-    Route::delete('/meals/{id}', [MealController::class, 'deleteMeal']);
-    Route::get('/meals/status/{status}',[MealController::class,'filterByStatus']);
+    Route::post('/admin/meals', [MealController::class, 'store']);
+    Route::put('/admin/meals/{id}', [MealController::class, 'update']);
+    Route::delete('/admin/meals/{id}', [MealController::class, 'deleteMeal']);
+    Route::get('/admin/meals/status/{status}',[MealController::class,'filterByStatus']);
+    Route::get('/admin/meals', [MealController::class, 'index']);
+    Route::get('/admin/categories/{categoryId}/meals', [MealController::class, 'filterByCategory']);
+    Route::get('/admin/meals/type/{type}', [MealController::class, 'filterByType']);
+
+
 });
 
-Route::get('/meals', [MealController::class, 'index']);
 Route::get('/meals/{id}', [MealController::class, 'show']);
-Route::get('/categories/{categoryId}/meals', [MealController::class, 'filterByCategory']);
-Route::get('/meals/type/{type}', [MealController::class, 'filterByType']);
+
 
