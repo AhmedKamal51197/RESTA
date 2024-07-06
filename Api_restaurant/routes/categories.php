@@ -22,7 +22,7 @@ use  App\Http\Controllers\CategoriesController;
     Route::get('/categories',[CategoriesController::class,'getAllCategories'] );
     Route::get('/categories/{id}', [CategoriesController::class, 'getCategoryById']);
     // Authorize for admin only  
-    Route::group(['middleware'=>'auth:admin-api'],function(){
+    Route::group(['middleware'=>['auth:admin-api','checkAdminToken']],function(){
         Route::post('/categories', [CategoriesController::class,'addNewCategory']);
         Route::put('/categories/{id}', [CategoriesController::class,'updateCategory']);
         Route::delete('/categories/{id}',[CategoriesController::class,'deleteCategory']);    

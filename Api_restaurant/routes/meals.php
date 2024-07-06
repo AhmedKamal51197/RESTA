@@ -14,7 +14,7 @@ use  App\Http\Controllers\MealController;
 |
 */
 
-Route::group(['middleware' => 'auth:admin-api'], function () {
+Route::group(['middleware' => 'checkAdminToken'], function () {
     Route::post('/meals', [MealController::class, 'store']);
     Route::put('/meals/{id}', [MealController::class, 'update']);
     Route::delete('/meals/{id}', [MealController::class, 'deleteMeal']);

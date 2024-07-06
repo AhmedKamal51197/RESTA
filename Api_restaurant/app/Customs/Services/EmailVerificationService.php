@@ -121,7 +121,7 @@ class EmailVerificationService
             $checkIfTokenExists = EmailVerificationToken::where('email',$email)->first();
             if($checkIfTokenExists) $checkIfTokenExists->delete();
             $token = Str::uuid(); 
-            $url =  "localhost:3000/verify?token=".$token."&email=".$email;
+            $url =  "http://localhost:3000/customer/verify?token=".$token."&email=".$email;
             $saveToken = EmailVerificationToken::create([
                 "email"=>$email,
                 "token"=>$token,

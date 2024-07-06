@@ -93,7 +93,7 @@ class EmailResetPasswordService
             $checkIfTokenExists = ResetPasswordToken::where('email',$email)->first();
             if($checkIfTokenExists) $checkIfTokenExists->delete();
             $token = Str::uuid(); 
-            $url =  "http://127.0.0.1:8000/api/auth/reset-password-form?token=".$token."&email=".$email;
+            $url =   "http://localhost:3000/customer/resetpassword?token=".$token."&email=".$email;
             $saveToken = ResetPasswordToken::create([
                 "email"=>$email,
                 "token"=>$token,

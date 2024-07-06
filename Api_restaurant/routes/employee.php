@@ -31,4 +31,8 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::put('admin/employees/{id}',[EmployeeController::class,'update']);
     //delete employee 
     Route::delete('admin/employees/{id}',[EmployeeController::class,'destroy']);
+    //logout 
 });
+
+
+Route::post('admin/logout',[EmployeeController::class,'logout'])->middleware('auth:admin-api');

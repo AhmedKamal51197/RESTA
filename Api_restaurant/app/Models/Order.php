@@ -52,6 +52,10 @@ class Order extends Model
     {
         return $this->belongsTo(OrderLocation::class);
     }
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class);
+    }
     
     use HasFactory;
 }

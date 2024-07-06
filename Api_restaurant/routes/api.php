@@ -35,7 +35,7 @@ Route::post('auth/reset-password',[CustomerController::class,'resetpassword']);
 
 // cutomer endpoints in dashboard
 // this for employee admin and this is allow to superadmin also
-Route::group(['middleware'=>'auth:admin-api'],function(){
+Route::group(['middleware'=>['auth:admin-api','CheckRolePermission']],function(){
 Route::post('admin/customers',[CustomerController::class,'addCustomer']);
 Route::delete('admin/customers/{id}',[CustomerController::class,'destroy']);
 Route::put('admin/customers/{id}',[CustomerController::class,'update']);
