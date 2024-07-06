@@ -3,7 +3,7 @@
 use App\Http\Controllers\ExtraController;
 use App\Models\Extra;
 use Illuminate\Support\Facades\Route;
-Route::group(['middleware'=>'auth:admin-api'],function(){
+Route::group(['middleware'=>'checkAdminToken'],function(){
 
     Route::get('admin/extras', [ExtraController::class, 'index']);
     Route::get('admin/meals/{id}/extras',[ExtraController::class,'getExtraById']);

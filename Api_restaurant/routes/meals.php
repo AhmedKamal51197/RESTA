@@ -14,7 +14,8 @@ use  App\Http\Controllers\MealController;
 |
 */
 
-Route::group(['middleware' => 'auth:admin-api'], function () {
+
+Route::group(['middleware' => 'checkAdminToken'], function () {
     Route::post('/admin/meals', [MealController::class, 'store']);
     Route::put('/admin/meals/{id}', [MealController::class, 'update']);
     Route::delete('/admin/meals/{id}', [MealController::class, 'deleteMeal']);
@@ -22,6 +23,7 @@ Route::group(['middleware' => 'auth:admin-api'], function () {
     Route::get('/admin/meals', [MealController::class, 'index']);
     Route::get('/admin/categories/{categoryId}/meals', [MealController::class, 'filterByCategory']);
     Route::get('/admin/meals/type/{type}', [MealController::class, 'filterByType']);
+
 
 });
 

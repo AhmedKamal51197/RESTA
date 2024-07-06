@@ -13,7 +13,7 @@ class Employee extends Authenticatable implements JWTSubject
 
     protected $fillable= [
         'name',
-        'is_admin',
+        'Role',
         'phone',
         'email',
         'password',
@@ -40,8 +40,26 @@ class Employee extends Authenticatable implements JWTSubject
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'Role'=>'integer'
     ];
-
+    public function setRoleAttribute($value)
+    {
+        $roles = [
+            'admin'=>1,
+            'chef'=>2,
+            'casher'=>3
+        ];
+        $this->attributes['Role'] = $roles[$value] ?? 3;
+    }
+    public function getRoleAttribute($value)
+    {
+        $roles = [
+            1=>'admin',
+            2=>'chef',
+            3=>'casher'
+        ];
+        return $roles[$value] ??'casher';
+    }
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');

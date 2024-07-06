@@ -245,7 +245,9 @@ class CustomerController extends Controller
     {
         $perPage=12;
         $customers = Customer::paginate($perPage);
-        if ($customers->isEmpty()) {
+        //$customers->isEmpty() == $customers->count()===0 casue it's check for collection and check if items in collection empty or not 
+        //but empty($customer) ---> php method check if variable is empty or not and with pagination varaible is combine items and paginate data 
+        if ($customers->isEmpty() ) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'No customers found'
