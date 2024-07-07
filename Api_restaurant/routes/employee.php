@@ -34,5 +34,9 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     //logout 
 });
 
-
-Route::post('admin/logout',[EmployeeController::class,'logout'])->middleware('auth:admin-api');
+Route::group(['middleware'=>'auth:admin-api'],function(){
+    Route::patch('admin/employees',[EmployeeController::class,'EditHisData']);
+    Route::post('admin/logout',[EmployeeController::class,'logout']);
+    Route::patch('admin/employees/change-password',[EmployeeController::class,'changePassword']);
+    Route::patch('admin/employees/change-email',[EmployeeController::class,'changeEmail']);
+});

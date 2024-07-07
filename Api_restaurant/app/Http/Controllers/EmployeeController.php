@@ -34,7 +34,7 @@ class EmployeeController extends Controller
         } else {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'Employee not found'
+                'message' => 'Email or password incorrect'
             ], 401);
         }
     }
@@ -166,6 +166,99 @@ class EmployeeController extends Controller
         ], 200);
     }
 
+    //change email in profile
+    public function changeEmail(Request $request)
+    {
+        $id=auth('admin-api')->id();
+        $vlaidatedData=$request->validate([
+            'password'=>['required'],
+            'email' => ['string', 'email', 'unique:employees,email,' .$id ], //'unique:employees,email,'.$id to exclude account itself to donot make confilct if it duplicate with same email
+        ]);
+        try{
+            $emp=Employee::findOrFail($id);
+            if(Hash::check($vlaidatedData['password'],$emp->password))
+            {
+                $emp->email=$vlaidatedData['email'];
+                $emp->save();
+                return response()->json([
+                    'status'=>'success',
+                    'message'=>'Your email changed successfully'
+                ],200);
+            }
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'invalid Password'
+            ],404);
+        }catch(ModelNotFoundException $e)
+        {
+            return response()->json([
+                'status'=>'failed',
+                'messsage'=>'Account not Found'
+            ],404);
+        }
+    }
+    // update his/her profile
+    public function EditHisData(Request $request)
+    {
+        $id = auth('admin-api')->id();
+        $vlaidatedData = $request->validate([
+            'name' => ['string', 'min:3', 'max:20'],
+            'phone' => ['string', 'min:8', 'max:12'],
+            'identity_card' => ['string', 'min:6', 'max:8', 'unique:employees,identity_card,' . $id], //same thing like email
+        ]);
+        try{
+            $employee = Employee::find($id);
+        foreach($vlaidatedData as $key=>$value)
+        {
+            if(isset($vlaidatedData[$key]))
+            {
+                $employee->$key=$value;
+            }
+        }
+        $employee->save();
+        return response()->json([
+            'status'=>'success',
+            'message'=>'Your profile updated successfully'
+        ],200);
+    }catch(ModelNotFoundException $e)
+    {
+        return response()->json([
+            'status'=>'failed',
+            'message'=>'User Not Found'
+        ],404);
+    }
+    }
+
+    //change her/his password
+    public function changePassword(Request $request)
+    {
+        $vlaidatedData=$request->validate([
+            'old_password'=>['required'],
+            'new_password'=>['required','min:8','confirmed'],
+        ]);
+        try{
+            $id=auth('admin-api')->id();
+            $emp=Employee::findOrFail($id);
+            if(Hash::check($vlaidatedData['old_password'], $emp->password))
+            {
+                $emp->fill([
+                    'password'=>Hash::make($vlaidatedData['new_password'])
+                ])->save();
+            }
+            return response()->json([
+                'status'=>'success',
+                'message'=>'Password change successfully'
+            ],200);
+        }
+        catch(ModelNotFoundException $e)
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'User Not Found'
+            ],404);
+        }
+
+    }
     public function update(Request $request, $id)
     {
         try {
