@@ -16,7 +16,13 @@ class Addon extends Model
         'description',
         'status',
         'image',
+        'category_id',
+        'type',
     ];
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     public function orderaddons()
     {
         return $this->hasMany(OrderAddon::class);
@@ -35,5 +41,6 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
+
     use HasFactory;
 }
