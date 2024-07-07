@@ -443,6 +443,26 @@ class OrderController extends Controller
             'data' => $transaction
         ], 200);
     }
+    //show order by id 
+    
+    //update order status 
+    public function changeStatus(Request $request ,$id)
+    {
+        $validatedData = $request->validate([
+            'status'=>['required','in:Not Started,In Progress,Cancelled,Accepted']
+        ]);
+        $order = Order::find($id);
+        if(!$order) return response()->json([
+            'status'=>'failed',
+            'message'=>'Order not found'
+        ],404);
+        $order->status=$validatedData['status'];
+        $order->save();
+        return response()->json([
+            'status'=>'success',
+            'message'=>'change status successfully'
+        ],200);
+    }
     // to use it in make order to check if ids that come from request existing in DB
     private function checkCustomer($id)
     {

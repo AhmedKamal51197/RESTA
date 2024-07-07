@@ -14,8 +14,27 @@ class Order extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'status'=>'integer'
     ];
-
+    public function setStatusAttribute($value)
+    {
+        $statuses = [
+            'Not Started'=>1,
+            'In Progress'=>2,
+            'Cancelled'=>3,
+            'Accepted'=>4
+        ];
+        $this->attributes['status']=$statuses[$value] ?? 1;
+    }
+    public function getStatusAttribute($value){
+        $statuses = [
+            1=>'Not Started',
+            2=>'In Progress',
+            3=>'Cancelled',
+            4=>'Accepted'
+        ];
+        return $statuses[$value]??'Not Started';
+    }
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
