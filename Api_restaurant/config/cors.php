@@ -48,10 +48,10 @@ return [
     'allowed_methods' => ['*'],  // Allow all HTTP methods
  
     'allowed_origins' => [
-        // 'http://localhost',         // Allow from localhost
-        // 'http://127.0.0.1',         // Allow from 127.0.0.1
-        // 'http://localhost:3000',    // Typical port for React development server
-        // 'http://127.0.0.1:3000',    // Typical port for React development server
+        'http://localhost',         // Allow from localhost
+        'http://127.0.0.1',         // Allow from 127.0.0.1
+        'http://localhost:3000',    // Typical port for React development server
+        'http://127.0.0.1:3000',    // Typical port for React development server
         // Add other specific origins if necessary
     ],
  
