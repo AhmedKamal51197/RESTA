@@ -19,8 +19,8 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-use function PHPSTORM_META\map;
+use Carbon\Carbon;
+// use function PHPSTORM_META\map;
 
 class OrderController extends Controller
 {
@@ -443,25 +443,69 @@ class OrderController extends Controller
             'data' => $transaction
         ], 200);
     }
-    //show order by id 
-    
-    //update order status 
-    public function changeStatus(Request $request ,$id)
+    //Accepted Orders Ratio 
+    public function AcceptedOrders(Request $request)
+    {
+
+        $startDate = Carbon::parse($request->from)->startOfDay(); //startOfDay() to ensure entire days specified  not just the exact times given.
+        $endDate = Carbon::parse($request->to)->endOfDay();
+        // dd($startDate);
+        //selectRaw this use to make it easy to write complex sql query that can't write in Elquent ORM  
+        $averageAcceptedOrderRatio = Order::selectRaw('
+       (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ? AND status = "4") / 
+       (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ?) AS average_accepted_order_ratio
+        ', [$startDate, $endDate, $startDate, $endDate])
+            ->value('average_accepted_order_ratio');
+        if (!$averageAcceptedOrderRatio) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Orders not found'
+            ], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'sales' => $averageAcceptedOrderRatio
+        ], 200);
+    }
+    //sales summary filter by Date for Dashboard 
+    public function SalesSummary(Request $request)
+    {
+        $startDate = Carbon::parse($request->from)->startOfDay(); //startOfDay() to ensure entire days specified  not just the exact times given.
+        $endDate = Carbon::parse($request->to)->endOfDay();
+        // dd($startDate);
+        $sales = Order::whereBetween('created_at', [$startDate, $endDate])->sum('total_cost');
+        if (!$sales) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'sales not found'
+            ], 404);
+        }
+        return response()->json([
+            'status' => 'success',
+            'sales' => $sales
+        ], 200);
+    }
+    //Most Popular Items NOT EMPLEMENT YET 
+    public function MostPopularItems()
+    {
+    }
+    //update order status  
+    public function changeStatus(Request $request, $id)
     {
         $validatedData = $request->validate([
-            'status'=>['required','in:Not Started,In Progress,Cancelled,Accepted']
+            'status' => ['required', 'in:Not Started,In Progress,Cancelled,Accepted']
         ]);
         $order = Order::find($id);
-        if(!$order) return response()->json([
-            'status'=>'failed',
-            'message'=>'Order not found'
-        ],404);
-        $order->status=$validatedData['status'];
+        if (!$order) return response()->json([
+            'status' => 'failed',
+            'message' => 'Order not found'
+        ], 404);
+        $order->status = $validatedData['status'];
         $order->save();
         return response()->json([
-            'status'=>'success',
-            'message'=>'change status successfully'
-        ],200);
+            'status' => 'success',
+            'message' => 'change status successfully'
+        ], 200);
     }
     // to use it in make order to check if ids that come from request existing in DB
     private function checkCustomer($id)

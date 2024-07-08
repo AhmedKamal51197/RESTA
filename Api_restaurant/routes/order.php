@@ -10,6 +10,10 @@ Route::group(['middleware'=>'auth:api'],function(){
     Route::post('auth/pay',[OrderController::class,'payOrder']);
 
 });
+Route::group(['middleware'=>'checkAdminToken'],function(){
+    Route::get('admin/sales',[OrderController::class,'SalesSummary']);
+    Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
+});
 Route::group(['middleware'=>'auth:admin-api'],function(){
 
     Route::get('admin/orders',[OrderController::class,'index']);

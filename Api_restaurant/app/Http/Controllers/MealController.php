@@ -17,40 +17,39 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
 
-
 class MealController extends Controller
 {
     // Fetch all meal
     public function index(Request $request)
     {
         $perPage = 12;
-    
+
         $meals = Meal::query();
-    
+
         if (!Auth::guard('admin-api')->check()) {
             $meals->where('status', true);
         }
-    
+
         $mealsData = $meals->with('mealSizeCosts', 'addons', 'extras')->paginate($perPage);
-    
+
         $DataMeals = $mealsData->map(function ($meal) {
             $mealCosts = $meal->mealSizeCosts->map(function ($sizeCost) {
                 $costData = [
                     'id' => $sizeCost->id,
                 ];
-    
+
                 if (!is_null($sizeCost->number_of_pieces)) {
                     $costData['number_of_pieces'] = $sizeCost->number_of_pieces;
                 }
-    
+
                 if (!is_null($sizeCost->size)) {
                     $costData['size'] = $sizeCost->size;
                 }
-    
+
                 $costData['cost'] = $sizeCost->cost;
                 return $costData;
             });
-    
+
             $addons = $meal->addons->map(function ($addon) {
                 if (Auth::guard('admin-api')->check() || $addon->status) {
                     return [
@@ -64,7 +63,7 @@ class MealController extends Controller
                 }
                 return null;
             })->filter()->values();
-    
+
             $extras = $meal->extras->map(function ($extra) {
                 if (Auth::guard('admin-api')->check() || $extra->status) {
                     return [
@@ -77,75 +76,81 @@ class MealController extends Controller
                 }
                 return null;
             })->filter()->values();
-    
+
+            $category = Category::where('id', $meal->category_id)->first();
+            $minCost = $mealCosts->isEmpty() ? null : $mealCosts->min('cost');
+
             return [
                 'id' => $meal->id,
                 'name' => $meal->name,
                 'description' => $meal->description,
                 'image' => $meal->image,
                 'type' => $meal->type,
+                'status' => $meal->status,
+                'category_name' => $category ? $category->name : null,
                 'category_id' => $meal->category_id,
+                "price" => $minCost,
                 'meal_size_costs' => $mealCosts,
                 'addons' => $addons,
                 'extras' => $extras,
             ];
         });
-    
+
         $pagination = [
             'total' => $mealsData->total(),
             'per_page' => $mealsData->perPage(),
             'current_page' => $mealsData->currentPage(),
             'last_page' => $mealsData->lastPage(),
         ];
-    
-        
+
+
         if ($mealsData->currentPage() > $mealsData->lastPage()) {
-            return response()->json(['status' => 'failed','error' => 'Page number exceeds the last available page'], 400);
+            return response()->json(['status' => 'failed', 'error' => 'Page number exceeds the last available page'], 400);
         }
 
         return response()->json(['status' => 'success', 'data' => $DataMeals, "pagination" => $pagination], 200);
     }
-    
+
 
     // Fetch meal by ID
     public function show($id)
     {
         $meal = Meal::with('mealSizeCosts')->find($id);
-    
+
         if (!$meal) {
             return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
-    
+
         if (!$this->canViewMeal($meal)) {
             return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
-    
+
         $dataMeal = $this->DataMeal($meal);
         return response()->json(['status' => 'success', 'data' => $dataMeal], 200);
     }
-    
+
     // Add a new meal
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:meals'],
-            'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'name' => ['required', 'string', 'regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u', 'unique:meals'],
+            'description' => ['required', 'string', 'min:10', 'max:255', 'regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'type' => 'required|in:vegetarian,non-vegetarian',
             'category_id' => 'required|exists:categories,id',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,svg',
             'status' => 'sometimes|boolean',
             'meal_size_costs' => 'required|array',
-            'meal_size_costs.*.number_of_pieces' => ['required_without_all:meal_size_costs.*.size','integer','min:1'],
-            'meal_size_costs.*.size' => ['required_without_all:meal_size_costs.*.number_of_pieces','integer','min:1' ,' max:4'],
+            'meal_size_costs.*.number_of_pieces' => ['required_without_all:meal_size_costs.*.size', 'integer', 'min:1'],
+            'meal_size_costs.*.size' => ['required_without_all:meal_size_costs.*.number_of_pieces', 'integer', 'min:1', ' max:4'],
             'meal_size_costs.*.cost' => ['required', 'numeric', 'min:1'],
         ]);
-    
+
         $imagePath = $this->handleImageUpload($request);
 
         DB::beginTransaction();
 
         try {
-            
+
             $newMeal = Meal::create([
                 'name' => $validatedData['name'],
                 'description' => $validatedData['description'],
@@ -154,7 +159,7 @@ class MealController extends Controller
                 'image' => $imagePath,
                 'status' => $validatedData['status'] ?? true,
             ]);
-        
+
             if (isset($validatedData['meal_size_costs'])) {
                 foreach ($validatedData['meal_size_costs'] as $sizeCost) {
                     if (isset($sizeCost['cost'])) {
@@ -166,49 +171,46 @@ class MealController extends Controller
                     }
                 }
             }
-             DB::commit();
-        
+            DB::commit();
+
             $newMealData = $this->DataMeal($newMeal);
-        
+
             return response()->json(['status' => 'success', 'data' => $newMealData], 201);
-        
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->message()], 500);
         }
-        
     }
 
     // Update a meal
     public function update(Request $request, $id)
     {
         $meal = Meal::find($id);
-        
-        if (!$meal) 
-        {
+
+        if (!$meal) {
             return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
-        
+
         $validatedData = $request->validate([
-            'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('meals')->ignore($id)],
-            'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+            'name' => ['sometimes', 'string', 'regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u', Rule::unique('meals')->ignore($id)],
+            'description' => ['sometimes', 'string', 'min:10', 'max:255', 'regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'type' => 'sometimes|in:vegetarian,non-vegetarian',
             'category_id' => 'sometimes|exists:categories,id',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
             'status' => 'sometimes|boolean',
             'meal_size_costs' => 'sometimes|array',
             'meal_size_costs.*.id' => 'sometimes|required|integer|exists:meals_size_costs,id',
-            'meal_size_costs.*.number_of_pieces' => ['sometimes','integer','min:1'],
-            'meal_size_costs.*.size' => ['required','integer','min:1' ,' max:4'],
+            'meal_size_costs.*.number_of_pieces' => ['sometimes', 'integer', 'min:1'],
+            'meal_size_costs.*.size' => ['required', 'integer', 'min:1', ' max:4'],
             'meal_size_costs.*.cost' => ['required', 'numeric', 'min:1'],
         ]);
 
-        
+
         if ($request->hasFile('image')) {
             $this->deleteOldImage($meal);
             $validatedData['image'] = $this->handleImageUpload($request);
         }
-        
+
         $meal->update([
             'name' => $validatedData['name'] ?? $meal->name,
             'description' => $validatedData['description'] ?? $meal->description,
@@ -217,9 +219,8 @@ class MealController extends Controller
             'image' => $validatedData['image'] ?? $meal->image,
             'status' => $validatedData['status'] ?? $meal->status,
         ]);
-        
-        if (isset($validatedData['meal_size_costs'])) 
-        {
+
+        if (isset($validatedData['meal_size_costs'])) {
             $mealSizeCostRules = [];
             foreach ($validatedData['meal_size_costs'] as $key => $value) {
                 $mealSizeCostRules["meal_size_costs.$key"] = [
@@ -227,26 +228,24 @@ class MealController extends Controller
                         $size = $validatedData['meal_size_costs'][$key]['size'] ?? null;
                         $number_of_pieces = $validatedData['meal_size_costs'][$key]['number_of_pieces'] ?? null;
                         $cost = $validatedData['meal_size_costs'][$key]['cost'];
-            
+
                         $exists = MealsSizeCost::where('meal_id', $id)
                             ->where('size', $size)
                             ->where('number_of_pieces', $number_of_pieces)
                             ->where('cost', $cost)
                             ->exists();
-            
+
                         if ($exists) {
                             $fail("The of size, number of pieces, and cost is  already taken.");
                         }
                     },
                 ];
-            }            
+            }
             $request->validate($mealSizeCostRules);
 
-            
-            foreach ($validatedData['meal_size_costs'] as $sizeCostData) 
-            {
-                if (isset($sizeCostData['id'])) 
-                {
+
+            foreach ($validatedData['meal_size_costs'] as $sizeCostData) {
+                if (isset($sizeCostData['id'])) {
                     $mealSizeCost = MealsSizeCost::find($sizeCostData['id']);
                     if ($mealSizeCost) {
                         $mealSizeCost->update([
@@ -255,36 +254,34 @@ class MealController extends Controller
                             'cost' => $sizeCostData['cost'],
                         ]);
                     }
-                } 
-                else 
-                {
+                } else {
                     $meal->mealSizeCosts()->create([
                         'size' => $sizeCostData['size'] ?? null,
                         'number_of_pieces' => $sizeCostData['number_of_pieces'] ?? null,
-                        'cost' => $sizeCostData['cost'] ,
+                        'cost' => $sizeCostData['cost'],
                     ]);
                 }
             }
         }
-        
+
         $meal->refresh();
-        
+
         $formattedMeal = $this->DataMeal($meal);
-        
+
         return response()->json(['status' => 'success', 'data' => $formattedMeal], 200);
     }
 
     // Delete a meal
     public function deleteMeal($id)
     {
-        $meal = Meal::with('mealSizeCosts')->find($id);        
+        $meal = Meal::with('mealSizeCosts')->find($id);
         if (!$meal) {
             return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
         $this->deleteOldImage($meal);
         $meal->mealSizeCosts()->delete();
         $meal->delete();
-    
+
         return response()->json(['status' => 'success', 'message' => 'Meal deleted successfully'], 200);
     }
 
@@ -295,17 +292,17 @@ class MealController extends Controller
         if (!$category) {
             return response()->json(['status' => 'failed', 'error' => 'Category not found'], 404);
         }
-    
+
         $meals = Meal::where('category_id', $categoryId);
-    
+
         if (!Auth::guard('admin-api')->check()) {
             $meals->where('status', true);
         }
-    
+
         $perPage = 12;
-    
+
         $meals = $meals->paginate($perPage);
-    
+
         $DataMeals = $meals->map(function ($meal) {
             return $this->DataMeal($meal);
         });
@@ -318,41 +315,41 @@ class MealController extends Controller
         ];
 
         if ($meals->currentPage() > $meals->lastPage()) {
-            return response()->json(['status' => 'failed','error' => 'Page number exceeds the last available page'], 400);
+            return response()->json(['status' => 'failed', 'error' => 'Page number exceeds the last available page'], 400);
         }
-    
+
         return $DataMeals->isEmpty()
             ? response()->json(['status' => 'failed', 'message' => 'No meals found for this category'], 404)
-            : response()->json(['status' => 'success', 'data' => $DataMeals,"pagination"=>$pagination], 200);
+            : response()->json(['status' => 'success', 'data' => $DataMeals, "pagination" => $pagination], 200);
     }
-    
+
     // Filter meals by type (vegetarian or non-vegetarian)
     public function filterByType(Request $request, $type)
     {
-    
+
         if (!in_array($type, ['vegetarian', 'non-vegetarian'])) {
             return response()->json(['status' => 'failed', 'error' => 'Invalid type'], 400);
         }
-    
+
         $perPage = 12;
-    
+
         $mealsQuery = Meal::where('type', $type);
-    
+
         if (!Auth::guard('admin-api')->check()) {
             $mealsQuery->where('status', true);
         }
-    
+
 
         $meals = $mealsQuery->paginate($perPage);
-    
+
         if ($meals->currentPage() > $meals->lastPage()) {
-            return response()->json(['status' => 'failed','error' => 'Page number exceeds the last available page'], 400);
+            return response()->json(['status' => 'failed', 'error' => 'Page number exceeds the last available page'], 400);
         }
         //  meals data
         $DataMeals = $meals->map(function ($meal) {
             return $this->DataMeal($meal);
         });
-    
+
         $pagination = [
             'total' => $meals->total(),
             'per_page' => $meals->perPage(),
@@ -361,46 +358,46 @@ class MealController extends Controller
         ];
         return $DataMeals->isEmpty()
             ? response()->json(['status' => 'failed', 'message' => 'No meals found for this type'], 404)
-            : response()->json(['status' => 'success', 'data' => $DataMeals,"pagination"=>$pagination], 200);
+            : response()->json(['status' => 'success', 'data' => $DataMeals, "pagination" => $pagination], 200);
     }
-    
+
     // Filter meals by status (active or inactive)
     public function filterByStatus(Request $request, $status)
     {
         if (!in_array($status, ['active', 'inactive'])) {
             return response()->json(['status' => 'failed', 'error' => 'Invalid status value. Please enter active or inactive'], 400);
         }
-    
+
         $perPage = 12;
-    
+
         $mealsQuery = Meal::where('status', $status === 'active' ? true : false);
-    
+
         if (!Auth::guard('admin-api')->check()) {
             $mealsQuery->where('status', true);
         }
-    
+
         $meals = $mealsQuery->paginate($perPage);
-    
+
         if ($meals->currentPage() > $meals->lastPage()) {
-            return response()->json(['status' => 'failed','error' => 'Page number exceeds the last available page'], 400);
+            return response()->json(['status' => 'failed', 'error' => 'Page number exceeds the last available page'], 400);
         }
         // Format meals data
         $DataMeals = $meals->map(function ($meal) {
             return $this->DataMeal($meal);
         });
-    
+
         $pagination = [
             'total' => $meals->total(),
             'per_page' => $meals->perPage(),
             'current_page' => $meals->currentPage(),
             'last_page' => $meals->lastPage(),
         ];
-        
+
         return $DataMeals->isEmpty()
             ? response()->json(['status' => 'failed', 'message' => 'No meals found for this status'], 404)
-            : response()->json(['status' => 'success', 'data' => $DataMeals,"pagination"=>$pagination], 200);
+            : response()->json(['status' => 'success', 'data' => $DataMeals, "pagination" => $pagination], 200);
     }
-    
+
     // function to  meal data
     private function DataMeal($meal)
     {
@@ -418,15 +415,15 @@ class MealController extends Controller
                 $costData['size'] = $sizeCost->size;
             }
 
-            $costData['cost']= $sizeCost->cost;
+            $costData['cost'] = $sizeCost->cost;
             return $costData;
         });
 
         // Fetch addons based on user role and addon status
         $addons = $meal->MealWithAddon->map(function ($mealWithAddon) {
             $addon = $mealWithAddon->addon; // all addons
-            
-            if (Auth::guard('admin-api')->check() || $addon->status) { 
+
+            if (Auth::guard('admin-api')->check() || $addon->status) {
                 return [
                     'id' => $addon->id,
                     'name' => $addon->name,
@@ -452,17 +449,20 @@ class MealController extends Controller
             return null;
         })->filter()->values();
 
+        $category = Category::where('id', $meal->category_id)->first();
+
         return [
             'id' => $meal->id,
             'name' => $meal->name,
             'description' => $meal->description,
             'type' => $meal->type,
+            'category_name' => $category ? $category->name : null,
             'category_id' => $meal->category_id,
             'image' => $meal->image,
             'status' => $meal->status,
             'meal_size_costs' => $mealCosts->isEmpty() ? null : $mealCosts,
             'addons' => $addons->isEmpty() ? null : $addons,
-            'extras' =>$extras->isEmpty() ? null : $extras
+            'extras' => $extras->isEmpty() ? null : $extras
         ];
     }
 
@@ -475,10 +475,10 @@ class MealController extends Controller
             $imagePath = $image->storeAs('meals', $imageName, 'public');
             return $imagePath;
         }
-    
+
         return null;
     }
-    
+
     // Helper method to delete old image
     private function deleteOldImage($meal)
     {
@@ -486,7 +486,7 @@ class MealController extends Controller
             Storage::disk('public')->delete($meal->image);
         }
     }
-    
+
     // Helper method to check if meal can be viewed
     private function canViewMeal($meal)
     {
