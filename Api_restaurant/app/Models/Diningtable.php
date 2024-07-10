@@ -47,10 +47,10 @@ class DiningTable extends Model
     public function generateQrCode($customContent = null)
     {
         try {
-            $qrCodeContent = $customContent ?? 'https://demo.foodscan.xyz/menu/' . $this->id;    
+            $qrCodeContent = $customContent ?? 'http://localhost:3000/customer/menu/' . $this->id;
             $qrCode = QrCode::size(400)->generate($qrCodeContent);
 
-    
+
             $fileName = 'qrcode_' . $this->id . '_' . time() . '.png';
             $qrCodePath = 'public/qr_codes/' . $fileName;
             Storage::put($qrCodePath, $qrCode);
