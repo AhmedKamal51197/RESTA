@@ -39,4 +39,5 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::post('admin/logout',[EmployeeController::class,'logout']);
     Route::patch('admin/employees/change-password',[EmployeeController::class,'changePassword']);
     Route::patch('admin/employees/change-email',[EmployeeController::class,'changeEmail']);
+    Route::get('admin/refresh',[EmployeeController::class,'refresh']);
 });
