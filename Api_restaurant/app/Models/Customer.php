@@ -53,7 +53,10 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'id' => $this->id,
+            
+        ];
     }
 
 

@@ -34,7 +34,9 @@ class Employee extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'id' => $this->id,
+        ];
     }
 
     protected $casts = [

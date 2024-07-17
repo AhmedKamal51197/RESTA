@@ -120,7 +120,7 @@ class CustomerController extends Controller
         }
 
         $token = auth('api')->attempt($dataValidated);
-        // dd($token);
+         //dd($dataValidated);
         if (!$token) {
             return response()->json([
                 'status' => 'failed',
@@ -379,4 +379,5 @@ class CustomerController extends Controller
             'pagination'=>$pagination
         ], 200);
     }
+   
 }
