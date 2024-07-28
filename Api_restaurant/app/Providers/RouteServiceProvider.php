@@ -31,43 +31,45 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
             Route::middleware('api')
-              ->prefix('api')
-             ->group(base_path('routes/employee.php'));
-               Route::middleware('web')
+                ->prefix('api')
+                ->group(base_path('routes/employee.php'));
+            Route::middleware('web')
                 ->group(base_path('routes/web.php'));
             //Category endpoints Route
-             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/categories.php'));
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/categories.php'));
             // Meals endpoints Route 
-             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/meals.php'));
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/meals.php'));
 
             // Extras endpoints Route 
             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/extra.php'));
+                ->prefix('api')
+                ->group(base_path('routes/extra.php'));
             // Dining Table endpoints Route
-             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/diningTable.php'));
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/diningTable.php'));
             // order endpoints Route
             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/order.php'));
+                ->prefix('api')
+                ->group(base_path('routes/order.php'));
             //order location Route
             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/orderLocation.php'));
+                ->prefix('api')
+                ->group(base_path('routes/orderLocation.php'));
 
             //Addons endpoints Route
             Route::middleware('api')
-            ->prefix('api')
-            ->group(base_path('routes/addons.php'));
+                ->prefix('api')
+                ->group(base_path('routes/addons.php'));
 
-            
-
+            //Offers endpoints Route
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/offers.php'));
         });
     }
 

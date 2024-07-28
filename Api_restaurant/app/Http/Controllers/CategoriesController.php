@@ -116,7 +116,7 @@ class CategoriesController extends Controller
         // Handle image file from form data
         if ($request->hasFile('image_file')) {
             $data['image'] = $request->file('image_file')->store('categories', 'public');
-        }
+        }   
     
         $newCategory = Category::create($data);
         $responseData = array_merge($newCategory->toArray(), ['status' => $newCategory->status]);

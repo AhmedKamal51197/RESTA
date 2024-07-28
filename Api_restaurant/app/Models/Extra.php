@@ -8,6 +8,8 @@ use Carbon\Carbon;
 
 class Extra extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['name', 'cost','category_id','image','description','status','type'];
     
  
@@ -28,7 +30,7 @@ class Extra extends Model
 
     public function meals()
     {
-        $this->belongsToMany(Extra::class, 'meal_extras');
+       return $this->belongsToMany(Meal::class, 'meal_extras');
     }
     public function orderextras()
     {
@@ -38,5 +40,9 @@ class Extra extends Model
     {
         return $this->belongsTo(Category::class);
     }
-    use HasFactory;
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class,'offer_items');
+    }
+   
 }
