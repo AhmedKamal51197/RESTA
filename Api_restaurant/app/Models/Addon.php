@@ -27,6 +27,11 @@ class Addon extends Model
     {
         return $this->hasMany(OrderAddon::class);
     }
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class,'offer_items');
+    }
+    
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -41,6 +46,7 @@ class Addon extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
+   
 
     use HasFactory;
 }

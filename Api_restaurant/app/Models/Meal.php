@@ -53,5 +53,11 @@ class Meal extends Model
     {
         return $this->belongsToMany(Addon::class, 'meal_with_addons', 'meal_id', 'addon_id');
     }
+    public function offers()
+    {
+        return $this->belongsToMany(Offer::class, 'offer_items');
+    }
+    
+  
 }
 
