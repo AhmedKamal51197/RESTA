@@ -29,4 +29,6 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::get('admin/getAllItems',[OfferController::class,'getAllItems']);
 });
 Route::get('offers',[OfferController::class,'index']);
+Route::get('test/{id}/{discount}',[OfferController::class,'getCostAfterDiscount']);
+
 

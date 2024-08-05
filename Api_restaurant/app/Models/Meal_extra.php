@@ -23,5 +23,13 @@ public function getUpdatedAtAttribute($value)
 {
     return Carbon::parse($value)->format('Y-m-d H:i:s');
 } 
+public function extra()
+{
+    return $this->belongsTo(Extra::class);
+}
+public function meal()
+{
+    return $this->belongsTo(Meal::class);
+}
    use HasFactory;
 }

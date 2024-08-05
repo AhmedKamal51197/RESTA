@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Addon;
 use App\Models\MealWithAddon;
 use App\Models\Meal;
+use App\Models\Category;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,60 +18,123 @@ class AddonController extends Controller
     // Fetch all addons 
     public function index(Request $request)
     {
-        $perPage = 12;
-    
         $isAdmin = Auth::guard('admin-api')->check();
     
         if ($isAdmin) {
-            $addons = Addon::paginate($perPage);
+            $addons = Addon::with('category')->with('category')->get();
         } else {
-            $addons = Addon::where('status', true)->paginate($perPage);
+            $addons = Addon::where('status', true)->with('category')->get();
         }
-    
-        $pagination = [
-            'total' => $addons->total(),
-            'per_page' => $addons->perPage(),
-            'current_page' => $addons->currentPage(),
-            'last_page' => $addons->lastPage(),
-        ];
 
-        if ($addons->currentPage() > $addons->lastPage()) {
-            return response()->json([
-                'status' => 'failed',
-                'error' => 'Page number exceeds the last available page'
-            ], 400);
-        }
-    
         if ($addons->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'No addon exist'
+                'message' => 'No addons exist'
             ], 404);
-        } 
-
+        }
+    
+        $addons = $addons->map(function ($addon) {
+            return [
+                'id' => $addon->id,
+                'name' => $addon->name,
+                'description' => $addon->description,
+                'type' => $addon->type,
+                'cost' => $addon->cost,
+                'category_id' => $addon->category_id ,
+                'category_name' => $addon->category ? $addon->category->name : null,
+                'status' => $addon->status,
+                'image' => $addon->image,
+            ];
+        });
+    
         return response()->json([
             'status' => 'success',
-            'data' => $addons->items(), 
-            'pagination' => $pagination,
+            'data' => $addons,
         ], 200);
     }
+    
+     // filter addon by ID
+     public function filterAddon(Request $request)
+     {
+         $isAdmin = Auth::guard('admin-api')->check();
+     
+         $query = Addon::with('category');
+     
+         if (!$isAdmin) {
+             $query->where('status', true);
+         }
+     
+         $filters = $request->only(['name', 'cost', 'category_id', 'status', 'type']);
+         
+         foreach ($filters as $key => $value) {
+             if (!is_null($value)) {
+                 if ($key == 'name') {
+                     $query->where($key, 'like', '%' . $value . '%');
+                 } else {
+                     $query->where($key, $value);
+                 }
+             }
+         }
+     
+            
+         $addons = $query->get();
+     
+         if ($addons->isEmpty()) {
+             return response()->json([
+                 'status' => 'failed',
+                 'message' => 'No addons found with the given filters'
+             ], 404);
+         }
+     
+         $addons = $addons->map(function ($addon) {
+             return [
+                 'id' => $addon->id,
+                 'name' => $addon->name,
+                 'description' => $addon->description,
+                 'cost' => $addon->cost,
+                 'type' => $addon->type,
+                 'category_id' => $addon->category_id,
+                 'category_name' => $addon->category ? $addon->category->name : null,
+                 'status' => $addon->status,
+                 'image' => $addon->image,
+             ];
+         });
+     
+         return response()->json([
+             'status' => 'success',
+             'data' => $addons,
+         ], 200);
+     }
     
     // Fetch addon by ID 
     public function show($id)
     {
-        $addon = Addon::find($id);
-    
+        $addon = Addon::with('category')->find($id);
+        
         if ($addon) {
+            $addon_Data = [
+                'id' => $addon->id,
+                'name' => $addon->name,
+                'description' => $addon->description,
+                'type' => $addon->type,
+                'cost' => $addon->cost,
+                'category_id' => $addon->category_id,
+                'category_name' => $addon->category ? $addon->category->name : null,
+                'status' => $addon->status,
+                'image' => $addon->image,
+            ];
+    
             if (Auth::guard('admin-api')->check()) {
-                return response()->json(['status' => 'success', 'data' => $addon], 200);
+                return response()->json(['status' => 'success', 'data' => $addon_Data], 200);
             } else if ($addon->status) {
-                return response()->json(['status' => 'success', 'data' => $addon], 200);
-            } else if(!$addon->status){
-                return response()->json(['status' => 'failed', 'error' => 'Unauthorized'], 404);
+                return response()->json(['status' => 'success', 'data' => $addon_Data], 200);
+            } else {
+                return response()->json(['status' => 'failed', 'error' => 'Unauthorized'], 403);
             }
         }
         return response()->json(['status' => 'failed', 'error' => 'Addon not found'], 404);
     }
+    
 
     // Add a new addon
     public function store(Request $request)
@@ -99,7 +163,7 @@ class AddonController extends Controller
         ));
 
         if ($new_addon) {
-            return response()->json(['status' => 'success', 'data' => $new_addon], 201);
+            return response()->json(['status' => 'success', 'message' => "The addon has been added successfully"], 201);
         } else {
             return response()->json(['status' => 'failed', 'error' => 'Error during addon addition'], 400);
         }
@@ -133,7 +197,7 @@ class AddonController extends Controller
             }
     
             $addon->update($request->except('image'));
-            return response()->json(['status' => 'success', 'data' => $addon], 200);
+            return response()->json(['status' => 'success', 'message' => "The addon has been updated successfully"], 200);
         }
         return response()->json(['status' => 'failed', 'error' => 'Addon not found'], 404);
     }
@@ -152,7 +216,7 @@ class AddonController extends Controller
         return response()->json(['status' => 'failed', 'error' => 'Addon not found'], 404);
     }
 
-    // Filter addons by status (true or false)
+   // Filter addons by status (active or inactive)
     public function filterByStatus($status, Request $request)
     {
         if (!in_array($status, ['inactive', 'active'])) {
@@ -161,46 +225,48 @@ class AddonController extends Controller
                 'error' => 'Invalid status value. Please enter active or inactive'
             ], 400);
         }
-    
+
         $perPage = 12;
-    
+
         $query = $status === 'active' ?
             Addon::where('status', true) :
             Addon::where('status', false);
-    
-        $addons = $query->get();
-    
-        if ($addons->isEmpty()) {
+
+        $paginatedAddons = $query->with('category')->paginate($perPage);
+
+        if ($paginatedAddons->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
-                'error' => 'Not found addons'
+                'error' => 'No addons found'
             ], 400);
         }
-    
-        $paginatedAddons = $query->paginate($perPage);
-    
-        $pagination = [
-            'total' => $paginatedAddons->total(),
-            'per_page' => $paginatedAddons->perPage(),
-            'current_page' => $paginatedAddons->currentPage(),
-            'last_page' => $paginatedAddons->lastPage(),
-        ];
-    
-        if ($paginatedAddons->currentPage() > $paginatedAddons->lastPage()) {
-            return response()->json([
-                'status' => 'failed',
-                'error' => 'Page number exceeds the last available page'
-            ], 400);
-        }
-    
+
+        $addonsData = $paginatedAddons->map(function ($addon) {
+            return [
+                'id' => $addon->id,
+                'name' => $addon->name,
+                'description' => $addon->description,
+                'type' => $addon->type,
+                'cost' => $addon->cost,
+                'category_id' => $addon->category_id,
+                'category_name' => $addon->category ? $addon->category->name : null,
+                'status' => $addon->status,
+                'image' => $addon->image,
+            ];
+        });
+
         return response()->json([
             'status' => 'success',
-            'data' => $paginatedAddons->items(),
-            'pagination' => $pagination
+            'data' => $addonsData,
+            'pagination' => [
+                'total' => $paginatedAddons->total(),
+                'per_page' => $paginatedAddons->perPage(),
+                'current_page' => $paginatedAddons->currentPage(),
+                'last_page' => $paginatedAddons->lastPage(),
+            ]
         ], 200);
     }
-    
-   
+
     // add Addon With Meal
     public function storeAddonsWithMeal(Request $request)
     {
@@ -217,12 +283,7 @@ class AddonController extends Controller
         }
 
         $mealWithAddon = MealWithAddon::create($request->all());
-        $newDataAddon = [
-                'meal_name' => $mealWithAddon->meal->name,
-                'addon_name' => $mealWithAddon->addon->name,  
-        ];
-
-        return response()->json(['status' => 'success', 'data' => $newDataAddon], 201);
+        return response()->json(['status' => 'success', 'message' => 'Meal with addon successfully created'], 201);
     }
 
     // Delete a meal-with-addon 
@@ -237,29 +298,68 @@ class AddonController extends Controller
         return response()->json(['status' => 'failed', 'error' => 'Meal with addon not found'], 404);
     }
 
-    //  get all addons bu meal_id
+    //  get all addons by meal_id
     public function getAddonsByMeal($meal_id)
     {
         $mealExists = Meal::find($meal_id);
-
+    
         if (!$mealExists) {
             return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
-
-        $addons = MealWithAddon::where('meal_id', $meal_id)->with('addon')->get();
-
+    
+        $addons = MealWithAddon::where('meal_id', $meal_id)->with('addon.category')->get();
+    
         if ($addons->isEmpty()) {
             return response()->json(['status' => 'failed', 'error' => 'No addons found for this meal'], 404);
         }
+    
         $addonsData = $addons->map(function ($mealWithAddon) {
             return [
                 'addon_id' => $mealWithAddon->addon->id,
                 'addon_name' => $mealWithAddon->addon->name,
-                'category_id' => $mealWithAddon->addon->category_id,                            
+                'status' => $mealWithAddon->addon->status,
             ];
         });
-
+    
         return response()->json(['status' => 'success', 'data' => $addonsData], 200);
     }
+    
+     // Fetch all addons not related to meal
+     public function indexMealAddon(Request $request, $meal_id)
+     {
+         $isAdmin = Auth::guard('admin-api')->check();
+     
+         if ($isAdmin) {
+             $extras = Addon::whereDoesntHave('mealAddons', function ($query) use ($meal_id) {
+                    $query->where('meal_id', $meal_id);
+                 })
+                 ->get();
+         } else {
+             $extras = Addon::where('status', true)
+                 ->whereDoesntHave('mealAddons', function ($query) use ($meal_id) {
+                    $query->where('meal_id', $meal_id);
+                 })
+                 ->get();
+         }
+     
+         if ($extras->isEmpty()) {
+             return response()->json([
+                 'status' => 'failed',
+                 'message' => 'No extras exist'
+             ], 404);
+         }
+     
+         $extras = $extras->map(function ($extra) {
+             return [
+                 'id' => $extra->id,
+                 'name' => $extra->name,
+             ];
+         });
+     
+         return response()->json([
+             'status' => 'success',
+             'data' => $extras,
+         ], 200);
+     }
 
 }

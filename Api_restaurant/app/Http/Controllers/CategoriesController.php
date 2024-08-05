@@ -76,6 +76,83 @@ class CategoriesController extends Controller
         ], 200);
     }
 
+    public function indexProducts(Request $request)
+    {
+        $mealsQuery = Meal::where('status', 1);
+        if ($request->has('category_id')) {
+            $mealsQuery->where('category_id', $request->category_id);
+        }
+        $meals = $mealsQuery->get()->map(function ($meal) {
+            return $this->DataMeal($meal);
+        })->toArray();
+    
+        $addonsQuery = Addon::where('status', 1);
+        if ($request->has('category_id')) {
+            $addonsQuery->where('category_id', $request->category_id);
+        }
+        $addons = $addonsQuery->get()->map(function ($addon) {
+            return $addon;
+        })->toArray();
+    
+        $extrasQuery = Extra::where('status', 1);
+        if ($request->has('category_id')) {
+            $extrasQuery->where('category_id', $request->category_id);
+        }
+        $extras = $extrasQuery->get()->map(function ($extra) {
+            $extra['table_name'] = 'extras';
+            return $extra;
+        })->toArray();
+    
+        return response()->json([
+            'status' => 'success',
+            'meals' => $meals,
+            'addons' => $addons,
+            'extras' => $extras,
+        ], 200);
+    }
+
+    // fetch menu
+    public function indexMenu(Request $request)
+    {
+        $mealsQuery = Meal::where('status', 1);
+        if ($request->has('category_id')) {
+            $mealsQuery->where('category_id', $request->category_id);
+        }
+        $meals = $mealsQuery->get()->map(function ($meal) {
+            return $this->DataMeal($meal);
+        })->toArray();
+    
+        $addonsQuery = Addon::where('status', 1);
+        if ($request->has('category_id')) {
+            $addonsQuery->where('category_id', $request->category_id);
+        }
+        $addons = $addonsQuery->get()->map(function ($addon) {
+            $addonArray = $addon->toArray();
+            unset($addonArray['created_at'], $addonArray['updated_at']); 
+            return $addonArray;
+        })->toArray();
+    
+        $extrasQuery = Extra::where('status', 1);
+        if ($request->has('category_id')) {
+            $extrasQuery->where('category_id', $request->category_id);
+        }
+        $extras = $extrasQuery->get()->map(function ($extra) {
+            $extraArray = $extra->toArray();
+            unset($extraArray['created_at'], $extraArray['updated_at']); 
+            return $extraArray;
+        })->toArray();
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'meals' => $meals,
+                'addons' => $addons,
+                'extras' => $extras,
+            ],
+        ], 200);
+    }
+    
+
     public function index(Request $request){
         $categories = Category::all();
         
@@ -83,16 +160,17 @@ class CategoriesController extends Controller
             return response()->json(['status'=>'failed','message' => 'No categories found'], 404);
         }
 
-        return response()->json(['status'=>'Ok','data' => $categories], 200);
+        return response()->json(['status'=>'success','data' => $categories], 200);
 
     }
+
     public function getCategoryById($id)
     {
         $category = Category::with('meals','addons','extras')->find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
+            return response()->json(['message' => 'Category not found','status'=>'failed'], 404);
         }
-        return response()->json(['data' => $category, 'status' => 'Ok'], 200);
+        return response()->json(['data' => $category, 'status' => 'success'], 200);
     }
 
     public function addNewCategory(Request $request)
@@ -101,27 +179,24 @@ class CategoriesController extends Controller
             'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:categories'],
             'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
+            'status' => 'required|boolean', // Add validation for status
         ]);
     
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(),'status'=>'Failed'], 400);
+            return response()->json(['message' => $validator->errors(),'status'=>'failed'], 400);
         }
     
-        // if (Category::where('name', $request->name)->exists()) {
-        //     return response()->json(['message' => 'Category already exists','status'=>'Conflict'], 409);
-        // }
-    
-        $data = $request->only('name', 'description');
+        $data = $request->only('name', 'description' ,'status');
     
         // Handle image file from form data
         if ($request->hasFile('image_file')) {
             $data['image'] = $request->file('image_file')->store('categories', 'public');
-        }   
+        }
     
         $newCategory = Category::create($data);
-        $responseData = array_merge($newCategory->toArray(), ['status' => $newCategory->status]);
+        // $responseData = array_merge($newCategory->toArray(), ['status' => $newCategory->status]);
 
-        return response()->json(['data' => $responseData, 'status' => 'Created'], 201);
+        return response()->json(['message' => "The addon has been added successfully", 'status' => 'success'], 201);
     }
     
     public function updateCategory(Request $request, $id)
@@ -133,12 +208,12 @@ class CategoriesController extends Controller
         ]);
     
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors(), 'status' => 'Bad Request'], 400);
+            return response()->json(['message' => $validator->errors(), 'status' => 'failed'], 400);
         }
     
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found', 'status' =>  'Not Found'], 404);
+            return response()->json(['message' => 'Category not found', 'status' =>  'failed'], 404);
         }
     
         $data = $request->only('name', 'description','status');
@@ -157,8 +232,7 @@ class CategoriesController extends Controller
         $category->update($data);
         
         
-        $updatedCategory = Category::find($id);
-        return response()->json(['data' => $updatedCategory, 'status' => 'Ok'], 200);
+        return response()->json(['message' => "The category has been updated successfully", 'status' => 'success'], 200);
     }
     
     
@@ -166,7 +240,7 @@ class CategoriesController extends Controller
     {
         $category = Category::find($id);
         if (!$category) {
-            return response()->json(['message' => 'Category not found', 'status' => 'Not Found'], 404);
+            return response()->json(['message' => 'Category not found', 'status' => 'failed'], 404);
         }
 
         if ($category->image) {
@@ -174,7 +248,7 @@ class CategoriesController extends Controller
         }
 
         $category->delete();
-        return response()->json(['message' => 'Category deleted successfully', 'status' => 'Ok'], 200);
+        return response()->json(['message' => 'Category deleted successfully', 'status' => 'success'], 200);
     }
 
     // meals get data

@@ -9,7 +9,9 @@ use App\Models\Customer;
 use App\Models\DiningTable;
 use App\Models\Extra;
 use App\Models\Meal;
+use App\Models\Offer;
 use App\Models\Order;
+use App\Models\Order_offer;
 use App\Models\OrderAddon;
 use App\Models\OrderExtra;
 use App\Models\OrderLocation;
@@ -32,9 +34,9 @@ class OrderController extends Controller
 
     public function index()
     {
-        $perPage = 12;
-        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])
-            ->paginate($perPage);
+        
+        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->get();
+            
 
         if ($orders->isEmpty()) {
             return response()->json([
@@ -43,32 +45,17 @@ class OrderController extends Controller
             ], 404);
         }
         //  dd($orders[0]->status);
-        foreach ($orders as $order) {
-            if ($order->status === 1) {
-                $order->status = 'Processing';
-            } else if ($order->status == 2) {
-                $order->status = 'Out of delivery';
-            } else if ($order->status == 3) {
-                $order->status = 'Done';
-            } else if ($order->status == 4) {
-                $order->status = 'Cancled';
-            }
-        }
-        $pagination = [
-            'total' => $orders->total(),
-            'per_page' => $orders->perPage(),
-            'current_page' => $orders->currentPage(),
-            'last_page' => $orders->lastPage()
-        ];
+     
+       
         return response()->json([
             'status' => 'success',
-            'data' => $orders->items(),
-            'pagination' => $pagination
+            'data' => $orders,
+           
         ], 200);
     }
     public function get_order_meals($id)
     {
-        $order_meals = OrderMeal::where('order_id', $id)->paginate(12);
+        $order_meals = OrderMeal::where('order_id', $id)->get();
 
         if ($order_meals->isEmpty()) return response()->json([
             'status' => 'failed',
@@ -78,24 +65,21 @@ class OrderController extends Controller
 
             $meal = Meal::find($order_meal->meal_id);
             $order_meal->meal_name = $meal ? $meal->name : null;
+            $order_meal->meal_image = $meal ? $meal->image : null;
+
         }
-        $pagination = [
-            'total' => $order_meals->total(),
-            'per_page' => $order_meals->perPage(),
-            'current_page' => $order_meals->currentPage(),
-            'last_page' => $order_meals->lastPage()
-        ];
+       
         return response()->json([
             'status' => 'success',
-            'data' => $order_meals->items(),
-            'pagination' => $pagination
+            'data' => $order_meals,
+           
         ], 200);
     }
 
 
     public function get_order_addons($id)
     {
-        $order_addons = OrderAddon::where('order_id', $id)->paginate(12);
+        $order_addons = OrderAddon::where('order_id', $id)->get();
         if ($order_addons->isEmpty()) return response()->json([
             'status' => 'failed',
             'message' => 'No addons found',
@@ -106,22 +90,18 @@ class OrderController extends Controller
 
 
             $order_addon->addon_name = $addon ? $addon->name : null;
+            $order_addon->addon_image = $addon ? $addon->image : null;
         }
-        $pagination = [
-            'total' => $order_addons->total(),
-            'per_page' => $order_addons->perPage(),
-            'current_page' => $order_addons->currentPage(),
-            'last_page' => $order_addons->lastPage()
-        ];
+    
         return response()->json([
             'status' => 'success',
-            'data' => $order_addons->items(),
-            'pagination' => $pagination
+            'data' => $order_addons,
+        
         ], 200);
     }
     public function get_order_extras($id)
     {
-        $orders = OrderExtra::where('order_id', $id)->paginate(12);
+        $orders = OrderExtra::where('order_id', $id)->get();
 
         if ($orders->isEmpty()) return response()->json([
             'status' => 'failed',
@@ -130,17 +110,13 @@ class OrderController extends Controller
         foreach ($orders as $order) {
             $extra = Extra::find($order->extra_id);
             $order->extra_name = $extra->name;
+            $order->extra_image = $extra->image;
         }
-        $pagination = [
-            'total' => $orders->total(),
-            'per_page' => $orders->perPage(),
-            'current_page' => $orders->currentPage(),
-            'last_page' => $orders->lastPage()
-        ];
+    
         return response()->json([
             'status' => 'success',
-            'data' => $orders->items(),
-            'pagination' => $pagination
+            'data' => $orders,
+       
         ], 200);
     }
     public function show($id)
@@ -150,15 +126,7 @@ class OrderController extends Controller
             'status' => 'failed',
             'message' => 'No Order Found'
         ], 404);
-        if ($order->status === 1) {
-            $order->status = 'Processing';
-        } else if ($order->status == 2) {
-            $order->status = 'Out of delivery';
-        } else if ($order->status == 3) {
-            $order->status = 'Done';
-        } else if ($order->status == 4) {
-            $order->status = 'Cancled';
-        }
+       
 
         return response()->json([
             'status' => 'success',
@@ -174,6 +142,8 @@ class OrderController extends Controller
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
+        $offerIds = $validatedData['offer_ids'] ?? [];
+
         //  dd($validatedData['diningtable_id']) ;  
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
@@ -197,6 +167,16 @@ class OrderController extends Controller
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
             ]);
+            foreach ($offerIds as $offerId){
+                $offer = $this->checkOffer($offerId);
+                if($offer instanceof JsonResponse) return $offer;
+                Order_offer::create([
+                    'order_id'=>$order->id,
+                    'offer_id'=>$offerId['id'],
+                    'quantity'=>$offerId['quantity'],
+                    'total_cost'=>$offerId['cost'] * $offerId['quantity'] 
+                ]);
+            }
             foreach ($mealIds as $mealId) {
                 // dd(Meal::find($mealId['id']));
                 $meal =  $this->checkMeal($mealId['id']);
@@ -312,6 +292,7 @@ class OrderController extends Controller
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
+        $offerIds = $validatedData['offer_ids'] ?? [];
         //  dd($validatedData['diningtable_id']) ;  
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
@@ -335,6 +316,16 @@ class OrderController extends Controller
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
             ]);
+            foreach ($offerIds as $offerId){
+                $offer = $this->checkOffer($offerId);
+                if($offer instanceof JsonResponse) return $offer;
+                Order_offer::create([
+                    'order_id'=>$order->id,
+                    'offer_id'=>$offerId['id'],
+                    'quantity'=>$offerId['quantity'],
+                    'total_cost'=>$offerId['cost'] * $offerId['quantity'] 
+                ]);
+            }
             foreach ($mealIds as $mealId) {
                 // dd(Meal::find($mealId['id']));
                 $meal =  $this->checkMeal($mealId['id']);
@@ -390,35 +381,24 @@ class OrderController extends Controller
     public function get_user_orders($userId)
     {
 
-        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->where('customer_id', $userId)->paginate(12);
+        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->where('customer_id', $userId)->get();
         //  dd($orders->isEmpty());
         if ($orders->isEmpty()) return response()->json([
             'status' => 'failed',
             'message' => 'No orders are made with that Customer'
         ], 404);
-        $pagination = [
-            'total' => $orders->total(),
-            'per_page' => $orders->perPage(),
-            'current_page' => $orders->currentPage(),
-            'last_page' => $orders->lastPage()
-        ];
+       
         return response()->json([
             'status' => 'success',
-            'data' => $orders->items(),
-            'pagination' => $pagination
+            'data' => $orders,  
         ], 200);
     }
 
     public function getAllTransactions()
     {
-        $transactions = Transaction::paginate(20);
+        $transactions = Transaction::all();
 
-        $pagination = [
-            'total' => $transactions->total(),
-            'per_page' => $transactions->perPage(),
-            'current_page' => $transactions->currentPage(),
-            'last_page' => $transactions->lastPage()
-        ];
+     
         if ($transactions->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
@@ -427,8 +407,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'Transactions' => $transactions->items(),
-            'pagination' => $pagination
+            'Transactions' => $transactions, 
         ]);
     }
     public function getTransactionById($id)
@@ -473,8 +452,14 @@ class OrderController extends Controller
         $startDate = Carbon::parse($request->from)->startOfDay(); //startOfDay() to ensure entire days specified  not just the exact times given.
         $endDate = Carbon::parse($request->to)->endOfDay();
         // dd($startDate);
-        $sales = Order::whereBetween('created_at', [$startDate, $endDate])->sum('total_cost');
-        if (!$sales) {
+        $sales = Order::whereBetween('created_at', [$startDate, $endDate])->get();
+        $salesResponse = $sales->map(function ($sale) {
+            return [
+                'Date' => $sale->created_at,
+                'sales' => $sale->total_cost
+            ];
+        });
+        if ($salesResponse->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'sales not found'
@@ -482,7 +467,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'sales' => $sales
+            'sales' => $salesResponse
         ], 200);
     }
     //Most Popular Items NOT EMPLEMENT YET 
@@ -507,6 +492,25 @@ class OrderController extends Controller
             'message' => 'change status successfully'
         ], 200);
     }
+
+    /**
+     * Generate Items Report 
+     */
+    // public function ItemsReport()
+    // {
+    //     $Items = [];
+    //     $addons = OrderAddon::with('addon')->get();
+    //     $addonsResponse = $addons->map(function($addon){
+    //         return [
+    //             'name'=>$addon->name,
+    //             ''
+    //         ];
+    //     })
+    //     return response()->json([
+    //         'status'=>'success',
+    //         'Items'=>$addons
+    //     ],200);
+    // }
     // to use it in make order to check if ids that come from request existing in DB
     private function checkCustomer($id)
     {
@@ -516,6 +520,15 @@ class OrderController extends Controller
             'message' => 'customer not found'
         ], 404);
         return $customer;
+    }
+    private function checkOffer($id)
+    {
+        $offer = Offer::find($id);
+        if (!$offer) return response()->json([
+            'status' => 'failed',
+            'message' => 'Offer not found or Expired'
+        ], 404);
+        return $offer;
     }
     private function checkAddon($id)
     {

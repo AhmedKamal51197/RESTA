@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FatoorahController;
 use App\Http\Controllers\OrderController;
+use App\Models\OrderAddon;
 use Illuminate\Support\Facades\Route;
 
 
@@ -13,6 +14,7 @@ Route::group(['middleware'=>'auth:api'],function(){
 Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::get('admin/sales',[OrderController::class,'SalesSummary']);
     Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
+    Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
 });
 Route::group(['middleware'=>'auth:admin-api'],function(){
 

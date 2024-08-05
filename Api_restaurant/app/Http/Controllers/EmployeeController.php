@@ -136,8 +136,8 @@ class EmployeeController extends Controller
 
     public function index()
     {
-        $perPage = 12;
-        $employees = Employee::paginate($perPage);
+        
+        $employees = Employee::all();
         if ($employees->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
@@ -154,16 +154,10 @@ class EmployeeController extends Controller
                 'status' => $employee->status
             ];
         });
-        $pagination = [
-            'total' => $employees->total(),
-            'per_page' => $employees->perPage(),
-            'current_page' => $employees->currentPage(),
-            'last_page' => $employees->lastPage()
-        ];
+      
         return response()->json([
             'status' => 'success',
-            'data' => $Transformedemployees->ToArray(),
-            'pagination' => $pagination
+            'data' => $Transformedemployees,
         ], 200);
     }
 
@@ -239,11 +233,16 @@ class EmployeeController extends Controller
                 $emp->fill([
                     'password' => Hash::make($vlaidatedData['new_password'])
                 ])->save();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Password change successfully'
+                ], 200);
             }
             return response()->json([
-                'status' => 'success',
-                'message' => 'Password change successfully'
-            ], 200);
+                'status' => 'failed',
+                'message' => 'Password incorrect'
+            ], 401);
+
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'failed',
@@ -275,7 +274,7 @@ class EmployeeController extends Controller
             $employee->save();
             return response()->json([
                 'status' => 'success',
-                'updated employee ' => $employee
+                'message' => 'Employee updated successfully'
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(

@@ -27,8 +27,8 @@ class Offer extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'startDate' => 'datetime:d-m-Y H:i:s',
-        'endDate' => 'datetime:d-m-Y H:i:s',
+        'startDate' => 'datetime',
+        'endDate' => 'datetime',
     ];
     public function setStartDateAttribute($value)
     {
@@ -39,14 +39,22 @@ class Offer extends Model
     {
         $this->attributes['endDate'] = Carbon::createFromFormat('d-m-Y H:i:s', $value)->format('Y-m-d H:i:s');
     }
-
+    public function getEndDateAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+    public function getStartDateAttribute($value)
+    {
+        return Carbon::parse($value)->format('Y-m-d H:i:s');
+    }
+    
     public function setStatusAttribute($value)
     {
-        $statuses=[
-            'inactive'=>0,
-            'active'=>1
+        $statuses = [
+            'inactive' => 0,
+            'active' => 1
         ];
-        $this->attributes['status']=$statuses[$value] ?? 1;
+        $this->attributes['status'] = $statuses[$value] ?? 1;
     }
     public function getStatusAttribute($value)
     {
@@ -67,18 +75,22 @@ class Offer extends Model
     }
     public function extras()
     {
-        return $this->belongsToMany(Extra::class,'offer_items')
-        ->withPivot('extra_quantity');
+        return $this->belongsToMany(Extra::class, 'offer_items')
+            ->withPivot('extra_quantity');
     }
     public function meals()
     {
         return $this->belongsToMany(Meal::class, 'offer_items')
-        ->withPivot('meal_quantity');
+            ->withPivot('meal_quantity');
     }
     public function addons()
     {
-        return $this->belongsToMany(Addon::class,'offer_items')
-        ->withPivot('addon_quantity');
-        
+        return $this->belongsToMany(Addon::class, 'offer_items')
+            ->withPivot('addon_quantity');
     }
+    public function orderoffers()
+    {
+        return $this->hasMany(Order_offer::class);
+    }
+    
 }

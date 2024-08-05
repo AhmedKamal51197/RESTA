@@ -25,7 +25,7 @@ class OrderLocationController extends Controller
         return response()->json([
             'status'=>'success',
             'message'=>'Location added done',
-            'Location'=>$location
+            // tell toQa with this change that you deleted data from here 
         ],201);
     }
 
@@ -49,7 +49,7 @@ class OrderLocationController extends Controller
         return response()->json([
             'status'=>'success',
             'message'=>'Location updated successfully',
-            'Location'=>$location
+            
         ],200);
     }
 
