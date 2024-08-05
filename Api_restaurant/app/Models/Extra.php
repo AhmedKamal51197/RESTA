@@ -44,5 +44,8 @@ class Extra extends Model
     {
         return $this->belongsToMany(Offer::class,'offer_items');
     }
-   
+    public function mealExtras()
+    {
+        return $this->hasMany(Meal_extra::class);
+    }
 }

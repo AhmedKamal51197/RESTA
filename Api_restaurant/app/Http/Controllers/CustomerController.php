@@ -120,7 +120,7 @@ class CustomerController extends Controller
         }
 
         $token = auth('api')->attempt($dataValidated);
-         //dd($dataValidated);
+        //dd($dataValidated);
         if (!$token) {
             return response()->json([
                 'status' => 'failed',
@@ -192,78 +192,68 @@ class CustomerController extends Controller
                 'status' => 'failed',
                 'message' => 'This account not found'
             ], 404);
-            $statusField=$request->validate([
-                'status' => ['sometimes', 'in:active,inactive']
+            $statusField = $request->validate([
+                'status' => ['sometimes', 'in:0,1']
             ]);
-            
         } else {
-            
-            
+
+
             $updatedCustomer = auth('api')->user();
             //  dd($updatedCustomer);    
-            
+
         }
         // dd($updatedCustomer->id);
-       // dd(['id'=>$updatedCustomer->email]);
-       
+        // dd(['id'=>$updatedCustomer->email]);
+
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'min:3', 'max:20'],
-            'email' => ['sometimes','email',
-                Rule::unique('customers','email')->ignore($updatedCustomer->id)], 
+            'email' => [
+                'sometimes', 'email',
+                Rule::unique('customers', 'email')->ignore($updatedCustomer->id)
+            ],
             //'unique:customers,email,' . $updatedCustomer->email],
             'phone' => ['sometimes', 'string', 'min:8', 'max:12'],
         ]);
-        
-        foreach($data as $key=>$value)
-        {
-            
-            if(isset($data[$key]) )
-            {
-                    $updatedCustomer->$key=$value;
+
+        foreach ($data as $key => $value) {
+
+            if (isset($data[$key])) {
+                $updatedCustomer->$key = $value;
             }
         }
-        if(isset($statusField['status']))
-        {
-            if($statusField['status']==='inactive')
-                $updatedCustomer->status=0;
-            else if($statusField['status']==='active')
-                $updatedCustomer->status=1;
+        if (isset($statusField['status'])) {
+            if ($statusField['status'] === 0)
+                $updatedCustomer->status = 0;
+            else if ($statusField['status'] === 1)
+                $updatedCustomer->status = 1;
         }
-        if(array_key_exists('email',$data))
-        {
+        if (array_key_exists('email', $data)) {
             $updatedCustomer->email_verified_at = null;
         }
         $updatedCustomer->save();
         return response()->json([
             'status' => 'success',
             'message' => 'updated done',
-            'data' => $updatedCustomer
+
         ]);
     }
     // get all customers
     public function index()
     {
-        $perPage=12;
-        $customers = Customer::paginate($perPage);
+        $customers = Customer::all();
         //$customers->isEmpty() == $customers->count()===0 casue it's check for collection and check if items in collection empty or not 
         //but empty($customer) ---> php method check if variable is empty or not and with pagination varaible is combine items and paginate data 
-        if ($customers->isEmpty() ) {
+        if ($customers->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => 'No customers found'
             ], 404);
         }
-        $pagination = [
-            'total'=>$customers->total(),
-            'per_page'=>$customers->perPage(),
-            'curent_page'=>$customers->currentPage(),
-            'last_page'=>$customers->lastPage()
-        ];
+
         return response()->json([
             'status' => 'success',
-            'data' => $customers->items(),
-            'pagination'=>$pagination
-        ],200);
+            'data' => $customers
+        ], 200);
     }
     public function show($id)
     {
@@ -359,25 +349,18 @@ class CustomerController extends Controller
     // for dashboard 
     public function filterByName($name)
     {
-        $perPage=12;
-        $customers = Customer::where('name', $name)->paginate($perPage);
+
+        $customers = Customer::where('name', $name)->get();
         if ($customers->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
                 'message' => "No customers existing with name : $name"
             ], 400);
         }
-        $pagination = [
-            'total'=>$customers->total(),
-            'per_page'=>$customers->perPage(),
-            'current_page'=>$customers->currentPage(),
-            'last_page'=>$customers->lastPage()
-        ];
+
         return response()->json([
             'status' => 'success',
-            'data' => $customers->items(),
-            'pagination'=>$pagination
+            'data' => $customers
         ], 200);
     }
-   
 }

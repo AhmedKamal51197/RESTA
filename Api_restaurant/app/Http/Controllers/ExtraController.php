@@ -7,70 +7,146 @@ use App\Models\Meal;
 use App\Models\Meal_extra;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Symfony\Component\EventDispatcher\DependencyInjection\ExtractingEventDispatcher;
-
-use function Laravel\Prompts\error;
-use function PHPUnit\Framework\throwException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ExtraController extends Controller
 {
-
-    // get all extras for admin 
-    public function index()
+    // Fetch all extras
+    public function index(Request $request)
     {
-        $perPage=12;
-        $extras = Extra::paginate($perPage);
+        $isAdmin = Auth::guard('admin-api')->check();
+    
+        if ($isAdmin) {
+            $extras = Extra::with('category')->get();
+        } else {
+            $extras = Extra::where('status', true)->with('category')->get();
+        }
+
         if ($extras->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'No extra exist'
+                'message' => 'No extras exist'
             ], 404);
         }
-        $pagination = [
-            'total'=>$extras->total(),
-            'per_page'=>$extras->perPage(),
-            'current_page'=>$extras->currentPage(),
-            'last_page'=>$extras->lastPage()
-        ];
+    
+        $extras = $extras->map(function ($extra) {
+            return [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'description' => $extra->description,
+                'cost' => $extra->cost,
+                'type' => $extra->type,
+                'category_id' => $extra->category_id,
+                'category_name' => $extra->category ? $extra->category->name : null,
+                'status' => $extra->status,
+                'image' => $extra->image,
+            ];
+        });
+    
         return response()->json([
             'status' => 'success',
-            'data' => $extras->items(),
-            'pagination'=>$pagination
+            'data' => $extras,
         ], 200);
     }
-    // get specific extra by id for admin 
-    public function show($id)
+
+    // filter extra by ID
+    public function filterExtra(Request $request)
     {
-        try {
-            $extra = Extra::findOrFail($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $extra
-            ], 200);
-        } catch (ModelNotFoundException $e) {
+        $isAdmin = Auth::guard('admin-api')->check();
+    
+        $query = Extra::with('category');
+    
+        if (!$isAdmin) {
+            $query->where('status', true);
+        }
+    
+        $filters = $request->only(['name', 'cost', 'category_id', 'status', 'type']);
+        
+        foreach ($filters as $key => $value) {
+            if (!is_null($value)) {
+                if ($key == 'name') {
+                    $query->where($key, 'like', '%' . $value . '%');
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        
+        $extras = $query->get();
+    
+        if ($extras->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
-                'message' => 'extra not found'
+                'message' => 'No extras found with the given filters'
             ], 404);
         }
+    
+        $extras = $extras->map(function ($extra) {
+            return [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'description' => $extra->description,
+                'cost' => $extra->cost,
+                'type' => $extra->type,
+                'category_id' => $extra->category_id,
+                'category_name' => $extra->category ? $extra->category->name : null,
+                'status' => $extra->status,
+                'image' => $extra->image,
+            ];
+        });
+    
+        return response()->json([
+            'status' => 'success',
+            'data' => $extras,
+        ], 200);
     }
 
-    // store extra by admin 
+    // Fetch extra by ID
+    public function show($id)
+    {
+        $extra = Extra::with('category')->find($id);
+        
+        if ($extra) {
+            $extra_Data = [
+                'id' => $extra->id,
+                'name' => $extra->name,
+                'description' => $extra->description,
+                'type' => $extra->type,
+                'cost' => $extra->cost,
+                'category_id' => $extra->category_id,
+                'category_name' => $extra->category ? $extra->category->name : null,
+                'status' => $extra->status,
+                'image' => $extra->image,
+            ];
+    
+            if (Auth::guard('admin-api')->check()) {
+                return response()->json(['status' => 'success', 'data' => $extra_Data], 200);
+            } else if ($extra->status) {
+                return response()->json(['status' => 'success', 'data' => $extra_Data], 200);
+            } else {
+                return response()->json(['status' => 'failed', 'error' => 'Unauthorized'], 403);
+            }
+        }
+        return response()->json(['status' => 'failed', 'error' => 'Extra not found'], 404);
+    }
+
+    // Add a new extra
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:extras'],
             'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
-            'cost' => ['required', 'numeric','min:1'],
-            'status' => ['sometimes', 'boolean'],
-            'category_id' => ['required','exists:categories,id'],
-            'image' => ['required','image','mimes:jpeg,png,jpg,gif,bmp,svg'],
+            'cost' => 'required|numeric|min:1',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,bmp,svg',
+            'status' => 'sometimes|boolean',
             'type' => 'sometimes|in:vegetarian,non-vegetarian',
         ]);
 
+        // Handle the image upload
         $imagePath = '';
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -78,171 +154,161 @@ class ExtraController extends Controller
             $imagePath = $image->storeAs('extras', $imageName, 'public');
         }
 
-        $extra = Extra::create([
-            'name' => $validatedData['name'],
-            'description' => $validatedData['description'],
-            'cost' => $validatedData['cost'],
-            'status' => $validatedData['status'] ?? true,
-            'type' => $validatedData['type'] ?? 'vegetarian',
-            'category_id' => $validatedData['category_id'],
-            'image' => $imagePath,
-        ]);
-        if (!$extra) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'internal server error'
-            ], 500);
+        $extra = Extra::create(array_merge(
+            $request->only('name', 'description', 'cost', 'category_id'),
+            ['image' => $imagePath, 'status' => $request->input('status', true), 'type' => $request->input('type', 'vegetarian')]
+        ));
+
+        if ($extra) {
+            return response()->json(['status' => 'success', 'message' => "The extra has been added successfully"], 201);
+        } else {
+            return response()->json(['status' => 'failed', 'error' => 'Error during extra addition'], 400);
         }
-        return response()->json([
-            'status' => 'success',
-            'message' => 'added done',
-             'data' => $extra,
-        ], 200);
     }
 
-    // update extra by admin
+    // Update an extra
     public function update(Request $request, $id)
     {
         $extra = Extra::find($id);
-        if (!$extra) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'extra not found'
-            ], 404);
-        }
-        $validatedData = $request->validate([
-            'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('extras')->ignore($id)],
-            'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
-            'cost' => ['sometimes', 'numeric','min:1'],
-            'status' => ['sometimes', 'boolean'],
-            'category_id' => ['sometimes','exists:categories,id'],
-            'type' => 'sometimes|in:vegetarian,non-vegetarian',
-            'image' => ['sometimes','image','mimes:jpeg,png,jpg,gif,bmp,svg']
-        ]);
-
-        if ($request->hasFile('image')) {
-            if ($extra->image) {
-                Storage::disk('public')->delete($extra->image);
-            }
-            $image = $request->file('image');
-            $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
-            $imagePath = $image->storeAs('extras', $imageName, 'public');
-            $extra->image = $imagePath;
-        }
-
-        foreach ($validatedData as $key => $value) {
-            if (isset($validatedData[$key])&& $key != 'image') {
-                $extra->$key = $value;
-            }
-        }
-        $extra->save();
-        return response()->json([
-            'status' => 'success',
-            'updated data' => $extra
-        ], 200);
-    }
-
-    //delete extra by admin 
-    public function destroy($id)
-    {
-        try {
-            $extra = Extra::findOrFail($id);
-            if ($extra) {
+        if ($extra) {
+            $request->validate([
+                'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('extras')->ignore($id)],
+                'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
+                'cost' => ['sometimes','numeric','min:1'],
+                'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
+                'status' => 'sometimes|boolean',
+                'category_id' => 'sometimes|exists:categories,id',
+                'type' => 'sometimes|in:vegetarian,non-vegetarian',
+            ]);
+    
+            // Handle the image upload
+            if ($request->hasFile('image')) {
                 if ($extra->image) {
                     Storage::disk('public')->delete($extra->image);
                 }
+                $image = $request->file('image');
+                $imageName = Str::random(40) . '.' . $image->getClientOriginalExtension();
+                $imagePath = $image->storeAs('extras', $imageName, 'public');
+                $extra->image = $imagePath;
+            }
+    
+            $extra->update($request->except('image'));
+            return response()->json(['status' => 'success', 'message' => "extra has been updated successfully"], 200);
+        }
+        return response()->json(['status' => 'failed', 'error' => 'Extra not found'], 404);
+    }
+    
+    // Delete an extra
+    public function destroy($id)
+    {
+        $extra = Extra::find($id);
+        if ($extra) {
+            if ($extra->image) {
+                Storage::disk('public')->delete($extra->image);
             }
             $extra->delete();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'extra deleted'
-            ], 200);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'extra not found'
-            ], 404);
+            return response()->json(['status' => 'success', 'message' => 'Extra deleted successfully'], 200);
         }
+        return response()->json(['status' => 'failed', 'error' => 'Extra not found'], 404);
     }
 
-    // get extra by meal for website and just display active extra only
-    public function getExtraById($meal_id)
+    // Get extras by meal ID
+    public function getExtraByMeal($meal_id)
     {
-        $findMeal = Meal::find($meal_id);
-        $extraData = [];
-        if (!$findMeal) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'No meal Found By this id'
-            ], 404);
-        } else if ($findMeal->extras->isEmpty()) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'No extra exist with ' . $findMeal->name
-            ], 404);
-        }
-
-        foreach ($findMeal->extras as $extra) {
-            if($extra->status)
-                $extraData[] = ['name' => $extra->name, 'cost' => $extra->cost];
-            //$extraData[$key]=$extra->name;
-        }
-        return response()->json([
-            'status' => 'success',
-            'data' => $extraData
-        ]);
-        if (!$findMeal) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'no meal with that id found'
-            ], 404);
-        }
-    }
-
-
-    // store extra that related to specific meal
-    public function storeExtraMeals(Request $request ,$meal_id )  {
-        $request->validate([
-            'extra_ids' => 'required|array',
-            'extra_ids.*' => 'integer' // Ensure each ID is an integer
-        ]);
-        $extra_ids = $request->query('extra_ids');
-        $extra_ids=array_map('intval',$extra_ids);
-        //dd($request->query('extra_ids'));// to catch array from request->query
-        //dd($extra_ids[0]);
         $meal = Meal::find($meal_id);
 
-        if(!$meal) return response()->json([
-            'status'=>'failed',
-            'message'=>'No meal found with that ID '],404);
-        foreach($extra_ids as $extra_id)
-        {
-            // intval($extra_id);
-              //dd(intval($extra_id));
-            $extra = Extra::find($extra_id);
-            if(!$extra) return response()->json([
-                'status'=>'failed',
-                'message'=>"No extra found with that ID : $extra_id"
-            ],404);
-
-        }
-        
-        foreach($extra_ids as $extra_id)
-        {
-            
-            $extra = Extra::find($extra_id);
-
-            $meal_extra = Meal_extra::updateOrcreate([
-                'meal_id'=>$meal_id,
-                'extra_id'=>$extra_id
-            ]);
+        if (!$meal) {
+            return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
         }
 
-        return response()->json([
-            'status'=>'success',
-            'message'=>"Added extras for $meal->name successfully"
-        ],200);
-    } 
+        $extras = Meal_extra::where('meal_id', $meal_id)->with('extra.category')->get();
 
+        if ($extras->isEmpty()) {
+            return response()->json(['status' => 'failed', 'error' => 'No extras found for this meal'], 404);
+        }
+
+        $extrasData = $extras->map(function ($mealExtra) {
+            return [
+                'extra_id' => $mealExtra->extra->id,
+                'extra_name' => $mealExtra->extra->name,
+                'status' => $mealExtra->extra->status,
+
+            ];
+        });
+
+        return response()->json(['status' => 'success', 'data' => $extrasData], 200);
+    }
+
+    // add extra With Meal
+    public function storeExtraMeals(Request $request)
+    {
+        $request->validate([
+            'meal_id' => 'required|exists:meals,id',
+            'extra_id' => 'required|exists:extras,id',
+        ]);
     
+        $existingMealWithExtra = Meal_extra::where('meal_id', $request->meal_id)
+                                           ->where('extra_id', $request->extra_id) 
+                                           ->exists();
+    
+        if ($existingMealWithExtra) {
+            return response()->json(['status' => 'failed', 'error' => 'Meal with addon already exists'], 409);
+        }
+    
+        $mealWithExtra = Meal_extra::create($request->all());
+    
+        return response()->json(['status' => 'success', 'message' => 'Meal with extra successfully created'], 201);
+    }
+
+    // Delete a destroy Addons Meal
+    public function destroyExtrasMeal($extra_id , $meal_id)
+    {
+        $deletedRows = Meal_extra::where('meal_id', $meal_id)->where('extra_id', $extra_id)->delete();
+    
+        if ($deletedRows) {
+            return response()->json(['status' => 'success', 'message' => 'Meal with extra deleted successfully'], 200);
+        }
+    
+        return response()->json(['status' => 'failed', 'error' => 'Meal with extra not found'], 404);
+    }
+
+     // Fetch all extras not related to meal
+     public function indexMealExtra(Request $request, $meal_id)
+     {
+         $isAdmin = Auth::guard('admin-api')->check();
+     
+         if ($isAdmin) {
+             $extras = Extra::whereDoesntHave('mealExtras', function ($query) use ($meal_id) {
+                    $query->where('meal_id', $meal_id);
+                 })
+                 ->get();
+         } else {
+             $extras = Extra::where('status', true)
+                 ->whereDoesntHave('mealExtras', function ($query) use ($meal_id) {
+                    $query->where('meal_id', $meal_id);
+                 })
+                 ->get();
+         }
+     
+         if ($extras->isEmpty()) {
+             return response()->json([
+                 'status' => 'failed',
+                 'message' => 'No extras exist'
+             ], 404);
+         }
+     
+         $extras = $extras->map(function ($extra) {
+             return [
+                 'id' => $extra->id,
+                 'name' => $extra->name,
+             ];
+         });
+     
+         return response()->json([
+             'status' => 'success',
+             'data' => $extras,
+         ], 200);
+     }
+     
+
 }

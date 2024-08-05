@@ -47,6 +47,13 @@ class Addon extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
    
-
+    public function meals()
+    {
+        return $this->belongsToMany(Meal::class, 'meal_with_addons');
+    }
+    public function mealAddons() 
+    {
+        return $this->hasMany(MealWithAddon::class);
+    }
     use HasFactory;
 }

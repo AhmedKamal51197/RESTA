@@ -24,7 +24,6 @@ class CheckAdminToken
 
         try{
             $user=auth('admin-api')->user();
-
                 if(!$user || $user->Role!=='admin')
                 {
                     throw new TokenInvalidException('You are not Superadmin');

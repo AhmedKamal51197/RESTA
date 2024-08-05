@@ -75,6 +75,10 @@ class Order extends Model
     {
         return $this->hasOne(Transaction::class);
     }
+    public function orderOffers()
+    {
+        return $this->hasMany(Order_offer::class);
+    }
     
     use HasFactory;
 }

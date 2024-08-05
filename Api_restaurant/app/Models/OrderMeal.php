@@ -22,7 +22,7 @@ class OrderMeal extends Model
     }
     public function meal()
     {
-        return $this->belongsTo(Extra::class);
+        return $this->belongsTo(Meal::class);
     }
     protected $casts = [
         'created_at' => 'datetime',

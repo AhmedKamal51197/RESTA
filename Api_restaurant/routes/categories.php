@@ -17,7 +17,8 @@ use  App\Http\Controllers\CategoriesController;
 */
 
 
-
+Route::get('/products',[CategoriesController::class,'indexProducts'] );
+    Route::get('/menu',[CategoriesController::class,'indexMenu'] );
 
     Route::get('/AllItems',[CategoriesController::class,'AllItems'] );
     Route::get('/categories',[CategoriesController::class,'index'] );

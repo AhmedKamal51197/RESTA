@@ -22,15 +22,13 @@ class MealController extends Controller
     // Fetch all meal
     public function index(Request $request)
     {
-        $perPage = 12;
-
         $meals = Meal::query();
 
         if (!Auth::guard('admin-api')->check()) {
             $meals->where('status', true);
         }
 
-        $mealsData = $meals->with('mealSizeCosts', 'addons', 'extras')->paginate($perPage);
+        $mealsData = $meals->with('mealSizeCosts', 'addons', 'extras')->get();
 
         $DataMeals = $mealsData->map(function ($meal) {
             $mealCosts = $meal->mealSizeCosts->map(function ($sizeCost) {
@@ -71,7 +69,6 @@ class MealController extends Controller
                         'name' => $extra->name,
                         'cost' => $extra->cost,
                         'category_id' => $extra->category_id,
-
                     ];
                 }
                 return null;
@@ -89,28 +86,15 @@ class MealController extends Controller
                 'status' => $meal->status,
                 'category_name' => $category ? $category->name : null,
                 'category_id' => $meal->category_id,
-                "price" => $minCost,
+                'price' => $minCost,
                 'meal_size_costs' => $mealCosts,
                 'addons' => $addons,
                 'extras' => $extras,
             ];
         });
 
-        $pagination = [
-            'total' => $mealsData->total(),
-            'per_page' => $mealsData->perPage(),
-            'current_page' => $mealsData->currentPage(),
-            'last_page' => $mealsData->lastPage(),
-        ];
-
-
-        if ($mealsData->currentPage() > $mealsData->lastPage()) {
-            return response()->json(['status' => 'failed', 'error' => 'Page number exceeds the last available page'], 400);
-        }
-
-        return response()->json(['status' => 'success', 'data' => $DataMeals, "pagination" => $pagination], 200);
+        return response()->json(['status' => 'success', 'data' => $DataMeals], 200);
     }
-
 
     // Fetch meal by ID
     public function show($id)
@@ -173,9 +157,9 @@ class MealController extends Controller
             }
             DB::commit();
 
-            $newMealData = $this->DataMeal($newMeal);
+            // $newMealData = $this->DataMeal($newMeal);
 
-            return response()->json(['status' => 'success', 'data' => $newMealData], 201);
+            return response()->json(['status' => 'success', 'message' => "The meal has been added successfully"], 201);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['status' => 'error', 'message' => $e->message()], 500);
@@ -198,13 +182,7 @@ class MealController extends Controller
             'category_id' => 'sometimes|exists:categories,id',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,bmp,svg',
             'status' => 'sometimes|boolean',
-            'meal_size_costs' => 'sometimes|array',
-            'meal_size_costs.*.id' => 'sometimes|required|integer|exists:meals_size_costs,id',
-            'meal_size_costs.*.number_of_pieces' => ['sometimes', 'integer', 'min:1'],
-            'meal_size_costs.*.size' => ['required', 'integer', 'min:1', ' max:4'],
-            'meal_size_costs.*.cost' => ['required', 'numeric', 'min:1'],
         ]);
-
 
         if ($request->hasFile('image')) {
             $this->deleteOldImage($meal);
@@ -220,57 +198,48 @@ class MealController extends Controller
             'status' => $validatedData['status'] ?? $meal->status,
         ]);
 
-        if (isset($validatedData['meal_size_costs'])) {
-            $mealSizeCostRules = [];
-            foreach ($validatedData['meal_size_costs'] as $key => $value) {
-                $mealSizeCostRules["meal_size_costs.$key"] = [
-                    function ($attribute, $value, $fail) use ($id, $key, $validatedData) {
-                        $size = $validatedData['meal_size_costs'][$key]['size'] ?? null;
-                        $number_of_pieces = $validatedData['meal_size_costs'][$key]['number_of_pieces'] ?? null;
-                        $cost = $validatedData['meal_size_costs'][$key]['cost'];
+        // $meal->refresh();
 
-                        $exists = MealsSizeCost::where('meal_id', $id)
-                            ->where('size', $size)
-                            ->where('number_of_pieces', $number_of_pieces)
-                            ->where('cost', $cost)
-                            ->exists();
+        // $formattedMeal = $this->DataMeal($meal);
 
-                        if ($exists) {
-                            $fail("The of size, number of pieces, and cost is  already taken.");
-                        }
-                    },
-                ];
-            }
-            $request->validate($mealSizeCostRules);
-
-
-            foreach ($validatedData['meal_size_costs'] as $sizeCostData) {
-                if (isset($sizeCostData['id'])) {
-                    $mealSizeCost = MealsSizeCost::find($sizeCostData['id']);
-                    if ($mealSizeCost) {
-                        $mealSizeCost->update([
-                            'size' => $sizeCostData['size'],
-                            'number_of_pieces' => $sizeCostData['number_of_pieces'],
-                            'cost' => $sizeCostData['cost'],
-                        ]);
-                    }
-                } else {
-                    $meal->mealSizeCosts()->create([
-                        'size' => $sizeCostData['size'] ?? null,
-                        'number_of_pieces' => $sizeCostData['number_of_pieces'] ?? null,
-                        'cost' => $sizeCostData['cost'],
-                    ]);
-                }
-            }
-        }
-
-        $meal->refresh();
-
-        $formattedMeal = $this->DataMeal($meal);
-
-        return response()->json(['status' => 'success', 'data' => $formattedMeal], 200);
+        return response()->json(['status' => 'success', 'message' => "The meal has been updated successfully"], 200);
     }
 
+    //add  size
+    public function addMealSizeCost(Request $request, $mealId)
+    {
+        $meal = Meal::find($mealId);
+        if (!$meal) {
+            return response()->json(['status' => 'failed', 'error' => 'Meal not found'], 404);
+        }
+    
+        $validatedData = $request->validate([
+            'number_of_pieces' => ['sometimes', 'integer', 'min:1'],
+            'size' => ['required', 'integer', 'min:1', 'max:4'],
+            'cost' => ['required', 'numeric', 'min:1'],
+        ]);
+    
+        $existingSizeCost = $meal->mealSizeCosts()->where('size', $validatedData['size'])->first();
+    
+        if ($existingSizeCost) {
+            $existingSizeCost->update([
+                'number_of_pieces' => $validatedData['number_of_pieces'] ?? $existingSizeCost->number_of_pieces,
+                'cost' => $validatedData['cost'],
+            ]);
+        } else {
+            $meal->mealSizeCosts()->create([
+                'size' => $validatedData['size'],
+                'number_of_pieces' => $validatedData['number_of_pieces'] ?? null,
+                'cost' => $validatedData['cost'],
+            ]);
+        }
+    
+        $meal->refresh();
+        $formattedMeal = $this->DataMeal($meal);
+    
+        return response()->json(['status' => 'success', 'data' => $formattedMeal], 200);
+    }
+    
     // Delete a meal
     public function deleteMeal($id)
     {
@@ -492,4 +461,68 @@ class MealController extends Controller
     {
         return Auth::guard('admin-api')->check() || $meal->status;
     }
+
+    // filter meals by ID
+    public function filterMeal(Request $request)
+    {
+        $query = Meal::query();
+
+        $filters = $request->only(['name', 'cost', 'size', 'number_of_pieces', 'category_id', 'status', 'type']);
+        
+        foreach ($filters as $key => $value) {
+            if (!is_null($value)) {
+                if ($key == 'name') {
+                    $query->where($key, 'like', '%' . $value . '%');
+                } elseif (in_array($key, ['cost', 'size', 'number_of_pieces'])) {
+                    $query->whereHas('mealSizeCosts', function($q) use ($key, $value) {
+                        $q->where($key, $value);
+                    });
+                } else {
+                    $query->where($key, $value);
+                }
+            }
+        }
+        
+        $meals = $query->with(['category', 'mealSizeCosts'])->get();
+        
+        if ($meals->isEmpty()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No meals found with the given filters'
+            ], 404);
+        }
+
+        $DataMeals = $meals->map(function ($meal) use ($filters) {
+            // جلب التكاليف المطابقة للفلاتر إذا كانت موجودة
+            $mealCosts = $meal->mealSizeCosts->filter(function ($sizeCost) use ($filters) {
+                foreach (['cost', 'size', 'number_of_pieces'] as $filter) {
+                    if (isset($filters[$filter]) && $sizeCost->$filter != $filters[$filter]) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            $cost = $mealCosts->isNotEmpty() ? $mealCosts->first()->cost : null;
+
+            return [
+                'id' => $meal->id,
+                'name' => $meal->name,
+                'description' => $meal->description,
+                'cost' => $cost,
+                'type' => $meal->type,
+                'category_id' => $meal->category_id,
+                'category_name' => optional($meal->category)->name,
+                'status' => $meal->status,
+                'image' => $meal->image,
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $DataMeals,
+        ], 200);
+    }
+
+
 }

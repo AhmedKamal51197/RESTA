@@ -26,7 +26,12 @@ class OrderRequest extends FormRequest
             'location_id' => ['nullable', 'integer'],
             'diningtable_id' => ['nullable', 'integer'],
             'total_cost'=>['required','numeric','min:1'],
-          
+            
+            'offer_ids' => ['array', 'nullable'],
+            'offer_ids.*.id' => ['required', 'integer'],
+            'offer_ids.*.quantity' => ['required', 'integer', 'min:1'],
+            'offer_ids.*.cost' => ['required', 'numeric', 'min:1'],
+
             'meal_ids' => ['array', 'nullable'],
             'meal_ids.*.id' => ['required', 'integer'],
             'meal_ids.*.quantity' => ['required', 'integer', 'min:1'],
@@ -58,8 +63,8 @@ class OrderRequest extends FormRequest
                 $validator->errors()->add('location_id_OR_diningtable_id', 'You cannot provide both location_id and diningtable_id. Provide only one location_id (for delivery) or diningtable_id (for in-restaurant).');
             }
     
-            if (empty($data['meal_ids']) && empty($data['addon_ids']) && empty($data['extra_ids'])) {
-                $validator->errors()->add('meal_ids_OR_addon_ids_OR_extra_ids', 'meal_ids or addon_ids or extra_ids must be provided.');
+            if (empty($data['meal_ids']) && empty($data['addon_ids']) && empty($data['extra_ids'])&& empty($data['offer_ids'])) {
+                $validator->errors()->add('meal_ids_OR_addon_ids_OR_extra_ids', 'meal_ids or addon_ids or extra_ids or offer_ids must be provided.');
             }
         });
     }

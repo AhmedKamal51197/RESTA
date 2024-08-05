@@ -25,36 +25,36 @@ use function PHPUnit\Framework\isEmpty;
 
 class OfferController extends Controller
 {
+
+
     /**
      * Display items and it's type to front 
      */
+
     public function getAllItems()
     {
-       
+
         $items = [
 
-            'meal' => Meal::where('status', 1)->get() ,
+            'meal' => Meal::where('status', 1)->get(),
             'extra' => Extra::where('status', 1)->get(),
-            'addon'=>Addon::where('status',1)->get()
+            'addon' => Addon::where('status', 1)->get()
         ];
-        $emptyCounter=0;
-        foreach ($items as $key=>$value)
-        {
-            if($value->isEmpty())
-            {
+        $emptyCounter = 0;
+        foreach ($items as $key => $value) {
+            if ($value->isEmpty()) {
                 $emptyCounter++;
             }
         }
 
-        if($emptyCounter==3) return response()->json([
-            'status'=>'failed',
-            'message'=>'there is no Items'
-        ],404);
+        if ($emptyCounter == 3) return response()->json([
+            'status' => 'failed',
+            'message' => 'there is no Items'
+        ], 404);
         return response()->json([
-            'status'=>'success',
-            'Items'=>$items
-        ],200);
-
+            'status' => 'success',
+            'Items' => $items
+        ], 200);
     }
     /**
      * Display a listing of the Item in the offer
@@ -78,8 +78,8 @@ class OfferController extends Controller
             'name' => $offer->name,
             'discount' => $offer->discount,
             'status' => $offer->status,
-            'start Date' => $offer->startDate,
-            'end Date' => $offer->endDate,
+            'start_date' => $offer->startDate,
+            'end_date' => $offer->endDate,
             'extras' => $offer->extras->filter()->values()->map(function ($extra) use ($offer) {
                 $quantity = $extra->pivot->extra_quantity ?? null;
                 return [
@@ -136,8 +136,8 @@ class OfferController extends Controller
                 'name' => $offer->name,
                 'discount' => $offer->discount,
                 'status' => $offer->status,
-                'start Date' => $offer->startDate,
-                'end Date' => $offer->endDate,
+                'start_date' => $offer->startDate,
+                'end_date' => $offer->endDate,
                 'extras' => $offer->extras->isEmpty() ? null : $offer->extras->map(function ($extra) {
                     return [
                         'extra_id' => $extra->id,
@@ -431,5 +431,24 @@ class OfferController extends Controller
         if ($offer->image) {
             Storage::disk('public')->delete($offer->image);
         }
+    }
+    // get cost after disscount 
+    public function getCostAfterDiscount($id, $discount)
+    {
+
+        $offerItemQuery = Offer_item::where('offer_id', $id)
+            ->with(['extra', 'meal', 'addon']);
+        dd($offerItemQuery);
+
+        $totalMealCost = $offerItemQuery->clone()->whereNotNull('meal_id');
+        $totalAddonCost = $offerItemQuery->clone()->whereNotNull('addon_id');
+        $totalExtraCost = $offerItemQuery->clone()->where('extra_id')->sum('cost');
+        $costBeforDiscount = $totalExtraCost + $totalAddonCost + $totalMealCost;
+        $costAfterDiscount = $costBeforDiscount - ($costBeforDiscount * $discount);
+        dd($costBeforDiscount, $costAfterDiscount);
+        return [
+            'costBeforDiscount' => $costBeforDiscount,
+            'costAfterDiscount' => $costAfterDiscount
+        ];
     }
 }
