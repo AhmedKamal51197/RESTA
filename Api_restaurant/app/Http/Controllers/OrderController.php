@@ -22,6 +22,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Auth\Events\Validated;
+use Illuminate\Contracts\Support\ValidatedData;
+
 // use function PHPSTORM_META\map;
 
 class OrderController extends Controller
@@ -34,9 +37,9 @@ class OrderController extends Controller
 
     public function index()
     {
-        
+
         $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->get();
-            
+
 
         if ($orders->isEmpty()) {
             return response()->json([
@@ -45,12 +48,12 @@ class OrderController extends Controller
             ], 404);
         }
         //  dd($orders[0]->status);
-     
-       
+
+
         return response()->json([
             'status' => 'success',
             'data' => $orders,
-           
+
         ], 200);
     }
     public function get_order_meals($id)
@@ -66,13 +69,12 @@ class OrderController extends Controller
             $meal = Meal::find($order_meal->meal_id);
             $order_meal->meal_name = $meal ? $meal->name : null;
             $order_meal->meal_image = $meal ? $meal->image : null;
-
         }
-       
+
         return response()->json([
             'status' => 'success',
             'data' => $order_meals,
-           
+
         ], 200);
     }
 
@@ -92,11 +94,11 @@ class OrderController extends Controller
             $order_addon->addon_name = $addon ? $addon->name : null;
             $order_addon->addon_image = $addon ? $addon->image : null;
         }
-    
+
         return response()->json([
             'status' => 'success',
             'data' => $order_addons,
-        
+
         ], 200);
     }
     public function get_order_extras($id)
@@ -112,11 +114,11 @@ class OrderController extends Controller
             $order->extra_name = $extra->name;
             $order->extra_image = $extra->image;
         }
-    
+
         return response()->json([
             'status' => 'success',
             'data' => $orders,
-       
+
         ], 200);
     }
     public function show($id)
@@ -126,13 +128,14 @@ class OrderController extends Controller
             'status' => 'failed',
             'message' => 'No Order Found'
         ], 404);
-       
+
 
         return response()->json([
             'status' => 'success',
             'data' => $order
         ], 200);
     }
+    
     // order with online payment
     public function payOrder(OrderRequest $request)
     {
@@ -166,15 +169,16 @@ class OrderController extends Controller
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
+                'PaymentType' => "online"
             ]);
-            foreach ($offerIds as $offerId){
+            foreach ($offerIds as $offerId) {
                 $offer = $this->checkOffer($offerId);
-                if($offer instanceof JsonResponse) return $offer;
+                if ($offer instanceof JsonResponse) return $offer;
                 Order_offer::create([
-                    'order_id'=>$order->id,
-                    'offer_id'=>$offerId['id'],
-                    'quantity'=>$offerId['quantity'],
-                    'total_cost'=>$offerId['cost'] * $offerId['quantity'] 
+                    'order_id' => $order->id,
+                    'offer_id' => $offerId['id'],
+                    'quantity' => $offerId['quantity'],
+                    'total_cost' => $offerId['cost'] * $offerId['quantity']
                 ]);
             }
             foreach ($mealIds as $mealId) {
@@ -234,6 +238,7 @@ class OrderController extends Controller
                 'amount' => $order->total_cost,
                 'InvoiceId' => $data['Data']['InvoiceId'],
             ]);
+
             return response()->json([
                 'status' => 'success',
                 'Transaction_id' => $transaction->id,
@@ -269,6 +274,9 @@ class OrderController extends Controller
             $invoiceId = $paymentStatus['Data']['InvoiceId'];
             $transaction = Transaction::where('InvoiceId', $invoiceId)->first();
             //dd($invoiceId);
+            $order = Order::find($transaction->order_id);
+            $order->pay = 1;
+            $order->save();
             $transaction->payment_method = 'VisaMasterCard';
             $transaction->save();
             return response()->json([
@@ -315,15 +323,16 @@ class OrderController extends Controller
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
+                'PaymentType' => "cashed"
             ]);
-            foreach ($offerIds as $offerId){
+            foreach ($offerIds as $offerId) {
                 $offer = $this->checkOffer($offerId);
-                if($offer instanceof JsonResponse) return $offer;
+                if ($offer instanceof JsonResponse) return $offer;
                 Order_offer::create([
-                    'order_id'=>$order->id,
-                    'offer_id'=>$offerId['id'],
-                    'quantity'=>$offerId['quantity'],
-                    'total_cost'=>$offerId['cost'] * $offerId['quantity'] 
+                    'order_id' => $order->id,
+                    'offer_id' => $offerId['id'],
+                    'quantity' => $offerId['quantity'],
+                    'total_cost' => $offerId['cost'] * $offerId['quantity']
                 ]);
             }
             foreach ($mealIds as $mealId) {
@@ -365,6 +374,9 @@ class OrderController extends Controller
                 'payment_method' => 'cashed',
                 'amount' => $order->total_cost
             ]);
+
+
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order created successfully'
@@ -387,10 +399,10 @@ class OrderController extends Controller
             'status' => 'failed',
             'message' => 'No orders are made with that Customer'
         ], 404);
-       
+
         return response()->json([
             'status' => 'success',
-            'data' => $orders,  
+            'data' => $orders,
         ], 200);
     }
 
@@ -398,7 +410,7 @@ class OrderController extends Controller
     {
         $transactions = Transaction::all();
 
-     
+
         if ($transactions->isEmpty()) {
             return response()->json([
                 'status' => 'failed',
@@ -407,7 +419,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'Transactions' => $transactions, 
+            'Transactions' => $transactions,
         ]);
     }
     public function getTransactionById($id)
@@ -511,6 +523,24 @@ class OrderController extends Controller
     //         'Items'=>$addons
     //     ],200);
     // }
+    // change pay to paid if casher checked that customer paid cashed
+    public function checkPaid(Request $request ,$id)
+    {
+        $validatedData = $request->validate([
+            'pay'=>'in:0,1'
+        ]);
+        $order = Order::find($id);
+        if(!$order) return response()->json([
+            'status'=>'failed',
+            'message'=>'No order found'
+        ],404);
+        $order->pay=$validatedData['pay'];
+        $order->save();
+        return response()->json([
+            'status'=>'success',
+            'message'=>'change paid status success'
+        ],200);
+    }
     // to use it in make order to check if ids that come from request existing in DB
     private function checkCustomer($id)
     {

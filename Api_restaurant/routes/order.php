@@ -27,6 +27,7 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('admin/transactions',[OrderController::class,'getAllTransactions']);
     Route::get('admin/transactions/{id}',[OrderController::class,'getTransactionById']);
     Route::patch('admin/orders/{id}',[OrderController::class,'changeStatus']);
+    Route::patch('admin/orders/{id}/checkPiadStatus',[OrderController::class,'checkPaid']);
 });
 Route::get('callback',[OrderController::class,'paymentCallBack']);
 Route::get('callbackError',[OrderController::class,'callbackError']);
