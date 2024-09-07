@@ -22,7 +22,7 @@ class OfferUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'=>['string','min:6','unique:offers,name'],
+            'name'=>['string','min:6'],
             'discount'=>['integer'],
             'startDate'=>['date','before:endDate'],
             'endDate'=>['date','after:startDate'],
