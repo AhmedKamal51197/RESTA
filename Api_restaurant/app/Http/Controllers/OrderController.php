@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customs\Services\FatoorahServices;
+use App\Http\Requests\OrderDashboard;
 use App\Http\Requests\OrderRequest;
 use App\Models\Addon;
 use App\Models\Customer;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Contracts\Support\ValidatedData;
+use Illuminate\Support\Facades\Auth;
 
 // use function PHPSTORM_META\map;
 
@@ -323,6 +325,256 @@ class OrderController extends Controller
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
+                'PaymentType' => "cashed",
+                'created_by'=>1
+            ]);
+            foreach ($offerIds as $offerId) {
+                $offer = $this->checkOffer($offerId);
+                if ($offer instanceof JsonResponse) return $offer;
+                Order_offer::create([
+                    'order_id' => $order->id,
+                    'offer_id' => $offerId['id'],
+                    'quantity' => $offerId['quantity'],
+                    'total_cost' => $offerId['cost'] * $offerId['quantity']
+                ]);
+            }
+            foreach ($mealIds as $mealId) {
+                // dd(Meal::find($mealId['id']));
+                $meal =  $this->checkMeal($mealId['id']);
+                if ($meal instanceof JsonResponse) return $meal;
+                OrderMeal::create([
+                    'order_id' => $order->id,
+                    'meal_id' => $mealId['id'],
+                    'quantity' => $mealId['quantity'],
+                    'total_cost' => $mealId['cost'] * $mealId['quantity'],
+                ]);
+            }
+            foreach ($addonIds as $addonId) {
+                $addon =  $this->checkAddon($addonId['id']);
+                if ($addon instanceof JsonResponse) return $addon;
+                OrderAddon::create([
+                    'order_id' => $order->id,
+                    'addon_id' => $addonId['id'],
+                    'quantity' => $addonId['quantity'],
+                    'total_cost' => $addonId['cost'] * $addonId['quantity'],
+                ]);
+            }
+            foreach ($extraIds as $extraId) {
+                $extra = $this->checkExtra($extraId['id']);
+                if ($extra instanceof JsonResponse)
+                    return $extra;
+                OrderExtra::create([
+                    'order_id' => $order->id,
+                    'extra_id' => $extraId['id'],
+                    'quantity' => $extraId['quantity'],
+                    'total_cost' => $extraId['cost'] * $extraId['quantity']
+                ]);
+            }
+            DB::commit();
+            Transaction::create([
+                'customer_id' => auth('api')->id(),
+                'order_id' => $order->id,
+                'payment_method' => 'cashed',
+                'amount' => $order->total_cost
+            ]);
+
+
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Order created successfully'
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'failed',
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+    // retrieve all customers to Dashboard Create order 
+    public function retrieveCustomers()
+    {
+        $customers = Customer::all();
+        $customers=$customers->map(function ($customer){
+            return [
+                'name'=>$customer->name,
+                'email'=>$customer->email,
+                'id'=>$customer->id
+            ];
+        });
+        return response()->json([
+            'status'=>'success',
+            'data'=>$customers
+        ],200);
+    }
+    // retrieve all item for dashboard make order 
+    public function AllItems(Request $request)
+    {
+        $perPage = 12;
+        
+        $meals = [];
+        $addons = [];
+        $extras = [];
+        $offers = [];
+        $offersQuery = Offer::where('status',1);
+        $offers=$offersQuery->get()->map(function($offer){
+
+            $offer['table_name']='offers';
+            return $offer;
+        })->toArray();
+        // var_dump($offers);
+        $mealsQuery = Meal::where('status', 1);
+        if ($request->has('category_id')) {
+            $mealsQuery->where('category_id', $request->category_id);
+        }
+        $meals = $mealsQuery->get()->map(function ($meal) {
+            $mealData = $this->DataMeal($meal);
+            $mealData['table_name'] = 'meals';
+            return $mealData;
+        })->toArray();
+
+        $addonsQuery = Addon::where('status', 1);
+        if ($request->has('category_id')) {
+            $addonsQuery->where('category_id', $request->category_id);
+        }
+        $addons = $addonsQuery->get()->map(function ($addon) {
+            $addon['table_name'] = 'addons'; 
+            return $addon;
+        })->toArray();
+
+        $extrasQuery = Extra::where('status', 1);
+        if ($request->has('category_id')) {
+            $extrasQuery->where('category_id', $request->category_id);
+        }
+        $extras = $extrasQuery->get()->map(function ($extra) {
+            $extra['table_name'] = 'extras'; 
+            return $extra;
+        })->toArray();
+
+        $allItems = array_merge($meals, $addons, $extras,$offers);
+        // dd($allItems);
+        $totalItems = count($allItems);
+        $currentPage = $request->query('page', 1);
+        $offset = ($currentPage - 1) * $perPage;
+        $itemsForPage = array_slice($allItems, $offset, $perPage);
+        $lastPage = ceil($totalItems / $perPage);
+
+        $pagination = [
+            'total' => $totalItems,
+            'per_page' => $perPage,
+            'current_page' => $currentPage,
+            'last_page' => $lastPage,
+        ];
+        //var_dump($itemsForPage);
+        if(empty($itemsForPage))
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No data in this page',
+            ], 404);    
+        }
+        return response()->json([
+            'status' => 'success',
+            'data' => $itemsForPage,
+            'pagination' => $pagination,
+        ], 200);
+    }
+      // meals get data
+      private function DataMeal($meal)
+      {
+          // Fetch meal size costs
+          $mealCosts = $meal->mealSizeCosts->map(function ($sizeCost) {
+              $costData = [
+                  'id' => $sizeCost->id,
+              ];
+  
+              if (!is_null($sizeCost->number_of_pieces)) {
+                  $costData['number_of_pieces'] = $sizeCost->number_of_pieces;
+              }
+  
+              if (!is_null($sizeCost->size)) {
+                  $costData['size'] = $sizeCost->size;
+              }
+  
+              $costData['cost']= $sizeCost->cost;
+              return $costData;
+          });
+  
+          // Fetch addons based on user role and addon status
+          $addons = $meal->MealWithAddon->map(function ($mealWithAddon) {
+              $addon = $mealWithAddon->addon; // all addons
+              
+              if (Auth::guard('admin-api')->check() || $addon->status) { 
+                  return [
+                      'id' => $addon->id,
+                      'name' => $addon->name,
+                      'cost' => $addon->cost,
+                      'description' => $addon->description,
+                      'category_id' => $addon->category_id,
+                      'image' => $addon->image,
+                  ];
+              }
+  
+              return null;
+          })->filter()->values();
+  
+          $extras = $meal->extras->map(function ($extra) {
+              if (Auth::guard('admin-api')->check() || $extra->status) {
+                  return [
+                      'id' => $extra->id,
+                      'name' => $extra->name,
+                      'cost' => $extra->cost,
+                      'category_id' => $extra->category_id,
+                  ];
+              }
+              return null;
+          })->filter()->values();
+  
+          return [
+              'id' => $meal->id,
+              'name' => $meal->name,
+              'description' => $meal->description,
+              'type' => $meal->type,
+              'category_id' => $meal->category_id,
+              'image' => $meal->image,
+              'status' => $meal->status,
+              'meal_size_costs' => $mealCosts->isEmpty() ? null : $mealCosts,
+              'addons' => $addons->isEmpty() ? null : $addons,
+              'extras' =>$extras->isEmpty() ? null : $extras
+          ];
+      }
+    // create order for Dashboard
+    public function storeOrderDashboard(OrderDashboard $request)
+    {
+
+        $validatedData = $request->validated();
+        $mealIds = $validatedData['meal_ids'] ?? [];
+        $addonIds = $validatedData['addon_ids'] ?? [];
+        $extraIds = $validatedData['extra_ids'] ?? [];
+        $offerIds = $validatedData['offer_ids'] ?? [];
+        //  dd($validatedData['diningtable_id']) ;  
+        if (isset($validatedData['diningtable_id'])) {
+            $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
+            if ($diningtable instanceof JsonResponse) return $diningtable;
+        }
+        if (isset($validatedData['location_id'])) {
+            $location = $this->checkLocation($validatedData['location_id']);
+            if ($location instanceof JsonResponse) return $location;
+        }
+        // if (isset($validatedData['customer_id'])) {
+        //     $customer = $this->checkCustomer($validatedData['customer_id']);
+        //     if ($customer instanceof JsonResponse) return $customer;
+        // }
+        DB::beginTransaction();
+        try {
+
+            $order = Order::create([
+                'customer_id' => auth('api')->id(),
+                'location_id' => $validatedData['location_id'] ?? null,
+                'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
+                'total_cost' => $validatedData['total_cost'],
+                'notes' => $validatedData['notes'] ?? null,
                 'PaymentType' => "cashed"
             ]);
             foreach ($offerIds as $offerId) {
@@ -389,7 +641,6 @@ class OrderController extends Controller
             ], 400);
         }
     }
-
     public function get_user_orders($userId)
     {
 
