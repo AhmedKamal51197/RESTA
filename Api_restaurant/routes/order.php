@@ -17,7 +17,9 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
 });
 Route::group(['middleware'=>'auth:admin-api'],function(){
-
+    Route::get('admin/retrieve-items',[OrderController::class,'AllItems']);
+    Route::get('admin/retrieve-customers',[OrderController::class,'retrieveCustomers']);
+    Route::post('admin/orders/by-admin',[OrderController::class,'storeOrderDashboard']);
     Route::get('admin/orders',[OrderController::class,'index']);
     Route::get('admin/orders/{id}',[OrderController::class,'show']);
     Route::get('admin/orders/{id}/meals',[OrderController::class,'get_order_meals']);

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 class Order extends Model
 {
     //status field => [1 => processing 2=>out of delivery,3=>done,4=>cancled]
-    protected $fillable = ['customer_id','location_id','DiningTable_id','total_cost','status','notes','created_at','pay','PaymentType'];
+    protected $fillable = ['customer_id','location_id','DiningTable_id','total_cost','status','notes','created_at','pay','PaymentType','created_by'];
 
     protected $casts = [
         'created_at' => 'datetime',
