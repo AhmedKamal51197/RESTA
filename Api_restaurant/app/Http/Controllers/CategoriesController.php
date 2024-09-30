@@ -20,7 +20,7 @@ class CategoriesController extends Controller
     
     public function AllItems(Request $request)
     {
-        $perPage = 12;
+        // $perPage = 12;
         
         $meals = [];
         $addons = [];
@@ -56,23 +56,23 @@ class CategoriesController extends Controller
 
         $allItems = array_merge($meals, $addons, $extras);
 
-        $totalItems = count($allItems);
-        $currentPage = $request->query('page', 1);
-        $offset = ($currentPage - 1) * $perPage;
-        $itemsForPage = array_slice($allItems, $offset, $perPage);
-        $lastPage = ceil($totalItems / $perPage);
+        // $totalItems = count($allItems);
+        // $currentPage = $request->query('page', 1);
+        // $offset = ($currentPage - 1) * $perPage;
+        // $itemsForPage = array_slice($allItems, $offset, $perPage);
+        // $lastPage = ceil($totalItems / $perPage);
 
-        $pagination = [
-            'total' => $totalItems,
-            'per_page' => $perPage,
-            'current_page' => $currentPage,
-            'last_page' => $lastPage,
-        ];
+        // $pagination = [
+        //     'total' => $totalItems,
+        //     'per_page' => $perPage,
+        //     'current_page' => $currentPage,
+        //     'last_page' => $lastPage,
+        // ];
 
         return response()->json([
             'status' => 'success',
-            'data' => $itemsForPage,
-            'pagination' => $pagination,
+            'data' => $allItems
+            // 'pagination' => $pagination,
         ], 200);
     }
 

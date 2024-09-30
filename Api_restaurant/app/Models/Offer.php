@@ -48,22 +48,22 @@ class Offer extends Model
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
     
-    public function setStatusAttribute($value)
-    {
-        $statuses = [
-            'inactive' => 0,
-            'active' => 1
-        ];
-        $this->attributes['status'] = $statuses[$value] ?? 1;
-    }
-    public function getStatusAttribute($value)
-    {
-        $statuses = [
-            0 => 'inactive',
-            1 => 'active'
-        ];
-        return $statuses[$value] ?? 'active';
-    }
+    // public function setStatusAttribute($value)
+    // {
+    //     $statuses = [
+    //         'inactive' => 0,
+    //         'active' => 1
+    //     ];
+    //     $this->attributes['status'] = $statuses[$value] ?? 1;
+    // }
+    // public function getStatusAttribute($value)
+    // {
+    //     $statuses = [
+    //         0 => 'inactive',
+    //         1 => 'active'
+    //     ];
+    //     return $statuses[$value] ?? 'active';
+    // }
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');

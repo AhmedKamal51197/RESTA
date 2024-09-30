@@ -188,6 +188,7 @@ class OfferController extends Controller
     {
 
         $imagePath = $this->handleImageUpload($request);
+        
         $offer = Offer::create([
             'name' => $request->validated('name'),
             'discount' => $request->validated('discount'),
