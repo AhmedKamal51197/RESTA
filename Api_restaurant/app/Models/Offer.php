@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Offer extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
     use HasFactory;
     protected $fillable = [
         'name',
@@ -30,22 +30,255 @@ class Offer extends Model
         'startDate' => 'datetime',
         'endDate' => 'datetime',
     ];
-    public function setStartDateAttribute($value)
+
+    // public function getOffer()
+    // {
+    //     return [
+    //         'id' => $this->id,
+    //         'name' => $this->name,
+    //         'discount' => $this->discount,
+    //         'image' => $this->image,
+    //         'status' => $this->status,
+    //         'addons' => $this->addons->map(function ($offerAddon) {
+    //             return [
+    //                 'addon_id' => $offerAddon->addon_id,
+    //                 'addon_quantity' => $offerAddon->addon_quantity,
+    //                 'name_addon' => $offerAddon->addon->name, 
+    //                 'image_addon' => $offerAddon->addon->image, 
+    //             ];
+    //         }),
+    //         'meals' => $this->meals->map(function ($offerMeal) {
+    //             return [
+    //                 'meal_id' => $offerMeal->meal_id,
+    //                 'meal_quantity' => $offerMeal->meal_quantity,
+    //                 'meal_size' => $offerMeal->meal_size,
+    //                 'name_meal' => $offerMeal->meal->name, 
+    //                 'image_meal' => $offerMeal->meal->image, 
+    //             ];
+    //         }),
+    //         'extras' => $this->extras->map(function ($offerExtra) {
+    //             return [
+    //                 'extra_id' => $offerExtra->extra_id,
+    //                 'extra_quantity' => $offerExtra->extra_quantity,
+    //                 'name_extra' => $offerExtra->extra->name, 
+    //                 'image_extra' => $offerExtra->extra->image, 
+    //             ];
+    //         })
+    //         // 'meals' => $this->meals,
+    //         // 'extras' => $this->extras,
+    //     ];
+    // }
+    
+    public function getOffer()
     {
-        $this->attributes['startDate'] = Carbon::createFromFormat('d-m-Y H:i:s', $value)->format('Y-m-d H:i:s');
+        $totalPriceBeforeDiscount = 0;
+
+        $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+            $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+            $totalPriceBeforeDiscount += $addonPrice;
+
+            // return [
+            //     'addon_id' => $offerAddon->addon_id,
+            //     'addon_quantity' => $offerAddon->addon_quantity,
+            //     'name_addon' => $offerAddon->addon->name, 
+            //     'image_addon' => $offerAddon->addon->image, 
+            //     'price_addon' => $offerAddon->addon->cost, 
+            // ];
+        });
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
+            $mealSize = $offerMeal->meal_size; 
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first(); 
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity; 
+            $totalPriceBeforeDiscount += $mealPrice;
+            // return [
+            //     'meal_id' => $offerMeal->meal_id,
+            //     'meal_quantity' => $offerMeal->meal_quantity,
+            //     'meal_size' => $mealSize,
+            //     'name_meal' => $offerMeal->meal->name, 
+            //     'image_meal' => $offerMeal->meal->image,
+            //     'price_meal' => $mealCostRecord ? $mealCostRecord->cost : 0, 
+            // ];
+        });
+        
+
+        $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+            $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+            $totalPriceBeforeDiscount += $extraPrice;
+
+            // return [
+            //     'extra_id' => $offerExtra->extra_id,
+            //     'extra_quantity' => $offerExtra->extra_quantity,
+            //     'name_extra' => $offerExtra->extra->name, 
+            //     'image_extra' => $offerExtra->extra->image,
+            //     'price_extra' => $offerExtra->extra->cost, 
+            // ];
+        });
+
+        $fixedDiscount = $this->discount; 
+        $totalPriceAfterDiscount = $totalPriceBeforeDiscount - $fixedDiscount;
+    
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'discount' => $this->discount,
+            'image' => $this->image,
+            'status' => $this->status,
+            'total_price_before_discount' => $totalPriceBeforeDiscount, 
+            'total_price_after_discount' => $totalPriceAfterDiscount,   
+            // 'addons' => $addons,
+            // 'meals' => $meals,
+            // 'extras' => $extras,
+        ];
     }
 
-    public function setEndDateAttribute($value)
+    // public function showOfferItems($id)
+    // {
+    //     $totalPriceBeforeDiscount = 0;
+    
+    //     $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+    //         $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+    //         $totalPriceBeforeDiscount += $addonPrice;
+    
+    //         return [
+    //             'id' => $offerAddon->addon_id,
+    //             'quantity' => $offerAddon->addon_quantity,
+    //             'name' => $offerAddon->addon->name,
+    //             'image' => $offerAddon->addon->image,
+    //             'price' => $offerAddon->addon->cost,
+    //         ];
+    //     });
+    
+    //     $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
+    //         $mealSize = $offerMeal->meal_size;
+    //         $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first();
+    //         $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
+    
+    //         $totalPriceBeforeDiscount += $mealPrice;
+    
+    //         return [
+    //             'id' => $offerMeal->meal_id,
+    //             'quantity' => $offerMeal->meal_quantity,
+    //             'size' => $mealSize,
+    //             'name' => $offerMeal->meal->name,
+    //             'image' => $offerMeal->meal->image,
+    //             'price' => $mealCostRecord ? $mealCostRecord->cost : 0,
+    //         ];
+    //     });
+    
+    //     $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+    //         $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+    //         $totalPriceBeforeDiscount += $extraPrice;
+    
+    //         return [
+    //             'id' => $offerExtra->extra_id,
+    //             'quantity' => $offerExtra->extra_quantity,
+    //             'extra' => $offerExtra->extra->name,
+    //             'extra' => $offerExtra->extra->image,
+    //             'extra' => $offerExtra->extra->cost,
+    //         ];
+    //     });
+    
+    //     $fixedDiscount = $this->discount; 
+    //     $totalPriceAfterDiscount = max(0, $totalPriceBeforeDiscount - $fixedDiscount); 
+    
+    //     return [
+    //         'id' => $this->id,
+    //         'name' => $this->name,
+    //         'image' => $this->image,
+    //         'status' => $this->status,
+    //         'total_price_before_discount' => $totalPriceBeforeDiscount,
+    //         'total_price_after_discount' => $totalPriceAfterDiscount,
+    //         'addons' => $addons,
+    //         'meals' => $meals,
+    //         'extras' => $extras,
+    //     ];
+    // }
+
+    public function showOfferItems($id)
     {
-        $this->attributes['endDate'] = Carbon::createFromFormat('d-m-Y H:i:s', $value)->format('Y-m-d H:i:s');
+        $totalPriceBeforeDiscount = 0;
+
+        $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+            $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+            $totalPriceBeforeDiscount += $addonPrice;
+
+            return [
+                'id' => $offerAddon->addon_id,
+                'quantity' => $offerAddon->addon_quantity,
+                'name' => $offerAddon->addon->name,
+                'image' => $offerAddon->addon->image,
+                'price' => $offerAddon->addon->cost,
+            ];
+        })->toArray(); 
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
+            $mealSize = $offerMeal->meal_size;
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first();
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
+
+            $totalPriceBeforeDiscount += $mealPrice;
+
+            return [
+                'id' => $offerMeal->meal_id,
+                'quantity' => $offerMeal->meal_quantity,
+                'size' => $mealSize,
+                'name' => $offerMeal->meal->name,
+                'image' => $offerMeal->meal->image,
+                'price' => $mealCostRecord ? $mealCostRecord->cost : 0,
+            ];
+        })->toArray(); 
+
+        $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+            $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+            $totalPriceBeforeDiscount += $extraPrice;
+
+            return [
+                'id' => $offerExtra->extra_id,
+                'quantity' => $offerExtra->extra_quantity,
+                'name' => $offerExtra->extra->name,
+                'image' => $offerExtra->extra->image,
+                'price' => $offerExtra->extra->cost,
+            ];
+        })->toArray();
+
+        $items = array_merge($addons, $meals, $extras);
+
+        $fixedDiscount = $this->discount; 
+        $totalPriceAfterDiscount = max(0, $totalPriceBeforeDiscount - $fixedDiscount); 
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'image' => $this->image,
+            'status' => $this->status,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate,
+            'total_price_before_discount' => $totalPriceBeforeDiscount,
+            'total_price_after_discount' => $totalPriceAfterDiscount,
+            'items' => $items,
+        ];
     }
+
+    
+
+
+    // public function setStartDateAttribute($value)
+    // {
+    //     $this->attributes['startDate'] = Carbon::createFromFormat('d-m-Y H:i', $value)->format('Y-m-d H:i');
+    // }
+
+    // public function setEndDateAttribute($value)
+    // {
+    //     $this->attributes['endDate'] = Carbon::createFromFormat('d-m-Y H:i', $value)->format('Y-m-d H:i');
+    // }
     public function getEndDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->format('Y-m-d H:i');
     }
     public function getStartDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->format('Y-m-d H:i');
     }
     
     // public function setStatusAttribute($value)
@@ -73,21 +306,25 @@ class Offer extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
-    public function extras()
+
+    public function Addons()
     {
-        return $this->belongsToMany(Extra::class, 'offer_items')
-            ->withPivot('extra_quantity');
+        return $this->hasMany(Offer_addon::class); 
     }
-    public function meals()
+    public function Addon()
     {
-        return $this->belongsToMany(Meal::class, 'offer_items')
-            ->withPivot('meal_quantity');
+        return $this->hasMany(Addon::class); 
     }
-    public function addons()
+
+    public function Extras()
     {
-        return $this->belongsToMany(Addon::class, 'offer_items')
-            ->withPivot('addon_quantity');
+        return $this->hasMany(Offer_extra::class, 'offer_id');
     }
+    public function Meals()
+    {
+        return $this->hasMany(Offer_meal::class, 'offer_id'); 
+    }
+
     public function orderoffers()
     {
         return $this->hasMany(Order_offer::class);

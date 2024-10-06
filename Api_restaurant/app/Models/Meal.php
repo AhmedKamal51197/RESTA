@@ -40,7 +40,6 @@ class Meal extends Model
     {
         return $this->hasMany(OrderMeal::class);
     }
-
     public function mealSizeCosts()
     {
         return $this->hasMany(MealsSizeCost::class);
@@ -56,6 +55,10 @@ class Meal extends Model
     public function offers()
     {
         return $this->belongsToMany(Offer::class, 'offer_items');
+    }
+    public function hasSize($size)
+    {
+        return $this->mealSizeCosts()->where('size', $size)->exists();
     }
     
   
