@@ -130,6 +130,7 @@ class OfferController extends Controller
             $offers->where('status', true);
         }
         $offers = $offers->get();
+        
         $offersData = $offers->map(function ($offer) {
             return [
                 'id' => $offer->id,

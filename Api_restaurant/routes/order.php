@@ -31,7 +31,8 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::put('admin/orders/{id}',[OrderController::class,'changeStatus']);
     // Route::patch('admin/orders/{id}/checkPiadStatus',[OrderController::class,'checkPaid']);
     Route::put('admin/orders/{id}/checkPayStatus', [OrderController::class, 'checkPaid']);
+    Route::get('admin/MostPopularItems',[OrderController::class,'MostPopularItems']);
 
 });
-Route::get('callback',[OrderController::class,'paymentCallBack']);
-Route::get('callbackError',[OrderController::class,'callbackError']);
+Route::get('callback',[OrderController::class,'paymentCallBack'])->name('payments.success');
+Route::get('callbackError',[OrderController::class,'callbackError'])->name('payments.cancel');

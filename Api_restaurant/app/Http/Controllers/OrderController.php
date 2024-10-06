@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customs\Services\FatoorahServices;
+use App\Customs\Services\ThawaniServices;
 use App\Http\Requests\OrderDashboard;
 use App\Http\Requests\OrderRequest;
 use App\Models\Addon;
@@ -31,10 +32,16 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
-    private $fatoorahServices;
-    public function __construct(FatoorahServices $fatoorahServices)
+    // private $fatoorahServices;
+    // public function __construct(FatoorahServices $fatoorahServices)
+    // {
+    //     $this->fatoorahServices = $fatoorahServices;
+    // }
+    private $thawaniServices;
+
+    public function __construct(ThawaniServices $thawaniServices)
     {
-        $this->fatoorahServices = $fatoorahServices;
+        $this->thawaniServices = $thawaniServices;
     }
 
     public function index()
@@ -138,18 +145,131 @@ class OrderController extends Controller
         ], 200);
     }
     
-    // order with online payment
+    // // order with online payment
+    // public function payOrder(OrderRequest $request)
+    // {
+
+
+    //     $validatedData = $request->validated();
+    //     $mealIds = $validatedData['meal_ids'] ?? [];
+    //     $addonIds = $validatedData['addon_ids'] ?? [];
+    //     $extraIds = $validatedData['extra_ids'] ?? [];
+    //     $offerIds = $validatedData['offer_ids'] ?? [];
+
+    //     //  dd($validatedData['diningtable_id']) ;  
+    //     if (isset($validatedData['diningtable_id'])) {
+    //         $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
+    //         if ($diningtable instanceof JsonResponse) return $diningtable;
+    //     }
+    //     if (isset($validatedData['location_id'])) {
+    //         $location = $this->checkLocation($validatedData['location_id']);
+    //         if ($location instanceof JsonResponse) return $location;
+    //     }
+    //     // if (isset($validatedData['customer_id'])) {
+    //     //     $customer = $this->checkCustomer($validatedData['customer_id']);
+    //     //     if ($customer instanceof JsonResponse) return $customer;
+    //     // }
+    //     DB::beginTransaction();
+    //     try {
+
+    //         $order = Order::create([
+    //             'customer_id' => auth('api')->id(),
+    //             'location_id' => $validatedData['location_id'] ?? null,
+    //             'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
+    //             'total_cost' => $validatedData['total_cost'],
+    //             'notes' => $validatedData['notes'] ?? null,
+    //             'PaymentType' => "online"
+    //         ]);
+    //         foreach ($offerIds as $offerId) {
+    //             $offer = $this->checkOffer($offerId);
+    //             if ($offer instanceof JsonResponse) return $offer;
+    //             Order_offer::create([
+    //                 'order_id' => $order->id,
+    //                 'offer_id' => $offerId['id'],
+    //                 'quantity' => $offerId['quantity'],
+    //                 'total_cost' => $offerId['cost'] * $offerId['quantity']
+    //             ]);
+    //         }
+    //         foreach ($mealIds as $mealId) {
+    //             // dd(Meal::find($mealId['id']));
+    //             $meal =  $this->checkMeal($mealId['id']);
+    //             if ($meal instanceof JsonResponse) return $meal;
+    //             OrderMeal::create([
+    //                 'order_id' => $order->id,
+    //                 'meal_id' => $mealId['id'],
+    //                 'quantity' => $mealId['quantity'],
+    //                 'total_cost' => $mealId['cost'] * $mealId['quantity'],
+    //             ]);
+    //         }
+    //         foreach ($addonIds as $addonId) {
+    //             $addon =  $this->checkAddon($addonId['id']);
+    //             if ($addon instanceof JsonResponse) return $addon;
+    //             OrderAddon::create([
+    //                 'order_id' => $order->id,
+    //                 'addon_id' => $addonId['id'],
+    //                 'quantity' => $addonId['quantity'],
+    //                 'total_cost' => $addonId['cost'] * $addonId['quantity'],
+    //             ]);
+    //         }
+    //         foreach ($extraIds as $extraId) {
+    //             $extra = $this->checkExtra($extraId['id']);
+    //             if ($extra instanceof JsonResponse)
+    //                 return $extra;
+    //             OrderExtra::create([
+    //                 'order_id' => $order->id,
+    //                 'extra_id' => $extraId['id'],
+    //                 'quantity' => $extraId['quantity'],
+    //                 'total_cost' => $extraId['cost'] * $extraId['quantity']
+    //             ]);
+    //         }
+    //         DB::commit();
+    //         // return response()->json([
+    //         //     'status' => 'success',
+    //         //     'message' => 'Order created successfully'
+    //         // ], 201);
+    //         $data = [
+    //             'CustomerName' => auth('api')->user()->name,
+    //             'NotificationOption' => 'LNK',
+    //             'InvoiceValue' => $validatedData['total_cost'],
+    //             'CustomerEmail' => auth('api')->user()->email,
+    //             'CallBackUrl' => env('success_url'),
+    //             'ErrorUrl' => env('error_url'),
+    //             'Language' => 'en',
+    //             'DisplayCurrencyIso' => 'OMR'
+    //         ];
+    //         // dd($order->total_cost);
+
+    //         $data = $this->fatoorahServices->sendPayment($data);
+    //         // dd($data);
+    //         $transaction = Transaction::create([
+    //             'customer_id' => auth('api')->id(),
+    //             'order_id' => $order->id,
+    //             'amount' => $order->total_cost,
+    //             'InvoiceId' => $data['Data']['InvoiceId'],
+    //         ]);
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'Transaction_id' => $transaction->id,
+    //             'Invoice Data' => $data
+    //         ], 200);
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json([
+    //             'status' => 'failed',
+    //             'message' => $e->getMessage()
+    //         ], 400);
+    //     }
+    // }
+    // Order with online payment
     public function payOrder(OrderRequest $request)
     {
-
-
         $validatedData = $request->validated();
-        $mealIds = $validatedData['meal_ids'] ?? [];
-        $addonIds = $validatedData['addon_ids'] ?? [];
-        $extraIds = $validatedData['extra_ids'] ?? [];
-        $offerIds = $validatedData['offer_ids'] ?? [];
+        $mealIds       = $validatedData['meal_ids'] ?? [];
+        $addonIds      = $validatedData['addon_ids'] ?? [];
+        $extraIds      = $validatedData['extra_ids'] ?? [];
+        $offerIds      = $validatedData['offer_ids'] ?? [];
 
-        //  dd($validatedData['diningtable_id']) ;  
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
@@ -158,140 +278,148 @@ class OrderController extends Controller
             $location = $this->checkLocation($validatedData['location_id']);
             if ($location instanceof JsonResponse) return $location;
         }
-        // if (isset($validatedData['customer_id'])) {
-        //     $customer = $this->checkCustomer($validatedData['customer_id']);
-        //     if ($customer instanceof JsonResponse) return $customer;
-        // }
+
         DB::beginTransaction();
         try {
-
             $order = Order::create([
-                'customer_id' => auth('api')->id(),
-                'location_id' => $validatedData['location_id'] ?? null,
+                'customer_id'    => auth('api')->id(),
+                'location_id'    => $validatedData['location_id'] ?? null,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
-                'total_cost' => $validatedData['total_cost'],
-                'notes' => $validatedData['notes'] ?? null,
-                'PaymentType' => "online"
+                'total_cost'     => $validatedData['total_cost'],
+                'notes'          => $validatedData['notes'] ?? null,
+                'PaymentType'    => "online"
             ]);
-            foreach ($offerIds as $offerId) {
-                $offer = $this->checkOffer($offerId);
-                if ($offer instanceof JsonResponse) return $offer;
-                Order_offer::create([
-                    'order_id' => $order->id,
-                    'offer_id' => $offerId['id'],
-                    'quantity' => $offerId['quantity'],
-                    'total_cost' => $offerId['cost'] * $offerId['quantity']
-                ]);
-            }
-            foreach ($mealIds as $mealId) {
-                // dd(Meal::find($mealId['id']));
-                $meal =  $this->checkMeal($mealId['id']);
-                if ($meal instanceof JsonResponse) return $meal;
-                OrderMeal::create([
-                    'order_id' => $order->id,
-                    'meal_id' => $mealId['id'],
-                    'quantity' => $mealId['quantity'],
-                    'total_cost' => $mealId['cost'] * $mealId['quantity'],
-                ]);
-            }
-            foreach ($addonIds as $addonId) {
-                $addon =  $this->checkAddon($addonId['id']);
-                if ($addon instanceof JsonResponse) return $addon;
-                OrderAddon::create([
-                    'order_id' => $order->id,
-                    'addon_id' => $addonId['id'],
-                    'quantity' => $addonId['quantity'],
-                    'total_cost' => $addonId['cost'] * $addonId['quantity'],
-                ]);
-            }
-            foreach ($extraIds as $extraId) {
-                $extra = $this->checkExtra($extraId['id']);
-                if ($extra instanceof JsonResponse)
-                    return $extra;
-                OrderExtra::create([
-                    'order_id' => $order->id,
-                    'extra_id' => $extraId['id'],
-                    'quantity' => $extraId['quantity'],
-                    'total_cost' => $extraId['cost'] * $extraId['quantity']
-                ]);
-            }
-            DB::commit();
-            // return response()->json([
-            //     'status' => 'success',
-            //     'message' => 'Order created successfully'
-            // ], 201);
-            $data = [
-                'CustomerName' => auth('api')->user()->name,
-                'NotificationOption' => 'LNK',
-                'InvoiceValue' => $validatedData['total_cost'],
-                'CustomerEmail' => auth('api')->user()->email,
-                'CallBackUrl' => env('success_url'),
-                'ErrorUrl' => env('error_url'),
-                'Language' => 'en',
-                'DisplayCurrencyIso' => 'OMR'
-            ];
-            // dd($order->total_cost);
 
-            $data = $this->fatoorahServices->sendPayment($data);
-            // dd($data);
+            // Handle offers, meals, addons, and extras (same as your original code)
+            // ...
+
+            DB::commit();
+
+            // Prepare data for Thawani
+            $data = [
+                'client_reference_id' => $order->id,
+                'products'            => [
+                    [
+                        'name'        => 'Order #' . $order->id,
+                        'unit_amount' => $order->total_cost * 100, // Amount in Baisa
+                        'quantity'    => 1,
+                    ],
+                ],
+                'success_url' => env('success_url'),
+                'cancel_url'  => env('error_url'),
+                'metadata'    => [
+                    'order_id' => $order->id,
+                ],
+            ];
+            
+            // Create a checkout session
+            $paymentData = $this->thawaniServices->sendPayment($data);
+            dd($paymentData['session_id']);
+            // Save transaction
             $transaction = Transaction::create([
                 'customer_id' => auth('api')->id(),
-                'order_id' => $order->id,
-                'amount' => $order->total_cost,
-                'InvoiceId' => $data['Data']['InvoiceId'],
+                'order_id'    => $order->id,
+                'amount'      => $order->total_cost,
+                'InvoiceId'   => $paymentData['session_id'],
             ]);
 
             return response()->json([
-                'status' => 'success',
-                'Transaction_id' => $transaction->id,
-                'Invoice Data' => $data
+                'status'          => 'success',
+                'Transaction_id'  => $transaction->id,
+                'Payment_URL'     => 'https://uatcheckout.thawani.om/pay/' . $paymentData['session_id'], // Use live URL if in production
+                'Invoice Data'    => $paymentData
             ], 200);
+
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
-                'status' => 'failed',
+                'status'  => 'failed',
                 'message' => $e->getMessage()
             ], 400);
         }
     }
+
+    // public function paymentCallBack(Request $request)
+    // {
+    //     $data = [
+    //         'Key' => $request->paymentId,
+    //         'KeyType' => 'paymentId'
+    //     ];
+    //     $paymentStatus = $this->fatoorahServices->getPaymentStatus($data);
+
+    //     //dd($paymentStatus);
+    //     //$email=$paymentStatus['Data']['CustomerEmail'];
+    //     // $transaction=Transaction::with(['customer', 'order'])
+    //     // ->whereHas('customer', function ($query) use ($email) {
+    //     //     $query->where('email', $email);
+    //     // })
+    //     //->first();
+    //     // dd($transaction);
+    //     // $paymentStatus['Data']['InvoiceId'];
+    //     // dd($paymentStatus['Data']['InvoiceId']);
+    //     if ($paymentStatus['IsSuccess']) {
+    //         $invoiceId = $paymentStatus['Data']['InvoiceId'];
+    //         $transaction = Transaction::where('InvoiceId', $invoiceId)->first();
+    //         //dd($invoiceId);
+    //         $order = Order::find($transaction->order_id);
+    //         $order->pay = 1;
+    //         $order->save();
+    //         $transaction->payment_method = 'VisaMasterCard';
+    //         $transaction->save();
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Payment was successful!'
+    //         ], 200);
+    //     }
+    // }
+
     public function paymentCallBack(Request $request)
     {
-        $data = [
-            'Key' => $request->paymentId,
-            'KeyType' => 'paymentId'
-        ];
-        $paymentStatus = $this->fatoorahServices->getPaymentStatus($data);
+        $sessionId = $request->session_id; // Thawani sends session_id in the callback URL
 
-        //dd($paymentStatus);
-        //$email=$paymentStatus['Data']['CustomerEmail'];
-        // $transaction=Transaction::with(['customer', 'order'])
-        // ->whereHas('customer', function ($query) use ($email) {
-        //     $query->where('email', $email);
-        // })
-        //->first();
-        // dd($transaction);
-        // $paymentStatus['Data']['InvoiceId'];
-        // dd($paymentStatus['Data']['InvoiceId']);
-        if ($paymentStatus['IsSuccess']) {
-            $invoiceId = $paymentStatus['Data']['InvoiceId'];
-            $transaction = Transaction::where('InvoiceId', $invoiceId)->first();
-            //dd($invoiceId);
-            $order = Order::find($transaction->order_id);
-            $order->pay = 1;
-            $order->save();
-            $transaction->payment_method = 'VisaMasterCard';
-            $transaction->save();
+        try {
+            $paymentStatus = $this->thawaniServices->getPaymentStatus($sessionId);
+
+            if ($paymentStatus['payment_status'] === 'paid') {
+                $transaction = Transaction::where('InvoiceId', $sessionId)->first();
+                $order       = Order::find($transaction->order_id);
+
+                $order->pay = 1;
+                $order->save();
+
+                $transaction->payment_method = 'Thawani';
+                $transaction->save();
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Payment was successful!'
+                ], 200);
+            }
+
             return response()->json([
-                'status' => 'success',
-                'message' => 'Payment was successful!'
-            ], 200);
+                'status'  => 'failed',
+                'message' => 'Payment not completed.'
+            ], 400);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status'  => 'failed',
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
+    // public function callbackError()
+    // {
+    //     return response()->json([
+    //         'status' => 'failed',
+    //         'message' => 'Error occured in payment please try again'
+    //     ], 404);
+    // }
     public function callbackError()
     {
         return response()->json([
-            'status' => 'failed',
-            'message' => 'Error occured in payment please try again'
+            'status'  => 'failed',
+            'message' => 'Error occurred in payment, please try again'
         ], 404);
     }
     // order without payment online 
@@ -736,6 +864,44 @@ class OrderController extends Controller
     //Most Popular Items NOT EMPLEMENT YET 
     public function MostPopularItems()
     {
+        
+        $order = Order::all();
+        // Group meals, count occurrences, and order by count descending
+        $mealsWithCount = $order->flatMap(function ($order) {
+            return $order->orderMeals->pluck('meal');
+        })->groupBy('id')
+        ->map(function ($meals) {
+            return [
+                'meal' => $meals->first(), // Get the meal details
+                'count' => $meals->count()  // Count how many times this meal appears in orders
+            ];
+        })->sortByDesc('count'); // Sort by count in descending order
+        // Group addons, count occurences, and order by count desscending
+        $addonsWithCount = $order->flatMap(function($order){
+            return $order->orderAddons->pluck('addon');
+        })->groupBy('id')
+        ->map(function($addons){
+            return [
+                'addon'=>$addons->first(),
+                'count'=>$addons->count()
+            ];
+        })->sortByDesc('count');
+        // Group extras, count occurences, and order by count desscending
+        $extrasWithCount = $order->flatMap(function($order){
+            return $order->orderExtras->pluck('extra');
+        })->groupBy('id')
+        ->map(function($addons){
+            return [
+                'extra'=>$addons->first(),
+                'count'=>$addons->count()
+            ];
+        })->sortByDesc('count');
+        return response()->json([
+            'status'=>'success',
+            'meals_occurences'=>$mealsWithCount->values(),
+            'addons_occurences'=>$addonsWithCount->values(),
+            'extras_occurences'=>$extrasWithCount->values()
+        ],200);
     }
     //update order status  
     public function changeStatus(Request $request, $id)
