@@ -864,44 +864,32 @@ class OrderController extends Controller
     //Most Popular Items NOT EMPLEMENT YET 
     public function MostPopularItems()
     {
+        $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
+
+        // Reusable function for grouping, counting, and sorting
+        $groupAndCount = function($items, $relation, $field) {
+            return $items->flatMap(function ($item) use ($relation,$field) {
+                return $item->$relation->pluck($field);
+            })->groupBy('id')
+            ->map(function ($group) {
+                return [
+                    'item' => $group->first(), // Get the item details
+                    'count' => $group->count()  // Count occurrences
+                ];
+            })->sortByDesc('count')->values();
+        };
         
-        $order = Order::all();
-        // Group meals, count occurrences, and order by count descending
-        $mealsWithCount = $order->flatMap(function ($order) {
-            return $order->orderMeals->pluck('meal');
-        })->groupBy('id')
-        ->map(function ($meals) {
-            return [
-                'meal' => $meals->first(), // Get the meal details
-                'count' => $meals->count()  // Count how many times this meal appears in orders
-            ];
-        })->sortByDesc('count'); // Sort by count in descending order
-        // Group addons, count occurences, and order by count desscending
-        $addonsWithCount = $order->flatMap(function($order){
-            return $order->orderAddons->pluck('addon');
-        })->groupBy('id')
-        ->map(function($addons){
-            return [
-                'addon'=>$addons->first(),
-                'count'=>$addons->count()
-            ];
-        })->sortByDesc('count');
-        // Group extras, count occurences, and order by count desscending
-        $extrasWithCount = $order->flatMap(function($order){
-            return $order->orderExtras->pluck('extra');
-        })->groupBy('id')
-        ->map(function($addons){
-            return [
-                'extra'=>$addons->first(),
-                'count'=>$addons->count()
-            ];
-        })->sortByDesc('count');
+        // Get meals, addons, and extras occurrences
+        $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
+        $addonsWithCount = $groupAndCount($order, 'orderAddons','addon');
+        $extrasWithCount = $groupAndCount($order, 'orderExtras','extra');
+        
         return response()->json([
-            'status'=>'success',
-            'meals_occurences'=>$mealsWithCount->values(),
-            'addons_occurences'=>$addonsWithCount->values(),
-            'extras_occurences'=>$extrasWithCount->values()
-        ],200);
+            'status' => 'success',
+            'meals_occurences' => $mealsWithCount,
+            'addons_occurences' => $addonsWithCount,
+            'extras_occurences' => $extrasWithCount
+        ], 200);
     }
     //update order status  
     public function changeStatus(Request $request, $id)
