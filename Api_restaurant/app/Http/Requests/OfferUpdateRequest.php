@@ -27,7 +27,7 @@ class OfferUpdateRequest extends FormRequest
             'startDate'=>['date','before:endDate'],
             'endDate'=>['date','after:startDate'],
             'image'=>['image','mimes:jpeg,png,jpg,gif,svg','max:2048'],
-            'status'=>['in:active,inactive']
+            'status'=>['in:0,1']
         ];
     }
 }

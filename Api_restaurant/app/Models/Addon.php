@@ -29,9 +29,14 @@ class Addon extends Model
     }
     public function offers()
     {
-        return $this->belongsToMany(Offer::class,'offer_items');
+        return $this->belongsToMany(Offer_addon::class);
     }
     
+    public function offer()
+    {
+        return $this->belongsToMany(Offer::class);
+    }
+
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

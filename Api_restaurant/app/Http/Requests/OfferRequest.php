@@ -27,7 +27,7 @@ class OfferRequest extends FormRequest
             'startDate'=>['required','date','before:endDate'],
             'endDate'=>['required','date','after:startDate'],
             'image'=>['image','mimes:jpeg,png,jpg,gif,svg','max:2048'],
-            'status'=>['required','in:active,inactive']
+            'status'=>['required','in:1,0']
         ];
     }
 }

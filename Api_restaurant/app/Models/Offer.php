@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Offer extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
     use HasFactory;
     protected $fillable = [
         'name',
@@ -30,40 +30,144 @@ class Offer extends Model
         'startDate' => 'datetime',
         'endDate' => 'datetime',
     ];
-    public function setStartDateAttribute($value)
+
+    public function getOffer()
     {
-        $this->attributes['startDate'] = Carbon::createFromFormat('d-m-Y H:i:s', $value)->format('Y-m-d H:i:s');
+        $totalPriceBeforeDiscount = 0;
+
+        $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+            $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+            $totalPriceBeforeDiscount += $addonPrice;
+
+            return $offerAddon->addon_quantity . ' ' . $offerAddon->addon->name;
+        })->join(' + ');
+
+        $mealSizeMap = [
+            1 => 'small',
+            2 => 'medium',
+            3 => 'big',
+            4 => 'family',
+        ];
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount, $mealSizeMap) {
+            $mealSize = $offerMeal->meal_size; 
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first(); 
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
+            $totalPriceBeforeDiscount += $mealPrice;
+
+            $sizeName = $mealSizeMap[$mealSize] ?? 'unknown'; 
+
+            return $offerMeal->meal_quantity . ' ' . $offerMeal->meal->name . ' (' . $sizeName . ')';
+        })->join(' + '); 
+
+    
+
+        $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+            $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+            $totalPriceBeforeDiscount += $extraPrice;
+
+            return $offerExtra->extra_quantity . ' ' . $offerExtra->extra->name;
+        })->join(' + '); 
+
+        $fixedDiscount = $this->discount; 
+        $totalPriceAfterDiscount = $totalPriceBeforeDiscount - $fixedDiscount;
+
+        $items = collect([$addons, $meals, $extras])
+                    ->filter() 
+                    ->join(' + '); 
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'discount' => $this->discount,
+            'image' => $this->image,
+            'status' => $this->status,
+            'total_price_before_discount' => $totalPriceBeforeDiscount,
+            'total_price_after_discount' => $totalPriceAfterDiscount,
+            'items' => $items, 
+        ];
     }
 
-    public function setEndDateAttribute($value)
+
+
+    public function showOfferItems($id)
     {
-        $this->attributes['endDate'] = Carbon::createFromFormat('d-m-Y H:i:s', $value)->format('Y-m-d H:i:s');
+        $totalPriceBeforeDiscount = 0;
+
+        $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+            $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+            $totalPriceBeforeDiscount += $addonPrice;
+
+            return [
+                'id' => $offerAddon->addon_id,
+                'quantity' => $offerAddon->addon_quantity,
+                'name' => $offerAddon->addon->name,
+                'image' => $offerAddon->addon->image,
+                'status' => $offerAddon->addon->status,
+                'price' => $offerAddon->addon->cost,
+            ];
+        })->toArray(); 
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
+            $mealSize = $offerMeal->meal_size;
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first();
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
+
+            $totalPriceBeforeDiscount += $mealPrice;
+
+            return [
+                'id' => $offerMeal->meal_id,
+                'quantity' => $offerMeal->meal_quantity,
+                'size' => $mealSize,
+                'name' => $offerMeal->meal->name,
+                'image' => $offerMeal->meal->image,
+                'status' => $offerMeal->meal->status,
+                'price' => $mealCostRecord ? $mealCostRecord->cost : 0,
+            ];
+        })->toArray(); 
+
+        $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+            $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+            $totalPriceBeforeDiscount += $extraPrice;
+
+            return [
+                'id' => $offerExtra->extra_id,
+                'quantity' => $offerExtra->extra_quantity,
+                'name' => $offerExtra->extra->name,
+                'image' => $offerExtra->extra->image,
+                'price' => $offerExtra->extra->cost,
+                'status' => $offerExtra->extra->status,
+
+            ];
+        })->toArray();
+
+        $items = array_merge($addons, $meals, $extras);
+
+        $fixedDiscount = $this->discount; 
+        $totalPriceAfterDiscount = max(0, $totalPriceBeforeDiscount - $fixedDiscount); 
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'image' => $this->image,
+            'status' => $this->status,
+            'start_date' => $this->startDate,
+            'end_date' => $this->endDate,
+            'total_price_before_discount' => $totalPriceBeforeDiscount,
+            'total_price_after_discount' => $totalPriceAfterDiscount,
+            'items' => $items,
+        ];
     }
+
     public function getEndDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->format('Y-m-d H:i');
     }
     public function getStartDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i:s');
+        return Carbon::parse($value)->format('Y-m-d H:i');
     }
     
-    public function setStatusAttribute($value)
-    {
-        $statuses = [
-            'inactive' => 0,
-            'active' => 1
-        ];
-        $this->attributes['status'] = $statuses[$value] ?? 1;
-    }
-    public function getStatusAttribute($value)
-    {
-        $statuses = [
-            0 => 'inactive',
-            1 => 'active'
-        ];
-        return $statuses[$value] ?? 'active';
-    }
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
@@ -73,21 +177,25 @@ class Offer extends Model
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
-    public function extras()
+
+    public function Addons()
     {
-        return $this->belongsToMany(Extra::class, 'offer_items')
-            ->withPivot('extra_quantity');
+        return $this->hasMany(Offer_addon::class); 
     }
-    public function meals()
+    public function Addon()
     {
-        return $this->belongsToMany(Meal::class, 'offer_items')
-            ->withPivot('meal_quantity');
+        return $this->hasMany(Addon::class); 
     }
-    public function addons()
+
+    public function Extras()
     {
-        return $this->belongsToMany(Addon::class, 'offer_items')
-            ->withPivot('addon_quantity');
+        return $this->hasMany(Offer_extra::class, 'offer_id');
     }
+    public function Meals()
+    {
+        return $this->hasMany(Offer_meal::class, 'offer_id'); 
+    }
+
     public function orderoffers()
     {
         return $this->hasMany(Order_offer::class);
