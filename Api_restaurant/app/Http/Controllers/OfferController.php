@@ -34,7 +34,19 @@ use function PHPUnit\Framework\isEmpty;
 class OfferController extends Controller
 {
 
+    public function updateExpiredOffers()
+    {
 
+        $updatedCount = Offer::where('endDate', '<', now())
+            ->where('status', 1)
+            ->update(['status' => 0]);
+
+        logger('Updated offers count: ' . $updatedCount);
+
+        logger('Expired offers have been updated.');
+    }
+
+    
     /**
      * Display items and it's type to front 
      */

@@ -31,44 +31,6 @@ class Offer extends Model
         'endDate' => 'datetime',
     ];
 
-    // public function getOffer()
-    // {
-    //     return [
-    //         'id' => $this->id,
-    //         'name' => $this->name,
-    //         'discount' => $this->discount,
-    //         'image' => $this->image,
-    //         'status' => $this->status,
-    //         'addons' => $this->addons->map(function ($offerAddon) {
-    //             return [
-    //                 'addon_id' => $offerAddon->addon_id,
-    //                 'addon_quantity' => $offerAddon->addon_quantity,
-    //                 'name_addon' => $offerAddon->addon->name, 
-    //                 'image_addon' => $offerAddon->addon->image, 
-    //             ];
-    //         }),
-    //         'meals' => $this->meals->map(function ($offerMeal) {
-    //             return [
-    //                 'meal_id' => $offerMeal->meal_id,
-    //                 'meal_quantity' => $offerMeal->meal_quantity,
-    //                 'meal_size' => $offerMeal->meal_size,
-    //                 'name_meal' => $offerMeal->meal->name, 
-    //                 'image_meal' => $offerMeal->meal->image, 
-    //             ];
-    //         }),
-    //         'extras' => $this->extras->map(function ($offerExtra) {
-    //             return [
-    //                 'extra_id' => $offerExtra->extra_id,
-    //                 'extra_quantity' => $offerExtra->extra_quantity,
-    //                 'name_extra' => $offerExtra->extra->name, 
-    //                 'image_extra' => $offerExtra->extra->image, 
-    //             ];
-    //         })
-    //         // 'meals' => $this->meals,
-    //         // 'extras' => $this->extras,
-    //     ];
-    // }
-    
     public function getOffer()
     {
         $totalPriceBeforeDiscount = 0;
@@ -77,123 +39,56 @@ class Offer extends Model
             $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
             $totalPriceBeforeDiscount += $addonPrice;
 
-            // return [
-            //     'addon_id' => $offerAddon->addon_id,
-            //     'addon_quantity' => $offerAddon->addon_quantity,
-            //     'name_addon' => $offerAddon->addon->name, 
-            //     'image_addon' => $offerAddon->addon->image, 
-            //     'price_addon' => $offerAddon->addon->cost, 
-            // ];
-        });
+            return $offerAddon->addon_quantity . ' ' . $offerAddon->addon->name;
+        })->join(' + ');
 
-        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
+        $mealSizeMap = [
+            1 => 'small',
+            2 => 'medium',
+            3 => 'big',
+            4 => 'family',
+        ];
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount, $mealSizeMap) {
             $mealSize = $offerMeal->meal_size; 
             $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first(); 
-            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity; 
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
             $totalPriceBeforeDiscount += $mealPrice;
-            // return [
-            //     'meal_id' => $offerMeal->meal_id,
-            //     'meal_quantity' => $offerMeal->meal_quantity,
-            //     'meal_size' => $mealSize,
-            //     'name_meal' => $offerMeal->meal->name, 
-            //     'image_meal' => $offerMeal->meal->image,
-            //     'price_meal' => $mealCostRecord ? $mealCostRecord->cost : 0, 
-            // ];
-        });
-        
+
+            $sizeName = $mealSizeMap[$mealSize] ?? 'unknown'; 
+
+            return $offerMeal->meal_quantity . ' ' . $offerMeal->meal->name . ' (' . $sizeName . ')';
+        })->join(' + '); 
+
+    
 
         $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
             $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
             $totalPriceBeforeDiscount += $extraPrice;
 
-            // return [
-            //     'extra_id' => $offerExtra->extra_id,
-            //     'extra_quantity' => $offerExtra->extra_quantity,
-            //     'name_extra' => $offerExtra->extra->name, 
-            //     'image_extra' => $offerExtra->extra->image,
-            //     'price_extra' => $offerExtra->extra->cost, 
-            // ];
-        });
+            return $offerExtra->extra_quantity . ' ' . $offerExtra->extra->name;
+        })->join(' + '); 
 
         $fixedDiscount = $this->discount; 
         $totalPriceAfterDiscount = $totalPriceBeforeDiscount - $fixedDiscount;
-    
+
+        $items = collect([$addons, $meals, $extras])
+                    ->filter() 
+                    ->join(' + '); 
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'discount' => $this->discount,
             'image' => $this->image,
             'status' => $this->status,
-            'total_price_before_discount' => $totalPriceBeforeDiscount, 
-            'total_price_after_discount' => $totalPriceAfterDiscount,   
-            // 'addons' => $addons,
-            // 'meals' => $meals,
-            // 'extras' => $extras,
+            'total_price_before_discount' => $totalPriceBeforeDiscount,
+            'total_price_after_discount' => $totalPriceAfterDiscount,
+            'items' => $items, 
         ];
     }
 
-    // public function showOfferItems($id)
-    // {
-    //     $totalPriceBeforeDiscount = 0;
-    
-    //     $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
-    //         $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
-    //         $totalPriceBeforeDiscount += $addonPrice;
-    
-    //         return [
-    //             'id' => $offerAddon->addon_id,
-    //             'quantity' => $offerAddon->addon_quantity,
-    //             'name' => $offerAddon->addon->name,
-    //             'image' => $offerAddon->addon->image,
-    //             'price' => $offerAddon->addon->cost,
-    //         ];
-    //     });
-    
-    //     $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount) {
-    //         $mealSize = $offerMeal->meal_size;
-    //         $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first();
-    //         $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
-    
-    //         $totalPriceBeforeDiscount += $mealPrice;
-    
-    //         return [
-    //             'id' => $offerMeal->meal_id,
-    //             'quantity' => $offerMeal->meal_quantity,
-    //             'size' => $mealSize,
-    //             'name' => $offerMeal->meal->name,
-    //             'image' => $offerMeal->meal->image,
-    //             'price' => $mealCostRecord ? $mealCostRecord->cost : 0,
-    //         ];
-    //     });
-    
-    //     $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
-    //         $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
-    //         $totalPriceBeforeDiscount += $extraPrice;
-    
-    //         return [
-    //             'id' => $offerExtra->extra_id,
-    //             'quantity' => $offerExtra->extra_quantity,
-    //             'extra' => $offerExtra->extra->name,
-    //             'extra' => $offerExtra->extra->image,
-    //             'extra' => $offerExtra->extra->cost,
-    //         ];
-    //     });
-    
-    //     $fixedDiscount = $this->discount; 
-    //     $totalPriceAfterDiscount = max(0, $totalPriceBeforeDiscount - $fixedDiscount); 
-    
-    //     return [
-    //         'id' => $this->id,
-    //         'name' => $this->name,
-    //         'image' => $this->image,
-    //         'status' => $this->status,
-    //         'total_price_before_discount' => $totalPriceBeforeDiscount,
-    //         'total_price_after_discount' => $totalPriceAfterDiscount,
-    //         'addons' => $addons,
-    //         'meals' => $meals,
-    //         'extras' => $extras,
-    //     ];
-    // }
+
 
     public function showOfferItems($id)
     {
@@ -208,6 +103,7 @@ class Offer extends Model
                 'quantity' => $offerAddon->addon_quantity,
                 'name' => $offerAddon->addon->name,
                 'image' => $offerAddon->addon->image,
+                'status' => $offerAddon->addon->status,
                 'price' => $offerAddon->addon->cost,
             ];
         })->toArray(); 
@@ -225,6 +121,7 @@ class Offer extends Model
                 'size' => $mealSize,
                 'name' => $offerMeal->meal->name,
                 'image' => $offerMeal->meal->image,
+                'status' => $offerMeal->meal->status,
                 'price' => $mealCostRecord ? $mealCostRecord->cost : 0,
             ];
         })->toArray(); 
@@ -239,6 +136,8 @@ class Offer extends Model
                 'name' => $offerExtra->extra->name,
                 'image' => $offerExtra->extra->image,
                 'price' => $offerExtra->extra->cost,
+                'status' => $offerExtra->extra->status,
+
             ];
         })->toArray();
 
@@ -260,18 +159,6 @@ class Offer extends Model
         ];
     }
 
-    
-
-
-    // public function setStartDateAttribute($value)
-    // {
-    //     $this->attributes['startDate'] = Carbon::createFromFormat('d-m-Y H:i', $value)->format('Y-m-d H:i');
-    // }
-
-    // public function setEndDateAttribute($value)
-    // {
-    //     $this->attributes['endDate'] = Carbon::createFromFormat('d-m-Y H:i', $value)->format('Y-m-d H:i');
-    // }
     public function getEndDateAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i');
@@ -281,22 +168,6 @@ class Offer extends Model
         return Carbon::parse($value)->format('Y-m-d H:i');
     }
     
-    // public function setStatusAttribute($value)
-    // {
-    //     $statuses = [
-    //         'inactive' => 0,
-    //         'active' => 1
-    //     ];
-    //     $this->attributes['status'] = $statuses[$value] ?? 1;
-    // }
-    // public function getStatusAttribute($value)
-    // {
-    //     $statuses = [
-    //         0 => 'inactive',
-    //         1 => 'active'
-    //     ];
-    //     return $statuses[$value] ?? 'active';
-    // }
     public function getCreatedAtAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');

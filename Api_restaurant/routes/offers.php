@@ -29,13 +29,16 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::delete('admin/offers/{id}/items/{itemId}/{type}',[OfferController::class,'deleteItems']);
     Route::get('admin/getAllItems',[OfferController::class,'getAllItems']);
 
+    Route::post('admin/offers/meals', [OfferController::class, 'storeMeal']);
+    Route::post('admin/offers/extras', [OfferController::class, 'storeExtra']);
+    Route::post('admin/offers/addons', [OfferController::class, 'storeAddon']);
+
 
 });
+Route::get('/test-update-offers', [OfferController::class, 'updateExpiredOffers']);
 
-Route::get('admin/offers/items/{id}',[OfferController::class,'showOfferItems']);
-Route::post('admin/offers/meals', [OfferController::class, 'storeMeal']);
-Route::post('admin/offers/extras', [OfferController::class, 'storeExtra']);
-Route::post('admin/offers/addons', [OfferController::class, 'storeAddon']);
+Route::get('offers/items/{id}',[OfferController::class,'showOfferItems']);
+
 Route::get('offers/items',[OfferController::class,'items']);
 
 Route::get('offers',[OfferController::class,'indexClient']);
