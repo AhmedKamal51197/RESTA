@@ -792,25 +792,79 @@ class OrderController extends Controller
             'message' => 'change status successfully'
         ], 200);
     }
+    /**
+     * Generate Sales Report
+     */
+    public function SalesReport()
+    {
+        $orders = Order::all();
 
+        if($orders->isEmpty())
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'No order found'
+            ],404);
+        }
+        $ordersData=$orders->map(function($order){
+            return [
+                "id"=> $order->id,
+            "customer_id"=> $order->customer_id ?? null,
+            "DiningTable_id"=> $order->diningtable_id??null,
+            "location"=>$order->location??null,
+            "status"=>$order->status ??"pendding",
+            "notes"=>$order->notes??null,
+            "total_cost"=>$order->total_cost ??0,
+            "created_at"=>Carbon::parse($order->created_at)->format('d-m-Y'),
+            "PaymentType"=>$order->PaymentType ,
+            "pay"=>$order->pay,
+            "created_by"=>$order->created_by===0?$order->customer->name:'casher'
+            ];
+        });
+        return response()->json([
+            'status'=>'success',
+            'data'=>$ordersData
+        ],200);
+
+    }
     /**
      * Generate Items Report 
      */
-    // public function ItemsReport()
-    // {
-    //     $Items = [];
-    //     $addons = OrderAddon::with('addon')->get();
-    //     $addonsResponse = $addons->map(function($addon){
-    //         return [
-    //             'name'=>$addon->name,
-    //             ''
-    //         ];
-    //     })
-    //     return response()->json([
-    //         'status'=>'success',
-    //         'Items'=>$addons
-    //     ],200);
-    // }
+     public function ItemsReport()
+     {
+        $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
+        if($order->isEmpty())
+        {
+            return response()->json([
+                'status'=>'failed',
+                'message'=>'No order found'
+            ],404);
+        }
+        // Reusable function for grouping, counting, and sorting
+        $groupAndCount = function($items, $relation, $field) {
+            return $items->flatMap(function ($item) use ($relation,$field) {
+                return $item->$relation->pluck($field);
+            })->groupBy('id')
+            ->map(function ($group) {
+                return [
+                    'item' => $group->first(), // Get the item details
+                    'count' => $group->count()  // Count occurrences
+                ];
+            })->sortByDesc('count')->values();
+        };
+        
+        // Get meals, addons, and extras occurrences
+        $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
+        $addonsWithCount = $groupAndCount($order, 'orderAddons','addon');
+        $extrasWithCount = $groupAndCount($order, 'orderExtras','extra');
+        
+        return response()->json([
+            'status' => 'success',
+            'meals_occurences' => $mealsWithCount,
+            'addons_occurences' => $addonsWithCount,
+            'extras_occurences' => $extrasWithCount
+        ], 200);
+     }
     // change pay to paid if casher checked that customer paid cashed
     public function checkPaid(Request $request ,$id)
     {
