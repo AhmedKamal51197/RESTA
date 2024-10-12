@@ -15,6 +15,7 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::get('admin/sales',[OrderController::class,'SalesSummary']);
     Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
     Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
+    Route::get('admin/sales-reports',[OrderController::class,'SalesReport']);
 });
 Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('admin/retrieve-items',[OrderController::class,'AllItems']);
