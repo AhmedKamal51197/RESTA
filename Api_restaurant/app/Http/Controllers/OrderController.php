@@ -717,7 +717,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'sales' => $averageAcceptedOrderRatio
+            'data' => $averageAcceptedOrderRatio
         ], 200);
     }
     //sales summary filter by Date for Dashboard 
@@ -741,7 +741,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'sales' => $salesResponse
+            'data' => $salesResponse
         ], 200);
     }
     //Most Popular Items NOT EMPLEMENT YET 
