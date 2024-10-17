@@ -88,7 +88,51 @@ class Offer extends Model
         ];
     }
 
+    public function showOfferMeals()
+    {
+        return $this->meals->map(function ($offerMeal) {
+            $mealSize = $offerMeal->meal_size; 
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first(); 
 
+            $mealSizeMap = [
+                1 => 'small',
+                2 => 'medium',
+                3 => 'big',
+                4 => 'family',
+            ];
+            return [
+                'id' => $offerMeal->meal_id,
+                'name' => $offerMeal->meal->name,
+                'quantity' => $offerMeal->meal_quantity,
+                'size' => $mealSizeMap[$mealSize] ?? 'unknown',
+                'status' => $offerMeal->meal->status,
+            ];
+        });
+    }
+    
+    public function showOfferExtras()
+    {
+        return $this->extras->map(function ($offerExtra) {
+            return [
+                'id' => $offerExtra->extra_id,
+                'name' => $offerExtra->extra->name,
+                'quantity' => $offerExtra->extra_quantity,
+                'status' => $offerExtra->extra->status
+            ];
+        });
+    }
+
+    public function showOfferAddons()
+    {
+        return $this->addons->map(function ($offerAddon) {
+            return [
+                'id' => $offerAddon->addon_id,
+                'name' => $offerAddon->addon->name,
+                'quantity' => $offerAddon->addon_quantity,
+                'status' => $offerAddon->addon->status
+            ];
+        });
+    }
 
     public function showOfferItems($id)
     {
@@ -161,11 +205,11 @@ class Offer extends Model
 
     public function getEndDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i');
+        return Carbon::parse($value)->format('Y-m-d');
     }
     public function getStartDateAttribute($value)
     {
-        return Carbon::parse($value)->format('Y-m-d H:i');
+        return Carbon::parse($value)->format('Y-m-d');
     }
     
     public function getCreatedAtAttribute($value)

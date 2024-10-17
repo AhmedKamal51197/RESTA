@@ -33,17 +33,16 @@ use function PHPUnit\Framework\isEmpty;
 
 class OfferController extends Controller
 {
-
     public function updateExpiredOffers()
     {
+        $expiredCount = Offer::where('endDate', '<', now())->where('status', 1)->update(['status' => 0]);
 
-        $updatedCount = Offer::where('endDate', '<', now())
-            ->where('status', 1)
-            ->update(['status' => 0]);
+        $unstartedCount = Offer::where('startDate', '<', now())->where('status', 1)->update(['status' => 0]);
 
-        logger('Updated offers count: ' . $updatedCount);
-
-        logger('Expired offers have been updated.');
+        return [
+            'expired' => $expiredCount,
+            'unstarted' => $unstartedCount,
+        ];
     }
 
     
@@ -156,12 +155,13 @@ class OfferController extends Controller
             'discount' => $offer->discount,
             'status' => $offer->status,
             'start_date' => $offer->startDate,
-            'end_date' => $offer->endDate
+            'end_date' => $offer->endDate,
+            'image' => $offer->image,
         ];
 
         return response()->json([
             'status' => 'success',
-            'Items' => $offerItems
+            'data' => $offerItems
         ], 200);
     }
 
@@ -169,33 +169,11 @@ class OfferController extends Controller
     public function items()
     {
         try {
-            $offers = Offer::where('status', '1')->with(['addons', 'meals', 'extras'])->get();
-
-            // Format each offer using the getOffer method in the Offer model
-            $formattedOffers = $offers->map(function ($offer) {
-                return $offer->getOffer(); // Call the getOffer method on each offer instance
-            });    
-            // $formattedOffers =
-                // return [
-                //     'id' => $offer->id,
-                //     'name' => $offer->name,
-                //     'discount' => $offer->discount,
-                //     'image' => $offer->image,
-                //     'status' => $offer->status,
-                //     'addons' => $offer->addons->map(function ($addon) {
-                //         return [
-                //             'addon_id' => $addon->addon_id,
-                //             'addon_quantity' => $addon->addon_quantity,
-                            
-                //         ];
-                //     }),
-                //     'meals' => $offer->meals, 
-                //     'extras' => $offer->extras, 
-                // ];
+            $offers = Offer::where('status', '1')->with(['addons', 'meals', 'extras'])->get();    
             
-                $formattedOffers = $offers->map(function ($offer) {
-                    return $offer->getOffer(); // Call the getOffer method on each offer instance
-                });
+            $formattedOffers = $offers->map(function ($offer) {
+                return $offer->getOffer(); 
+            });
             return response()->json([
                 'status' => 'success',
                 'data' => $formattedOffers
@@ -208,11 +186,6 @@ class OfferController extends Controller
         }
     }
     
-    
-
-
-    
-
 
     /**
      * Display a listing of the resource.
@@ -282,53 +255,19 @@ class OfferController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(OfferRequest $request)
-    // {
-
-    //     $imagePath = $this->handleImageUpload($request);
-        
-    //     $offer = Offer::create([
-    //         'name' => $request->validated('name'),
-    //         'discount' => $request->validated('discount'),
-    //         'startDate' => $request->validated('startDate'),
-    //         'endDate' => $request->validated('endDate'),
-    //         'status' => $request->validated('status'),
-    //         'image' => $imagePath
-    //     ]);
-    //     if (!$offer)
-    //         return response()->json([
-    //             'status' => 'failed',
-    //             'message' => 'internal server error'
-    //         ], 500);
-    //     ExpiredOffer::create([
-    //         'offer_id' => $offer->id,
-    //         'expired_Date' => $offer->endDate
-    //     ], 201);
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => 'added Offer successfully'
-    //     ], 201);
-    // }
-
     public function store(OfferRequest $request)
     {
         DB::beginTransaction();
     
         try {
-            $startDate = \Carbon\Carbon::createFromFormat('d-m-Y H:i', $request->validated('startDate'))->format('Y-m-d H:i');
-            $endDate = \Carbon\Carbon::createFromFormat('d-m-Y H:i', $request->validated('endDate'))->format('Y-m-d H:i');
             
             $imagePath = $this->handleImageUpload($request);
     
-            // Create the offer
             $offer = Offer::create([
                 'name' => $request->validated('name'),
                 'discount' => $request->validated('discount'),
-                'startDate' => $startDate,
-                'endDate' => $endDate,
+                'startDate' => $request->validated('startDate'),
+                'endDate' => $request->validated('endDate'),
                 'status' => $request->validated('status'),
                 'image' => $imagePath
             ]);
@@ -374,22 +313,7 @@ class OfferController extends Controller
 
         return null;
     }
-    /**
-     * Display the specified resource.
-     */
-    // public function show($id)
-    // {
-    //     $offer = Offer::find($id);
-    //     if (!$offer) return response()->json([
-    //         'status' => 'failed',
-    //         'message' => 'no offer exist'
-    //     ], 404);
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'offer' => $offer
-    //     ], 200);
-    // }
-
+   
     public function showOfferItems($id)
     {
         $offerExists = Offer::where('id', $id)->exists();
@@ -422,17 +346,6 @@ class OfferController extends Controller
         ], 200);
     }
 
-    
-
-    
-    
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Offer $offer)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -620,7 +533,59 @@ class OfferController extends Controller
             ], 500);
         }
     }
+
+    // show all meals by offer id
+    public function showOfferMeals($id)
+    {
+        $offer = Offer::find($id);
+        
+        if (!$offer) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        $meals = $offer->showOfferMeals(); 
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $meals
+        ], 200);
+    }
+    // Update meals
+    public function updateOfferMeal(Request $request, $id, $meal_id)
+    {
+        $offerMeal = Offer_meal::where('offer_id', $id)->where('meal_id', $meal_id)->first();
+        
+        if (!$offerMeal) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer meal not found'
+            ], 404);
+        }
     
+        $validatedData = $request->validate([
+            'meal_quantity' => ['sometimes', 'integer', 'min:1'],
+        ]);
+    
+        if (isset($validatedData['meal_quantity'])) {
+            $offerMeal->meal_quantity = $validatedData['meal_quantity'];
+        }
+    
+        $offerMeal->save();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer meal quantity updated successfully',
+            // 'data' => [
+            //     'id' => $offerMeal->id,
+            //     'meal_id' => $offerMeal->meal_id, 
+            //     'meal_quantity' => $offerMeal->meal_quantity,
+            //     'meal_size' => $offerMeal->meal_size,
+            // ]
+        ], 200);
+    }    
     //add extra
     public function storeExtra(OfferExtraRequest $request)
     {
@@ -659,6 +624,101 @@ class OfferController extends Controller
             ], 500);
         }
     }
+    //delete meal from offer
+    public function deleteOfferMeal($id, $meal_id)
+    {
+        $offerMeal = Offer_meal::where('offer_id', $id)->where('meal_id', $meal_id)->first();
+        
+        if (!$offerMeal) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer meal not found'
+            ], 404);
+        }
+
+        $offerMeal->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer meal deleted successfully'
+        ], 200);
+    }
+
+
+
+    // show all extras by offer id
+    public function showOfferExtras($id)
+    {
+        $offer = Offer::find($id);
+        
+        if (!$offer) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        $extras = $offer->showOfferExtras(); 
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $extras
+        ], 200);
+    }
+    // Update extras
+    public function updateOfferExtra(Request $request, $id, $extra_id)
+    {
+        $offerExtra = Offer_extra::where('offer_id', $id)->where('extra_id', $extra_id)->first();
+        
+        if (!$offerExtra) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer extra not found'
+            ], 404);
+        }
+
+        $validatedData = $request->validate([
+            'extra_quantity' => ['sometimes', 'integer', 'min:1'],
+        ]);
+
+        if (isset($validatedData['extra_quantity'])) {
+            $offerExtra->extra_quantity = $validatedData['extra_quantity'];
+        }
+
+        $offerExtra->save();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer extra quantity updated successfully',
+            'data' => [
+                'id' => $offerExtra->id,
+                'extra_id' => $offerExtra->extra_id, 
+                'extra_quantity' => $offerExtra->extra_quantity,
+            ]
+        ], 200);
+    }
+    //delete extra from offer
+    public function deleteOfferExtra($id, $extra_id)
+    {
+        $offerExtra = Offer_extra::where('offer_id', $id)->where('extra_id', $extra_id)->first();
+        
+        if (!$offerExtra) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer extra not found'
+            ], 404);
+        }
+
+        $offerExtra->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer extra deleted successfully'
+        ], 200);
+    }
+
+
+
 
     //add addon
     public function storeAddon(OfferAddonRequest $request)
@@ -698,6 +758,78 @@ class OfferController extends Controller
             ], 500);
         }
     }
+    //update offer addons 
+    public function updateOfferAddon(Request $request, $id, $addon_id)
+    {
+        $offerAddon = Offer_addon::where('offer_id', $id)->where('addon_id', $addon_id)->first();
+        
+        if (!$offerAddon) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer addon not found'
+            ], 404);
+        }
+
+        $validatedData = $request->validate([
+            'addon_quantity' => ['sometimes', 'integer', 'min:1'],
+        ]);
+
+        if (isset($validatedData['addon_quantity'])) {
+            $offerAddon->addon_quantity = $validatedData['addon_quantity'];
+        }
+
+        $offerAddon->save();
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer addon quantity updated successfully',
+            'data' => [
+                'id' => $offerAddon->id,
+                'addon_id' => $offerAddon->addon_id, 
+                'addon_quantity' => $offerAddon->addon_quantity,
+            ]
+        ], 200);
+    }
+    // show all addons by offer id
+    public function showOfferAddons($id)
+    {
+        $offer = Offer::find($id);
+        
+        if (!$offer) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer not found'
+            ], 404);
+        }
+
+        $addons = $offer->showOfferAddons(); 
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $addons
+        ], 200);
+    }
+    //delete addon from offer
+    public function deleteOfferAddon($id, $addon_id)
+    {
+        $offerAddon = Offer_addon::where('offer_id', $id)->where('addon_id', $addon_id)->first();
+        
+        if (!$offerAddon) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Offer addon not found'
+            ], 404);
+        }
+
+        $offerAddon->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Offer addon deleted successfully'
+        ], 200);
+    }
+
+
     
 
     //check for existing addons,meals,extras
