@@ -29,19 +29,31 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::delete('admin/offers/{id}/items/{itemId}/{type}',[OfferController::class,'deleteItems']);
     Route::get('admin/getAllItems',[OfferController::class,'getAllItems']);
 
+    Route::get('admin/offers/{id}/meals', [OfferController::class, 'showOfferMeals']);
     Route::post('admin/offers/meals', [OfferController::class, 'storeMeal']);
+    Route::put('admin/offers/{id}/meals/{meal_id}', [OfferController::class, 'updateOfferMeal']);
+    Route::delete('admin/offers/{id}/meals/{meal_id}', [OfferController::class, 'deleteOfferMeal']);
+
+    Route::get('admin/offers/{id}/extras', [OfferController::class, 'showOfferExtras']);
     Route::post('admin/offers/extras', [OfferController::class, 'storeExtra']);
+    Route::put('admin/offers/{id}/extras/{meal_id}', [OfferController::class, 'updateOfferExtra']);
+    Route::delete('admin/offers/{id}/extras/{extra_id}', [OfferController::class, 'deleteOfferExtra']);
+
+
+    Route::get('admin/offers/{id}/addons', [OfferController::class, 'showOfferAddons']);
     Route::post('admin/offers/addons', [OfferController::class, 'storeAddon']);
+    Route::put('admin/offers/{id}/addons/{addon_id}', [OfferController::class, 'updateOfferAddon']);
+    Route::delete('admin/offers/{id}/addons/{addon_id}', [OfferController::class, 'deleteOfferAddon']);
 
 
 });
-Route::get('/test-update-offers', [OfferController::class, 'updateExpiredOffers']);
+// Route::get('/test-update-offers', [OfferController::class, 'updateExpiredOffers']);
 
 Route::get('offers/items/{id}',[OfferController::class,'showOfferItems']);
 
 Route::get('offers/items',[OfferController::class,'items']);
 
 Route::get('offers',[OfferController::class,'indexClient']);
-Route::get('test/{id}/{discount}',[OfferController::class,'getCostAfterDiscount']);
+// Route::get('test/{id}/{discount}',[OfferController::class,'getCostAfterDiscount']);
 
 

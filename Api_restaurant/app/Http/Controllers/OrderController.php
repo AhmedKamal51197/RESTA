@@ -702,13 +702,15 @@ class OrderController extends Controller
 
         $startDate = Carbon::parse($request->from)->startOfDay(); //startOfDay() to ensure entire days specified  not just the exact times given.
         $endDate = Carbon::parse($request->to)->endOfDay();
+        $averageAcceptedOrderRatio=Order::whereBetween('created_at',[$startDate,$endDate])
+        ->where('status',4)->get();
         // dd($startDate);
         //selectRaw this use to make it easy to write complex sql query that can't write in Elquent ORM  
-        $averageAcceptedOrderRatio = Order::selectRaw('
-       (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ? AND status = "4") / 
-       (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ?) AS average_accepted_order_ratio
-        ', [$startDate, $endDate, $startDate, $endDate])
-            ->value('average_accepted_order_ratio');
+    //     $averageAcceptedOrderRatio = Order::selectRaw('
+    //    (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ? AND status = "4") / 
+    //    (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ?) AS average_accepted_order_ratio
+    //     ', [$startDate, $endDate, $startDate, $endDate])
+    //         ->value('average_accepted_order_ratio');
         if (!$averageAcceptedOrderRatio) {
             return response()->json([
                 'status' => 'failed',
@@ -717,7 +719,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'sales' => $averageAcceptedOrderRatio
+            'data' => $averageAcceptedOrderRatio
         ], 200);
     }
     //sales summary filter by Date for Dashboard 
@@ -741,7 +743,7 @@ class OrderController extends Controller
         }
         return response()->json([
             'status' => 'success',
-            'sales' => $salesResponse
+            'data' => $salesResponse
         ], 200);
     }
     //Most Popular Items NOT EMPLEMENT YET 
@@ -749,29 +751,45 @@ class OrderController extends Controller
     {
         $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
 
-        // Reusable function for grouping, counting, and sorting
-        $groupAndCount = function($items, $relation, $field) {
-            return $items->flatMap(function ($item) use ($relation,$field) {
-                return $item->$relation->pluck($field);
-            })->groupBy('id')
-            ->map(function ($group) {
-                return [
-                    'item' => $group->first(), // Get the item details
-                    'count' => $group->count()  // Count occurrences
-                ];
-            })->sortByDesc('count')->values();
-        };
+        // // Reusable function for grouping, counting, and sorting
+        // $groupAndCount = function($items, $relation, $field) {
+        //     return $items->flatMap(function ($item) use ($relation,$field) {
+        //         return $item->$relation->pluck($field);
+        //     })->groupBy('id')
+        //     ->map(function ($group) {
+        //         return [
+        //             'item' => $group->first(), // Get the item details
+        //             'count' => $group->count()  // Count occurrences
+        //         ];
+        //     })->sortByDesc('count')->values();
+        // };
+            // Reusable function for grouping, counting, and sorting
+    $groupAndCount = function($items, $relation, $field) {
+        return $items->flatMap(function ($item) use ($relation, $field) {
+            return $item->$relation->pluck($field);
+        })->groupBy('id')
+        ->map(function ($group) {
+            // Merge item details with the count directly, no separate 'item' key
+            return array_merge($group->first()->toArray(), ['count' => $group->count()]);
+        })->sortByDesc('count')->values();
+    };
         
         // Get meals, addons, and extras occurrences
         $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
         $addonsWithCount = $groupAndCount($order, 'orderAddons','addon');
         $extrasWithCount = $groupAndCount($order, 'orderExtras','extra');
-        
+      
+        $items = array_merge(
+            $mealsWithCount->toArray(), 
+            $addonsWithCount->toArray(), 
+            $extrasWithCount->toArray()
+        );
         return response()->json([
             'status' => 'success',
-            'meals_occurences' => $mealsWithCount,
-            'addons_occurences' => $addonsWithCount,
-            'extras_occurences' => $extrasWithCount
+             'data'=>$items
+            // 'meals_occurences' => $mealsWithCount,
+            // 'addons_occurences' => $addonsWithCount,
+            // 'extras_occurences' => $extrasWithCount
         ], 200);
     }
     //update order status  
