@@ -14,6 +14,7 @@ class OrderMeal extends Model
         'order_id',
         'meal_id',
         'quantity',
+        'size',
         'total_cost'
     ];
     public function order()

@@ -557,39 +557,43 @@ class OrderController extends Controller
     // create order for Dashboard
     public function storeOrderDashboard(OrderDashboard $request)
     {
-
         $validatedData = $request->validated();
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
-        //  dd($validatedData['diningtable_id']) ;  
+
+        $customerId = $validatedData['customer_id'];
+        $customer = Customer::find($customerId);
+        if (!$customer) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Invalid customer ID'
+            ], 400);
+        }
+
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
         }
-        if (isset($validatedData['location_id'])) {
-            $location = $this->checkLocation($validatedData['location_id']);
-            if ($location instanceof JsonResponse) return $location;
-        }
-        // if (isset($validatedData['customer_id'])) {
-        //     $customer = $this->checkCustomer($validatedData['customer_id']);
-        //     if ($customer instanceof JsonResponse) return $customer;
-        // }
+
         DB::beginTransaction();
         try {
-
             $order = Order::create([
-                'customer_id' => auth('api')->id(),
-                'location_id' => $validatedData['location_id'] ?? null,
+                'customer_id' => $customerId,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
                 'total_cost' => $validatedData['total_cost'],
                 'notes' => $validatedData['notes'] ?? null,
+                'phone' => $validatedData['phone'] ?? null,
+                'address' => $validatedData['address'] ?? null,
+                'tax' => $validatedData['tax'] ?? 0,
+                'delivery_fee' => $validatedData['delivery_fee'] ?? null,
                 'PaymentType' => "cashed",
-                'created_by'=>1
+                'created_by' =>'1',
             ]);
+
             foreach ($offerIds as $offerId) {
-                $offer = $this->checkOffer($offerId);
+                $offer = $this->checkOffer($offerId['id']);
                 if ($offer instanceof JsonResponse) return $offer;
                 Order_offer::create([
                     'order_id' => $order->id,
@@ -598,19 +602,21 @@ class OrderController extends Controller
                     'total_cost' => $offerId['cost'] * $offerId['quantity']
                 ]);
             }
+
             foreach ($mealIds as $mealId) {
-                // dd(Meal::find($mealId['id']));
-                $meal =  $this->checkMeal($mealId['id']);
+                $meal = $this->checkMeal($mealId['id']);
                 if ($meal instanceof JsonResponse) return $meal;
                 OrderMeal::create([
                     'order_id' => $order->id,
                     'meal_id' => $mealId['id'],
                     'quantity' => $mealId['quantity'],
                     'total_cost' => $mealId['cost'] * $mealId['quantity'],
+                    'size' => $mealId['size'],
                 ]);
             }
+
             foreach ($addonIds as $addonId) {
-                $addon =  $this->checkAddon($addonId['id']);
+                $addon = $this->checkAddon($addonId['id']);
                 if ($addon instanceof JsonResponse) return $addon;
                 OrderAddon::create([
                     'order_id' => $order->id,
@@ -619,26 +625,26 @@ class OrderController extends Controller
                     'total_cost' => $addonId['cost'] * $addonId['quantity'],
                 ]);
             }
+
             foreach ($extraIds as $extraId) {
                 $extra = $this->checkExtra($extraId['id']);
-                if ($extra instanceof JsonResponse)
-                    return $extra;
+                if ($extra instanceof JsonResponse) return $extra;
                 OrderExtra::create([
                     'order_id' => $order->id,
                     'extra_id' => $extraId['id'],
                     'quantity' => $extraId['quantity'],
-                    'total_cost' => $extraId['cost'] * $extraId['quantity']
+                    'total_cost' => $extraId['cost'] * $extraId['quantity'],
                 ]);
             }
+
             DB::commit();
+
             Transaction::create([
-                'customer_id' => auth('api')->id(),
+                'customer_id' => $customerId,
                 'order_id' => $order->id,
                 'payment_method' => 'cashed',
                 'amount' => $order->total_cost
             ]);
-
-
 
             return response()->json([
                 'status' => 'success',
@@ -652,6 +658,7 @@ class OrderController extends Controller
             ], 400);
         }
     }
+
     public function get_user_orders($userId)
     {
 

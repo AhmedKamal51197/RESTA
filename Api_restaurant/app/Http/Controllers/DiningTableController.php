@@ -23,6 +23,25 @@ class DiningTableController extends Controller
     
         return response()->json(['data' => $diningTablesWithUrl, 'status' => 'success'], 200);
     }
+
+    public function index()
+    {
+        $diningTables = DiningTable::where('status', 1)->get();
+    
+        if ($diningTables->isEmpty()) {
+            return response()->json(['message' => 'No dining tables found', 'status' => 'failed'], 404);
+        }
+    
+        $formattedTables = $diningTables->map(function ($table) {
+            return [
+                'id' => $table->id,
+                'pleace' => "Floor ({$table->floor}) Table Number ({$table->num})",
+            ];
+        });
+    
+        return response()->json(['data' => $formattedTables, 'status' => 'success'], 200);
+    }
+    
     
     public function getDiningTableById($id)
     {
@@ -37,7 +56,6 @@ class DiningTableController extends Controller
     }
     
 
-    
     public function addNewDiningTable(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -63,7 +81,6 @@ class DiningTableController extends Controller
             'status' => 'success'
         ], 201);
     }
-
 
     public function updateDiningTable(Request $request, $id)
     {

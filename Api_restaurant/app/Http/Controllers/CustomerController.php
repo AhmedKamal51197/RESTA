@@ -255,6 +255,21 @@ class CustomerController extends Controller
             'data' => $customers
         ], 200);
     }
+    public function indexActive()
+    {
+        $customers = Customer::Where('status',1)->get();
+        if ($customers->isEmpty()) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No customers found'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $customers
+        ], 200);
+    }
     public function show($id)
     {
         $customer = Customer::find($id);

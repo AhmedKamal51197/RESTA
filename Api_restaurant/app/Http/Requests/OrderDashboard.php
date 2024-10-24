@@ -22,11 +22,14 @@ class OrderDashboard extends FormRequest
     public function rules(): array
     {
         return [
-             'customer_id' => ['required','integer'],
-            //'location_id' => ['nullable', 'integer'],
-            'diningtable_id' => ['nullable', 'integer'],
+            'customer_id' => ['required','integer'],
+            'address' => ['sometimes', 'string'],
+            'phone' =>['sometimes', 'string'],
+            'diningtable_id' => ['sometimes', 'integer'],
             'total_cost'=>['required','numeric','min:1'],
-            
+            'tax'=>['sometimes','integer'],
+            'delivery_fee'=>['sometimes','integer'],
+
             'offer_ids' => ['array', 'nullable'],
             'offer_ids.*.id' => ['required', 'integer'],
             'offer_ids.*.quantity' => ['required', 'integer', 'min:1'],
@@ -35,7 +38,9 @@ class OrderDashboard extends FormRequest
             'meal_ids' => ['array', 'nullable'],
             'meal_ids.*.id' => ['required', 'integer'],
             'meal_ids.*.quantity' => ['required', 'integer', 'min:1'],
-            'meal_ids.*.cost' => ['required', 'numeric', 'min:1'],
+            'meal_ids.*.cost' => ['required', 'numeric', 'min:1'],            
+            'meal_ids.*.size' => ['required', 'numeric', 'min:1','max:4'],
+
 
             'addon_ids' => ['array', 'nullable'],
             'addon_ids.*.id' => ['required', 'integer'],

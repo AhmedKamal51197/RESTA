@@ -14,3 +14,4 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::delete('admin/dining-tables/{id}', [DiningTableController::class, 'deleteDiningTable']);
     
 });
+Route::get('dining-tables', [DiningTableController::class, 'index']);

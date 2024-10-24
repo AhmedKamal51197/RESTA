@@ -114,14 +114,18 @@ class CategoriesController extends Controller
     // fetch menu
     public function indexMenu(Request $request)
     {
+        // Filter and process meals
         $mealsQuery = Meal::where('status', 1);
         if ($request->has('category_id')) {
             $mealsQuery->where('category_id', $request->category_id);
         }
         $meals = $mealsQuery->get()->map(function ($meal) {
-            return $this->DataMeal($meal);
+            $mealData = $this->DataMeal($meal);
+            $mealData['table_name'] = 'meals'; 
+            return $mealData;
         })->toArray();
-    
+
+        // Filter and process addons
         $addonsQuery = Addon::where('status', 1);
         if ($request->has('category_id')) {
             $addonsQuery->where('category_id', $request->category_id);
@@ -129,9 +133,11 @@ class CategoriesController extends Controller
         $addons = $addonsQuery->get()->map(function ($addon) {
             $addonArray = $addon->toArray();
             unset($addonArray['created_at'], $addonArray['updated_at']); 
+            $addonArray['table_name'] = 'addons'; 
             return $addonArray;
         })->toArray();
-    
+
+        // Filter and process extras
         $extrasQuery = Extra::where('status', 1);
         if ($request->has('category_id')) {
             $extrasQuery->where('category_id', $request->category_id);
@@ -139,9 +145,11 @@ class CategoriesController extends Controller
         $extras = $extrasQuery->get()->map(function ($extra) {
             $extraArray = $extra->toArray();
             unset($extraArray['created_at'], $extraArray['updated_at']); 
+            $extraArray['table_name'] = 'extras'; 
             return $extraArray;
         })->toArray();
-    
+
+        // Return the JSON response with meals, addons, and extras
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -151,6 +159,7 @@ class CategoriesController extends Controller
             ],
         ], 200);
     }
+
     
 
     public function index(Request $request){
@@ -179,7 +188,7 @@ class CategoriesController extends Controller
             'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:categories'],
             'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
-            'status' => 'required|boolean', // Add validation for status
+            'status' => 'required|boolean', 
         ]);
     
         if ($validator->fails()) {
@@ -284,6 +293,7 @@ class CategoriesController extends Controller
                     'description' => $addon->description,
                     'category_id' => $addon->category_id,
                     'image' => $addon->image,
+                    "table_name" =>"addons"
                 ];
             }
 
@@ -296,7 +306,10 @@ class CategoriesController extends Controller
                     'id' => $extra->id,
                     'name' => $extra->name,
                     'cost' => $extra->cost,
+                    'description' => $extra->description,
                     'category_id' => $extra->category_id,
+                    'image' => $extra->image,
+                    "table_name" =>"extras"
                 ];
             }
             return null;

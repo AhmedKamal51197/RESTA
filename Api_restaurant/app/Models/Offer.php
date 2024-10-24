@@ -84,7 +84,8 @@ class Offer extends Model
             'status' => $this->status,
             'total_price_before_discount' => $totalPriceBeforeDiscount,
             'total_price_after_discount' => $totalPriceAfterDiscount,
-            'items' => $items, 
+            'items' => $items,
+            "table_name" =>"offers" ,
         ];
     }
 
