@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3307
--- Generation Time: Oct 11, 2024 at 04:37 PM
+-- Host: 127.0.0.1
+-- Generation Time: Oct 24, 2024 at 04:41 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `scan_food1`
+-- Database: `food`
 --
 
 -- --------------------------------------------------------
@@ -743,6 +743,10 @@ CREATE TABLE `orders` (
   `location_id` bigint(20) UNSIGNED DEFAULT NULL,
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Not Started 2=>In Progressing,\r\n3=>Cancelled\r\n4=>Accepted\r\n',
   `notes` varchar(255) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `phone` varchar(25) DEFAULT NULL,
+  `tax` int(11) DEFAULT NULL,
+  `delivery_fee` int(11) DEFAULT NULL,
   `total_cost` double NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -755,41 +759,57 @@ CREATE TABLE `orders` (
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `status`, `notes`, `total_cost`, `created_at`, `updated_at`, `PaymentType`, `pay`, `created_by`) VALUES
-(1, 11, 1, NULL, 2, NULL, 1640, '2024-07-04 06:00:10', '2024-08-28 18:20:51', '', 1, 0),
-(2, 8, 1, NULL, 3, NULL, 1640, '2024-07-06 11:40:47', '2024-08-15 11:38:12', '', 1, 0),
-(3, 8, 1, NULL, 2, NULL, 1640, '2024-07-06 11:43:00', '2024-09-09 22:52:57', '', 0, 0),
-(4, 8, 1, NULL, 2, NULL, 1640, '2024-07-06 11:43:20', '2024-09-24 11:28:19', '', 0, 0),
-(5, 8, 1, NULL, 4, NULL, 1640, '2024-07-06 11:44:10', '2024-08-06 20:03:38', '', 1, 0),
-(6, 8, 1, NULL, 2, NULL, 1640, '2024-07-06 11:48:17', '2024-08-28 18:47:33', '', 0, 0),
-(7, 8, 1, NULL, 2, NULL, 1640, '2024-07-06 11:49:29', '2024-09-24 11:24:37', '', 0, 0),
-(8, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 11:55:54', '2024-07-06 11:55:54', '', 0, 0),
-(9, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:00:09', '2024-07-06 12:00:09', '', 0, 0),
-(10, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:48:11', '2024-07-06 12:48:11', '', 0, 0),
-(11, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:52:51', '2024-07-06 12:52:51', '', 0, 0),
-(12, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:53:08', '2024-07-06 12:53:08', '', 0, 0),
-(13, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:53:32', '2024-07-06 12:53:32', '', 0, 0),
-(14, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:54:00', '2024-07-06 12:54:00', '', 0, 0),
-(15, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 12:54:52', '2024-07-06 12:54:52', '', 0, 0),
-(16, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 13:13:26', '2024-07-06 13:13:26', '', 0, 0),
-(17, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 13:14:02', '2024-07-06 13:14:02', '', 0, 0),
-(18, 8, 1, NULL, 1, NULL, 1640, '2024-07-06 13:22:06', '2024-07-06 13:22:06', '', 0, 0),
-(19, 8, 1, NULL, 1, NULL, 1640, '2024-07-07 06:12:03', '2024-07-07 06:12:03', '', 0, 0),
-(20, 8, 1, NULL, 1, NULL, 1640, '2024-07-07 17:01:55', '2024-07-07 17:01:55', '', 0, 0),
-(21, 8, 2, NULL, 1, NULL, 1640, '2024-07-07 17:14:38', '2024-07-07 17:14:38', '', 0, 0),
-(22, 8, 2, NULL, 1, NULL, 1640, '2024-07-07 17:38:28', '2024-07-07 17:38:28', '', 0, 0),
-(23, 8, 2, NULL, 1, NULL, 1640, '2024-07-07 17:38:33', '2024-07-07 17:38:33', '', 0, 0),
-(24, 8, 1, NULL, 2, NULL, 8, '2024-07-08 05:47:20', '2024-07-08 05:47:20', '', 0, 0),
-(25, 11, 1, NULL, 1, NULL, 1, '2024-07-08 05:51:00', '2024-07-08 05:51:00', '', 0, 0),
-(26, 8, 1, NULL, 1, NULL, 1, '2024-07-08 05:56:37', '2024-07-08 05:56:37', '', 0, 0),
-(27, 8, 1, NULL, 3, NULL, 2, '2024-07-08 05:57:25', '2024-07-08 05:57:25', '', 0, 0),
-(28, 8, 1, NULL, 1, NULL, 8, '2024-07-08 08:55:15', '2024-07-08 08:55:15', '', 0, 0),
-(29, 8, 1, NULL, 1, NULL, 7, '2024-07-08 08:58:59', '2024-07-08 08:58:59', '', 0, 0),
-(30, 8, 1, NULL, 2, NULL, 1, '2024-07-08 09:00:20', '2024-07-08 09:00:20', '', 0, 0),
-(32, 51, 1, NULL, 1, NULL, 1640, '2024-08-02 11:59:43', '2024-08-02 11:59:43', '', 0, 0),
-(33, 51, 1, NULL, 1, NULL, 1640, '2024-08-06 20:05:34', '2024-08-06 20:05:34', 'cashed', 0, 0),
-(34, 51, 1, NULL, 1, NULL, 1640, '2024-08-06 20:07:54', '2024-08-06 20:07:54', 'cashed', 0, 0),
-(35, 51, 2, NULL, 1, NULL, 1640, '2024-08-06 20:08:35', '2024-08-06 20:10:49', 'online', 1, 0);
+INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `status`, `notes`, `address`, `phone`, `tax`, `delivery_fee`, `total_cost`, `created_at`, `updated_at`, `PaymentType`, `pay`, `created_by`) VALUES
+(1, 11, 1, NULL, 2, NULL, '', '', 0, 0, 1640, '2024-07-04 06:00:10', '2024-08-28 18:20:51', '', 1, 0),
+(2, 8, 1, NULL, 3, NULL, '', '', 0, 0, 1640, '2024-07-06 11:40:47', '2024-08-15 11:38:12', '', 1, 0),
+(3, 8, 1, NULL, 2, NULL, '', '', 0, 0, 1640, '2024-07-06 11:43:00', '2024-09-09 22:52:57', '', 0, 0),
+(4, 8, 1, NULL, 2, NULL, '', '', 0, 0, 1640, '2024-07-06 11:43:20', '2024-09-24 11:28:19', '', 0, 0),
+(5, 8, 1, NULL, 4, NULL, '', '', 0, 0, 1640, '2024-07-06 11:44:10', '2024-08-06 20:03:38', '', 1, 0),
+(6, 8, 1, NULL, 2, NULL, '', '', 0, 0, 1640, '2024-07-06 11:48:17', '2024-08-28 18:47:33', '', 0, 0),
+(7, 8, 1, NULL, 2, NULL, '', '', 0, 0, 1640, '2024-07-06 11:49:29', '2024-09-24 11:24:37', '', 0, 0),
+(8, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 11:55:54', '2024-07-06 11:55:54', '', 0, 0),
+(9, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:00:09', '2024-07-06 12:00:09', '', 0, 0),
+(10, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:48:11', '2024-07-06 12:48:11', '', 0, 0),
+(11, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:52:51', '2024-07-06 12:52:51', '', 0, 0),
+(12, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:53:08', '2024-07-06 12:53:08', '', 0, 0),
+(13, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:53:32', '2024-07-06 12:53:32', '', 0, 0),
+(14, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:54:00', '2024-07-06 12:54:00', '', 0, 0),
+(15, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 12:54:52', '2024-07-06 12:54:52', '', 0, 0),
+(16, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 13:13:26', '2024-07-06 13:13:26', '', 0, 0),
+(17, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 13:14:02', '2024-07-06 13:14:02', '', 0, 0),
+(18, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-06 13:22:06', '2024-07-06 13:22:06', '', 0, 0),
+(19, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-07 06:12:03', '2024-07-07 06:12:03', '', 0, 0),
+(20, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-07 17:01:55', '2024-07-07 17:01:55', '', 0, 0),
+(21, 8, 2, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-07 17:14:38', '2024-07-07 17:14:38', '', 0, 0),
+(22, 8, 2, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-07 17:38:28', '2024-07-07 17:38:28', '', 0, 0),
+(23, 8, 2, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-07-07 17:38:33', '2024-07-07 17:38:33', '', 0, 0),
+(24, 8, 1, NULL, 2, NULL, '', '', 0, 0, 8, '2024-07-08 05:47:20', '2024-07-08 05:47:20', '', 0, 0),
+(25, 11, 1, NULL, 1, NULL, '', '', 0, 0, 1, '2024-07-08 05:51:00', '2024-07-08 05:51:00', '', 0, 0),
+(26, 8, 1, NULL, 1, NULL, '', '', 0, 0, 1, '2024-07-08 05:56:37', '2024-07-08 05:56:37', '', 0, 0),
+(27, 8, 1, NULL, 3, NULL, '', '', 0, 0, 2, '2024-07-08 05:57:25', '2024-07-08 05:57:25', '', 0, 0),
+(28, 8, 1, NULL, 1, NULL, '', '', 0, 0, 8, '2024-07-08 08:55:15', '2024-07-08 08:55:15', '', 0, 0),
+(29, 8, 1, NULL, 1, NULL, '', '', 0, 0, 7, '2024-07-08 08:58:59', '2024-07-08 08:58:59', '', 0, 0),
+(30, 8, 1, NULL, 2, NULL, '', '', 0, 0, 1, '2024-07-08 09:00:20', '2024-07-08 09:00:20', '', 0, 0),
+(32, 51, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-08-02 11:59:43', '2024-08-02 11:59:43', '', 0, 0),
+(33, 51, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-08-06 20:05:34', '2024-08-06 20:05:34', 'cashed', 0, 0),
+(34, 51, 1, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-08-06 20:07:54', '2024-08-06 20:07:54', 'cashed', 0, 0),
+(35, 51, 2, NULL, 1, NULL, '', '', 0, 0, 1640, '2024-08-06 20:08:35', '2024-08-06 20:10:49', 'online', 1, 0),
+(36, 8, NULL, NULL, 1, '2d', '3d', '222211', 0, 0, 11, NULL, NULL, NULL, 0, 0),
+(37, 8, NULL, NULL, 1, '2d', '3d', '222211', 0, 0, 11, NULL, NULL, NULL, 0, 0),
+(41, 8, NULL, NULL, 1, NULL, 'sohag', '01030621099', 0, 0, 10, '2024-10-24 12:53:00', '2024-10-24 12:53:00', 'cashed', 0, 1),
+(42, 8, NULL, NULL, 1, NULL, 'sohag', '01030621099', 0, 0, 10, '2024-10-24 12:53:32', '2024-10-24 12:53:32', 'cashed', 0, 1),
+(45, 8, NULL, NULL, 1, NULL, 'sohag', '01030621099', 0, 0, 222, '2024-10-24 12:57:54', '2024-10-24 12:57:54', 'cashed', 0, 1),
+(46, 12, NULL, NULL, 1, NULL, 'sohag', '01030621099', 0, 0, 222, '2024-10-24 12:58:57', '2024-10-24 12:58:57', 'cashed', 0, 1),
+(47, 12, NULL, NULL, 1, NULL, 'sohag', '01030621099', 0, 0, 232, '2024-10-24 13:00:19', '2024-10-24 13:00:19', 'cashed', 0, 1),
+(48, 12, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 0, 252, '2024-10-24 13:29:16', '2024-10-24 13:29:16', 'cashed', 0, 1),
+(49, 13, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 10, 262, '2024-10-24 13:35:13', '2024-10-24 13:35:13', 'cashed', 0, 1),
+(50, 13, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 10, 262, '2024-10-24 14:11:45', '2024-10-24 14:11:45', 'cashed', 0, 1),
+(51, 13, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 10, 262, '2024-10-24 14:14:47', '2024-10-24 14:14:47', 'cashed', 0, 1),
+(52, 13, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 10, 262, '2024-10-24 14:15:05', '2024-10-24 14:15:05', 'cashed', 0, 1),
+(53, 13, NULL, NULL, 1, NULL, 'sohag', '01030621099', 20, 10, 262, '2024-10-24 14:15:17', '2024-10-24 14:15:17', 'cashed', 0, 1),
+(54, 13, NULL, NULL, 1, NULL, NULL, NULL, 0, NULL, 262, '2024-10-24 14:18:37', '2024-10-24 14:18:37', 'cashed', 0, 1),
+(55, 8, NULL, NULL, 1, NULL, NULL, NULL, 0, NULL, 4, '2024-10-24 14:19:21', '2024-10-24 14:19:21', 'cashed', 0, 1),
+(56, 13, NULL, NULL, 1, 'no comment', NULL, NULL, 20, NULL, 262, '2024-10-24 14:40:57', '2024-10-24 14:40:57', 'cashed', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -864,7 +884,17 @@ INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantit
 (50, 29, 8, 2, 1, '2024-07-08 08:58:59', '2024-07-08 08:58:59'),
 (51, 30, 12, 1, 1, '2024-07-08 09:00:20', '2024-07-08 09:00:20'),
 (52, 35, 1, 20, 10, '2024-08-06 20:08:35', '2024-08-06 20:08:35'),
-(53, 35, 2, 240, 10, '2024-08-06 20:08:35', '2024-08-06 20:08:35');
+(53, 35, 2, 240, 10, '2024-08-06 20:08:35', '2024-08-06 20:08:35'),
+(54, 41, 1, 10, 10, '2024-10-24 12:53:00', '2024-10-24 12:53:00'),
+(55, 42, 1, 10, 10, '2024-10-24 12:53:32', '2024-10-24 12:53:32'),
+(56, 45, 1, 10, 10, '2024-10-24 12:57:54', '2024-10-24 12:57:54'),
+(57, 46, 1, 10, 10, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(58, 47, 1, 10, 10, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(59, 48, 1, 10, 10, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(60, 49, 1, 10, 10, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(61, 50, 1, 10, 10, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(62, 51, 1, 10, 10, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
+(63, 56, 1, 10, 10, '2024-10-24 14:40:57', '2024-10-24 14:40:57');
 
 -- --------------------------------------------------------
 
@@ -914,7 +944,15 @@ INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `quantity`, `total_cos
 (25, 27, 1, 1, 2, '2024-07-08 05:57:25', '2024-07-08 05:57:25'),
 (26, 33, 1, 10, 150, '2024-08-06 20:05:34', '2024-08-06 20:05:34'),
 (27, 34, 1, 10, 150, '2024-08-06 20:07:54', '2024-08-06 20:07:54'),
-(28, 35, 1, 10, 150, '2024-08-06 20:08:35', '2024-08-06 20:08:35');
+(28, 35, 1, 10, 150, '2024-08-06 20:08:35', '2024-08-06 20:08:35'),
+(29, 45, 1, 10, 10, '2024-10-24 12:57:54', '2024-10-24 12:57:54'),
+(30, 46, 1, 10, 10, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(31, 47, 1, 10, 10, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(32, 48, 1, 10, 10, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(33, 49, 1, 10, 10, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(34, 50, 1, 10, 10, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(35, 51, 1, 10, 10, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
+(36, 56, 1, 10, 10, '2024-10-24 14:40:57', '2024-10-24 14:40:57');
 
 -- --------------------------------------------------------
 
@@ -943,6 +981,7 @@ CREATE TABLE `order_meals` (
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `meal_id` bigint(20) UNSIGNED NOT NULL,
   `quantity` int(11) NOT NULL,
+  `size` int(11) NOT NULL,
   `total_cost` double NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp()
@@ -952,35 +991,49 @@ CREATE TABLE `order_meals` (
 -- Dumping data for table `order_meals`
 --
 
-INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `total_cost`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 10, 1050, '2024-07-04 06:00:10', '2024-07-04 06:00:10'),
-(2, 2, 1, 10, 1050, '2024-07-06 11:40:47', '2024-07-06 11:40:47'),
-(3, 3, 1, 10, 1050, '2024-07-06 11:43:00', '2024-07-06 11:43:00'),
-(4, 4, 1, 10, 1050, '2024-07-06 11:43:20', '2024-07-06 11:43:20'),
-(5, 5, 1, 10, 1050, '2024-07-06 11:44:10', '2024-07-06 11:44:10'),
-(6, 6, 1, 10, 1050, '2024-07-06 11:48:17', '2024-07-06 11:48:17'),
-(7, 7, 1, 10, 1050, '2024-07-06 11:49:29', '2024-07-06 11:49:29'),
-(8, 8, 1, 10, 1050, '2024-07-06 11:55:54', '2024-07-06 11:55:54'),
-(9, 9, 1, 10, 1050, '2024-07-06 12:00:09', '2024-07-06 12:00:09'),
-(10, 10, 1, 10, 1050, '2024-07-06 12:48:11', '2024-07-06 12:48:11'),
-(11, 11, 1, 10, 1050, '2024-07-06 12:52:51', '2024-07-06 12:52:51'),
-(12, 12, 1, 10, 1050, '2024-07-06 12:53:08', '2024-07-06 12:53:08'),
-(13, 13, 1, 10, 1050, '2024-07-06 12:53:32', '2024-07-06 12:53:32'),
-(14, 14, 1, 10, 1050, '2024-07-06 12:54:00', '2024-07-06 12:54:00'),
-(15, 15, 1, 10, 1050, '2024-07-06 12:54:52', '2024-07-06 12:54:52'),
-(16, 16, 1, 10, 1050, '2024-07-06 13:13:26', '2024-07-06 13:13:26'),
-(17, 17, 1, 10, 1050, '2024-07-06 13:14:02', '2024-07-06 13:14:02'),
-(18, 18, 1, 10, 1050, '2024-07-06 13:22:06', '2024-07-06 13:22:06'),
-(19, 19, 1, 10, 1050, '2024-07-07 06:12:03', '2024-07-07 06:12:03'),
-(20, 20, 1, 10, 1050, '2024-07-07 17:01:56', '2024-07-07 17:01:56'),
-(21, 21, 1, 10, 1050, '2024-07-07 17:14:38', '2024-07-07 17:14:38'),
-(22, 22, 1, 10, 1050, '2024-07-07 17:38:28', '2024-07-07 17:38:28'),
-(23, 23, 1, 10, 1050, '2024-07-07 17:38:33', '2024-07-07 17:38:33'),
-(24, 24, 1, 1, 2.5, '2024-07-08 05:47:21', '2024-07-08 05:47:21'),
-(25, 24, 12, 1, 2.5, '2024-07-08 05:47:21', '2024-07-08 05:47:21'),
-(26, 28, 1, 4, 8, '2024-07-08 08:55:15', '2024-07-08 08:55:15'),
-(27, 29, 5, 2, 5, '2024-07-08 08:58:59', '2024-07-08 08:58:59'),
-(28, 35, 1, 10, 1050, '2024-08-06 20:08:35', '2024-08-06 20:08:35');
+INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `size`, `total_cost`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 10, 0, 1050, '2024-07-04 06:00:10', '2024-07-04 06:00:10'),
+(2, 2, 1, 10, 0, 1050, '2024-07-06 11:40:47', '2024-07-06 11:40:47'),
+(3, 3, 1, 10, 0, 1050, '2024-07-06 11:43:00', '2024-07-06 11:43:00'),
+(4, 4, 1, 10, 0, 1050, '2024-07-06 11:43:20', '2024-07-06 11:43:20'),
+(5, 5, 1, 10, 0, 1050, '2024-07-06 11:44:10', '2024-07-06 11:44:10'),
+(6, 6, 1, 10, 0, 1050, '2024-07-06 11:48:17', '2024-07-06 11:48:17'),
+(7, 7, 1, 10, 0, 1050, '2024-07-06 11:49:29', '2024-07-06 11:49:29'),
+(8, 8, 1, 10, 0, 1050, '2024-07-06 11:55:54', '2024-07-06 11:55:54'),
+(9, 9, 1, 10, 0, 1050, '2024-07-06 12:00:09', '2024-07-06 12:00:09'),
+(10, 10, 1, 10, 0, 1050, '2024-07-06 12:48:11', '2024-07-06 12:48:11'),
+(11, 11, 1, 10, 0, 1050, '2024-07-06 12:52:51', '2024-07-06 12:52:51'),
+(12, 12, 1, 10, 0, 1050, '2024-07-06 12:53:08', '2024-07-06 12:53:08'),
+(13, 13, 1, 10, 0, 1050, '2024-07-06 12:53:32', '2024-07-06 12:53:32'),
+(14, 14, 1, 10, 0, 1050, '2024-07-06 12:54:00', '2024-07-06 12:54:00'),
+(15, 15, 1, 10, 0, 1050, '2024-07-06 12:54:52', '2024-07-06 12:54:52'),
+(16, 16, 1, 10, 0, 1050, '2024-07-06 13:13:26', '2024-07-06 13:13:26'),
+(17, 17, 1, 10, 0, 1050, '2024-07-06 13:14:02', '2024-07-06 13:14:02'),
+(18, 18, 1, 10, 0, 1050, '2024-07-06 13:22:06', '2024-07-06 13:22:06'),
+(19, 19, 1, 10, 0, 1050, '2024-07-07 06:12:03', '2024-07-07 06:12:03'),
+(20, 20, 1, 10, 0, 1050, '2024-07-07 17:01:56', '2024-07-07 17:01:56'),
+(21, 21, 1, 10, 0, 1050, '2024-07-07 17:14:38', '2024-07-07 17:14:38'),
+(22, 22, 1, 10, 0, 1050, '2024-07-07 17:38:28', '2024-07-07 17:38:28'),
+(23, 23, 1, 10, 0, 1050, '2024-07-07 17:38:33', '2024-07-07 17:38:33'),
+(24, 24, 1, 1, 0, 2.5, '2024-07-08 05:47:21', '2024-07-08 05:47:21'),
+(25, 24, 12, 1, 0, 2.5, '2024-07-08 05:47:21', '2024-07-08 05:47:21'),
+(26, 28, 1, 4, 0, 8, '2024-07-08 08:55:15', '2024-07-08 08:55:15'),
+(27, 29, 5, 2, 0, 5, '2024-07-08 08:58:59', '2024-07-08 08:58:59'),
+(28, 35, 1, 10, 0, 1050, '2024-08-06 20:08:35', '2024-08-06 20:08:35'),
+(30, 41, 1, 10, 1, 10, '2024-10-24 12:53:00', '2024-10-24 12:53:00'),
+(31, 42, 1, 10, 1, 10, '2024-10-24 12:53:32', '2024-10-24 12:53:32'),
+(32, 45, 1, 10, 1, 10, '2024-10-24 12:57:54', '2024-10-24 12:57:54'),
+(33, 46, 1, 10, 1, 10, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(34, 47, 1, 10, 1, 10, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(35, 47, 2, 10, 1, 10, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(36, 48, 1, 10, 1, 10, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(37, 48, 2, 10, 1, 10, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(38, 49, 1, 10, 1, 10, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(39, 49, 2, 10, 1, 10, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(40, 50, 1, 10, 1, 10, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(41, 50, 2, 10, 1, 10, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(42, 56, 1, 10, 1, 10, '2024-10-24 14:40:57', '2024-10-24 14:40:57'),
+(43, 56, 2, 10, 1, 10, '2024-10-24 14:40:57', '2024-10-24 14:40:57');
 
 -- --------------------------------------------------------
 
@@ -1004,7 +1057,16 @@ CREATE TABLE `order_offers` (
 --
 
 INSERT INTO `order_offers` (`id`, `offer_id`, `order_id`, `quantity`, `total_cost`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(1, 4, 32, 10, 100, NULL, '2024-08-02 11:59:43', '2024-08-02 12:00:31');
+(1, 4, 32, 10, 100, NULL, '2024-08-02 11:59:43', '2024-08-02 12:00:31'),
+(2, 4, 45, 1, 202, NULL, '2024-10-24 12:57:54', '2024-10-24 12:57:54'),
+(3, 4, 46, 1, 202, NULL, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(4, 4, 47, 1, 202, NULL, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(5, 4, 48, 1, 202, NULL, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(6, 4, 49, 1, 202, NULL, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(7, 4, 50, 1, 202, NULL, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(8, 4, 51, 1, 202, NULL, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
+(9, 4, 52, 1, 202, NULL, '2024-10-24 14:15:05', '2024-10-24 14:15:05'),
+(10, 4, 56, 1, 202, NULL, '2024-10-24 14:40:57', '2024-10-24 14:40:57');
 
 -- --------------------------------------------------------
 
@@ -1109,7 +1171,20 @@ INSERT INTO `transactions` (`id`, `customer_id`, `order_id`, `payment_method`, `
 (23, 51, 32, 'cashed', 1640, NULL, '2024-08-02 11:59:43', '2024-08-02 11:59:43'),
 (24, 51, 33, 'cashed', 1640, NULL, '2024-08-06 20:05:34', '2024-08-06 20:05:34'),
 (25, 51, 34, 'cashed', 1640, NULL, '2024-08-06 20:07:54', '2024-08-06 20:07:54'),
-(26, 51, 35, 'Unpaid', 1640, 4250927, '2024-08-06 20:08:37', '2024-08-06 20:08:37');
+(26, 51, 35, 'Unpaid', 1640, 4250927, '2024-08-06 20:08:37', '2024-08-06 20:08:37'),
+(27, 8, 42, 'cashed', 10, NULL, '2024-10-24 12:53:32', '2024-10-24 12:53:32'),
+(28, 8, 45, 'cashed', 222, NULL, '2024-10-24 12:57:54', '2024-10-24 12:57:54'),
+(29, 12, 46, 'cashed', 222, NULL, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(30, 12, 47, 'cashed', 232, NULL, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(31, 12, 48, 'cashed', 252, NULL, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(32, 13, 49, 'cashed', 262, NULL, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(33, 13, 50, 'cashed', 262, NULL, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(34, 13, 51, 'cashed', 262, NULL, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
+(35, 13, 52, 'cashed', 262, NULL, '2024-10-24 14:15:05', '2024-10-24 14:15:05'),
+(36, 13, 53, 'cashed', 262, NULL, '2024-10-24 14:15:17', '2024-10-24 14:15:17'),
+(37, 13, 54, 'cashed', 262, NULL, '2024-10-24 14:18:37', '2024-10-24 14:18:37'),
+(38, 8, 55, 'cashed', 4, NULL, '2024-10-24 14:19:21', '2024-10-24 14:19:21'),
+(39, 13, 56, 'cashed', 262, NULL, '2024-10-24 14:40:57', '2024-10-24 14:40:57');
 
 --
 -- Indexes for dumped tables
@@ -1309,297 +1384,50 @@ ALTER TABLE `reset_password_tokens`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `sessions`
---
-ALTER TABLE `sessions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sessions_user_id_index` (`user_id`),
-  ADD KEY `sessions_last_activity_index` (`last_activity`);
-
---
 -- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `customer_id` (`customer_id`),
-  ADD KEY `order_id` (`order_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `addons`
---
-ALTER TABLE `addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT for table `customers`
---
-ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
-
---
--- AUTO_INCREMENT for table `diningtables`
---
-ALTER TABLE `diningtables`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT for table `email_verification_tokens`
---
-ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
-
---
--- AUTO_INCREMENT for table `employees`
---
-ALTER TABLE `employees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
-
---
--- AUTO_INCREMENT for table `expired_offers`
---
-ALTER TABLE `expired_offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
-
---
--- AUTO_INCREMENT for table `extras`
---
-ALTER TABLE `extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
-
---
--- AUTO_INCREMENT for table `meals`
---
-ALTER TABLE `meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT for table `meals_size_cost`
---
-ALTER TABLE `meals_size_cost`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `offers`
---
-ALTER TABLE `offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT for table `offer_addons`
---
-ALTER TABLE `offer_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `offer_extras`
---
-ALTER TABLE `offer_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `offer_items`
---
-ALTER TABLE `offer_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `offer_meals`
---
-ALTER TABLE `offer_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
-
---
--- AUTO_INCREMENT for table `order_locations`
---
-ALTER TABLE `order_locations`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `order_offers`
 --
 ALTER TABLE `order_offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `personal_access_tokens`
---
-ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `reset_password_tokens`
---
-ALTER TABLE `reset_password_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `addons`
---
-ALTER TABLE `addons`
-  ADD CONSTRAINT `addons_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `expired_offers`
---
-ALTER TABLE `expired_offers`
-  ADD CONSTRAINT `expired_offers_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `extras`
---
-ALTER TABLE `extras`
-  ADD CONSTRAINT `extras_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `meals`
---
-ALTER TABLE `meals`
-  ADD CONSTRAINT `meals_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `meal_extras`
---
-ALTER TABLE `meal_extras`
-  ADD CONSTRAINT `meal_extras_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `meal_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `meal_with_addons`
---
-ALTER TABLE `meal_with_addons`
-  ADD CONSTRAINT `meal_with_addons_addon_id_foreign` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `meal_with_addons_meal_id_foreign` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `offer_addons`
---
-ALTER TABLE `offer_addons`
-  ADD CONSTRAINT `offer_addons_ibfk_1` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `offer_addons_ibfk_2` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `offer_extras`
---
-ALTER TABLE `offer_extras`
-  ADD CONSTRAINT `offer_extras_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `offer_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `offer_items`
---
-ALTER TABLE `offer_items`
-  ADD CONSTRAINT `offer_items_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `offer_items_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `offer_items_ibfk_3` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `offer_items_ibfk_4` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `offer_meals`
---
-ALTER TABLE `offer_meals`
-  ADD CONSTRAINT `offer_meals_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `offer_meals_ibfk_2` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `orders`
---
-ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `orders_diningtable_id_foreign` FOREIGN KEY (`DiningTable_id`) REFERENCES `diningtables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `order_locations` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `order_addons`
---
-ALTER TABLE `order_addons`
-  ADD CONSTRAINT `order_addons_ibfk_1` FOREIGN KEY (`addon_id`) REFERENCES `addons` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_addons_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `order_extras`
---
-ALTER TABLE `order_extras`
-  ADD CONSTRAINT `order_extras_ibfk_1` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_extras_ibfk_2` FOREIGN KEY (`extra_id`) REFERENCES `extras` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_extras_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `order_locations`
---
-ALTER TABLE `order_locations`
-  ADD CONSTRAINT `order_locations_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `order_meals`
---
-ALTER TABLE `order_meals`
-  ADD CONSTRAINT `order_meals_ibfk_1` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `order_meals_meal_id_foreign` FOREIGN KEY (`meal_id`) REFERENCES `meals` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_meals_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `order_offers`
---
-ALTER TABLE `order_offers`
-  ADD CONSTRAINT `order_offers_ibfk_1` FOREIGN KEY (`offer_id`) REFERENCES `offers` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_offers_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`),
-  ADD CONSTRAINT `transactions_ibfk_2` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
