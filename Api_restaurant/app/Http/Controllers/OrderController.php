@@ -573,8 +573,11 @@ class OrderController extends Controller
         }
 
         if (isset($validatedData['diningtable_id'])) {
+            $created_by = 0;
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
+        }else{
+            $created_by = 1; 
         }
 
         DB::beginTransaction();
@@ -589,7 +592,7 @@ class OrderController extends Controller
                 'tax' => $validatedData['tax'] ?? 0,
                 'delivery_fee' => $validatedData['delivery_fee'] ?? null,
                 'PaymentType' => "cashed",
-                'created_by' =>'1',
+                'created_by' => $created_by,
             ]);
 
             foreach ($offerIds as $offerId) {

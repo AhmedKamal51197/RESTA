@@ -35,7 +35,7 @@ class DiningTableController extends Controller
         $formattedTables = $diningTables->map(function ($table) {
             return [
                 'id' => $table->id,
-                'pleace' => "Floor ({$table->floor}) Table Number ({$table->num})",
+                'place' => "Floor ({$table->floor}) Table Number ({$table->num})",
             ];
         });
     
