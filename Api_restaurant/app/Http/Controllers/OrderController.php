@@ -573,11 +573,8 @@ class OrderController extends Controller
         }
 
         if (isset($validatedData['diningtable_id'])) {
-            $created_by = 0;
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
-        }else{
-            $created_by = 1; 
         }
 
         DB::beginTransaction();
@@ -592,7 +589,7 @@ class OrderController extends Controller
                 'tax' => $validatedData['tax'] ?? 0,
                 'delivery_fee' => $validatedData['delivery_fee'] ?? null,
                 'PaymentType' => "cashed",
-                'created_by' => $created_by,
+                'created_by' => 1,
             ]);
 
             foreach ($offerIds as $offerId) {
@@ -714,13 +711,6 @@ class OrderController extends Controller
         $endDate = Carbon::parse($request->to)->endOfDay();
         $averageAcceptedOrderRatio=Order::whereBetween('created_at',[$startDate,$endDate])
         ->where('status',4)->get();
-        // dd($startDate);
-        //selectRaw this use to make it easy to write complex sql query that can't write in Elquent ORM  
-    //     $averageAcceptedOrderRatio = Order::selectRaw('
-    //    (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ? AND status = "4") / 
-    //    (SELECT COUNT(*) FROM orders WHERE created_at BETWEEN ? AND ?) AS average_accepted_order_ratio
-    //     ', [$startDate, $endDate, $startDate, $endDate])
-    //         ->value('average_accepted_order_ratio');
         if (!$averageAcceptedOrderRatio) {
             return response()->json([
                 'status' => 'failed',
@@ -761,20 +751,7 @@ class OrderController extends Controller
     {
         $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
 
-        // // Reusable function for grouping, counting, and sorting
-        // $groupAndCount = function($items, $relation, $field) {
-        //     return $items->flatMap(function ($item) use ($relation,$field) {
-        //         return $item->$relation->pluck($field);
-        //     })->groupBy('id')
-        //     ->map(function ($group) {
-        //         return [
-        //             'item' => $group->first(), // Get the item details
-        //             'count' => $group->count()  // Count occurrences
-        //         ];
-        //     })->sortByDesc('count')->values();
-        // };
-            // Reusable function for grouping, counting, and sorting
-    $groupAndCount = function($items, $relation, $field) {
+        $groupAndCount = function($items, $relation, $field) {
         return $items->flatMap(function ($item) use ($relation, $field) {
             return $item->$relation->pluck($field);
         })->groupBy('id')
@@ -797,9 +774,6 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
              'data'=>$items
-            // 'meals_occurences' => $mealsWithCount,
-            // 'addons_occurences' => $addonsWithCount,
-            // 'extras_occurences' => $extrasWithCount
         ], 200);
     }
     //update order status  
