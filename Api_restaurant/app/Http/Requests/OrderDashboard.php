@@ -27,8 +27,8 @@ class OrderDashboard extends FormRequest
             'phone' =>['sometimes', 'string'],
             'diningtable_id' => ['sometimes', 'integer'],
             'total_cost'=>['required','numeric','min:1'],
-            'tax'=>['sometimes','integer'],
-            'delivery_fee'=>['sometimes','integer'],
+            'tax'=>['sometimes','numeric'],
+            'delivery_fee'=>['sometimes','numeric'],
 
             'offer_ids' => ['array', 'nullable'],
             'offer_ids.*.id' => ['required', 'integer'],

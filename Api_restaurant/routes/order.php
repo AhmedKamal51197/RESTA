@@ -16,6 +16,8 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
     Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
     Route::get('admin/sales-reports',[OrderController::class,'SalesReport']);
+    Route::get('admin/orders/currentMonthSalesSummary',[OrderController::class,'getCurrentMonthSalesSummary']);
+
 });
 Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('admin/retrieve-items',[OrderController::class,'AllItems']);
@@ -33,6 +35,8 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     // Route::patch('admin/orders/{id}/checkPiadStatus',[OrderController::class,'checkPaid']);
     Route::put('admin/orders/{id}/checkPayStatus', [OrderController::class, 'checkPaid']);
     Route::get('admin/MostPopularItems',[OrderController::class,'MostPopularItems']);
+    Route::get('admin/orders/invoice/{id}',[OrderController::class,'showInvoiceById']);
+
 
 });
 Route::get('callback',[OrderController::class,'paymentCallBack'])->name('payments.success');

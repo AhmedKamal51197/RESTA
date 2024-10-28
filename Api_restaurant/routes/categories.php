@@ -28,6 +28,8 @@ use  App\Http\Controllers\CategoriesController;
     Route::group(['middleware'=>['auth:admin-api','checkAdminToken']],function(){
         Route::post('/categories', [CategoriesController::class,'addNewCategory']);
         Route::put('/categories/{id}', [CategoriesController::class,'updateCategory']);
-        Route::delete('/categories/{id}',[CategoriesController::class,'deleteCategory']);    
+        Route::delete('/categories/{id}',[CategoriesController::class,'deleteCategory']); 
+        Route::get('admin/count-total-items', [CategoriesController::class, 'countTotalItems']);
+   
     });
 

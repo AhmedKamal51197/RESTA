@@ -1,14 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\CarbonPeriod;
 use App\Customs\Services\FatoorahServices;
 use App\Customs\Services\ThawaniServices;
 use App\Http\Requests\OrderDashboard;
 use App\Http\Requests\OrderRequest;
-use App\Models\Addon;
 use App\Models\Customer;
 use App\Models\DiningTable;
+use App\Models\Addon;
 use App\Models\Extra;
 use App\Models\Meal;
 use App\Models\Offer;
@@ -16,9 +16,10 @@ use App\Models\Order;
 use App\Models\Order_offer;
 use App\Models\OrderAddon;
 use App\Models\OrderExtra;
-use App\Models\OrderLocation;
 use App\Models\OrderMeal;
 use App\Models\Transaction;
+use App\Models\OrderLocation;
+
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -562,7 +563,7 @@ class OrderController extends Controller
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
-
+    
         $customerId = $validatedData['customer_id'];
         $customer = Customer::find($customerId);
         if (!$customer) {
@@ -571,12 +572,12 @@ class OrderController extends Controller
                 'message' => 'Invalid customer ID'
             ], 400);
         }
-
+    
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
         }
-
+    
         DB::beginTransaction();
         try {
             $order = Order::create([
@@ -591,65 +592,82 @@ class OrderController extends Controller
                 'PaymentType' => "cashed",
                 'created_by' => 1,
             ]);
-
-            foreach ($offerIds as $offerId) {
-                $offer = $this->checkOffer($offerId['id']);
-                if ($offer instanceof JsonResponse) return $offer;
-                Order_offer::create([
+    
+            $response = [
+                'status' => 'success',
+                'message' => 'Order created successfully',
+                'data' => [
                     'order_id' => $order->id,
-                    'offer_id' => $offerId['id'],
-                    'quantity' => $offerId['quantity'],
-                    'total_cost' => $offerId['cost'] * $offerId['quantity']
-                ]);
-            }
+                ]
+            ];
 
-            foreach ($mealIds as $mealId) {
-                $meal = $this->checkMeal($mealId['id']);
-                if ($meal instanceof JsonResponse) return $meal;
-                OrderMeal::create([
-                    'order_id' => $order->id,
-                    'meal_id' => $mealId['id'],
-                    'quantity' => $mealId['quantity'],
-                    'total_cost' => $mealId['cost'] * $mealId['quantity'],
-                    'size' => $mealId['size'],
-                ]);
+            if (!empty($offerIds)) {
+                foreach ($offerIds as $offerId) {
+                    $offer = $this->checkOffer($offerId['id']);
+                    if ($offer instanceof JsonResponse) return $offer;
+                    Order_offer::create([
+                        'order_id' => $order->id,
+                        'offer_id' => $offerId['id'],
+                        'quantity' => $offerId['quantity'],
+                        'total_cost' => $offerId['cost'] * $offerId['quantity']
+                    ]);
+                }
             }
-
-            foreach ($addonIds as $addonId) {
-                $addon = $this->checkAddon($addonId['id']);
-                if ($addon instanceof JsonResponse) return $addon;
-                OrderAddon::create([
-                    'order_id' => $order->id,
-                    'addon_id' => $addonId['id'],
-                    'quantity' => $addonId['quantity'],
-                    'total_cost' => $addonId['cost'] * $addonId['quantity'],
-                ]);
+    
+            if (!empty($mealIds)) {
+                $meals = [];
+                foreach ($mealIds as $mealId) {
+                    $meal = $this->checkMeal($mealId['id']);
+                    if ($meal instanceof JsonResponse) return $meal;
+                    OrderMeal::create([
+                        'order_id' => $order->id,
+                        'meal_id' => $mealId['id'],
+                        'quantity' => $mealId['quantity'],
+                        'total_cost' => $mealId['cost'] * $mealId['quantity'],
+                        'size' => $mealId['size'],
+                    ]);
+                }
             }
-
-            foreach ($extraIds as $extraId) {
-                $extra = $this->checkExtra($extraId['id']);
-                if ($extra instanceof JsonResponse) return $extra;
-                OrderExtra::create([
-                    'order_id' => $order->id,
-                    'extra_id' => $extraId['id'],
-                    'quantity' => $extraId['quantity'],
-                    'total_cost' => $extraId['cost'] * $extraId['quantity'],
-                ]);
+    
+            if (!empty($addonIds)) {
+                $addons = [];
+                foreach ($addonIds as $addonId) {
+                    $addon = $this->checkAddon($addonId['id']);
+                    if ($addon instanceof JsonResponse) return $addon;
+                    OrderAddon::create([
+                        'order_id' => $order->id,
+                        'addon_id' => $addonId['id'],
+                        'quantity' => $addonId['quantity'],
+                        'total_cost' => $addonId['cost'] * $addonId['quantity'],
+                    ]);
+                }
             }
-
+    
+            if (!empty($extraIds)) {
+                $extras = [];
+                foreach ($extraIds as $extraId) {
+                    $extra = $this->checkExtra($extraId['id']);
+                    if ($extra instanceof JsonResponse) return $extra;
+                    OrderExtra::create([
+                        'order_id' => $order->id,
+                        'extra_id' => $extraId['id'],
+                        'quantity' => $extraId['quantity'],
+                        'total_cost' => $extraId['cost'] * $extraId['quantity'],
+                    ]);
+                }
+            }
+    
             DB::commit();
-
+    
             Transaction::create([
                 'customer_id' => $customerId,
                 'order_id' => $order->id,
                 'payment_method' => 'cashed',
                 'amount' => $order->total_cost
             ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Order created successfully'
-            ], 201);
+    
+            return response()->json($response, 201);
+    
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -658,6 +676,86 @@ class OrderController extends Controller
             ], 400);
         }
     }
+    
+    // invocie order by id 
+    public function showInvoiceById($id)
+    {
+        $order = Order::with(['orderAddons', 'orderExtras', 'orderMeals', 'orderOffers'])->find($id);
+    
+        if (!$order) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Order not found'
+            ], 404);
+        }
+
+        $response = [
+            'status' => 'success',
+            'data' => [
+                'order' => [
+                    'id' => $order->id,
+                    'sub_total' => $order->total_cost - $order->delivery_fee - $order->tax,
+                    'total_cost' => $order->total_cost,
+                    'tax' => $order->tax,
+                    'delivery_fee' => $order->delivery_fee,
+                    'payment_type' => $order->PaymentType,
+                    'created_at' => $order->created_at,
+                ],
+                
+                'offers' => $order->orderOffers->map(function ($offer) {
+                    return [
+                        'id' => $offer->id,
+                        'name' => $offer->offer->name,
+                        'quantity' => $offer->quantity,
+                        'cost' => $offer->total_cost 
+                    ];
+                })->toArray(),
+                'meals' => $order->orderMeals->map(function ($meal) {
+                    return [
+                        'id' => $meal->id,
+                        'name' => $meal->meal->name,
+                        'quantity' => $meal->quantity ,
+                        'cost' => $meal->total_cost,
+                        'size' => $this->getSizeLabel($meal->size)
+                    ];
+                })->toArray(),
+                'addons' => $order->orderAddons->map(function ($addon) {
+                    return [
+                        'id' => $addon->id,
+                        'name' => $addon->addon->name,
+                        'quantity' => $addon->quantity,
+                        'cost' =>$addon->total_cost,
+                    ];
+                })->toArray(),
+                'extras' => $order->orderExtras->map(function ($extra) {
+                    return [
+                        'id' => $extra->id,
+                        'name' => $extra->extra->name,
+                        'quantity' =>$extra->quantity, 
+                        'cost' => $extra->total_cost, 
+                    ];
+                })->toArray(),
+            ]
+        ];
+    
+        return response()->json($response, 200);
+    }
+    
+    //  function to convert size integer to label
+    private function getSizeLabel($size)
+    {
+        $sizes = [
+            1 => 'SMALL',
+            2 => 'MEDIUM',
+            3 => 'BIG',
+            4 => 'FAMILY'
+        ];
+    
+        return $sizes[$size] ?? 'UNKNOWN';
+    }
+    
+
+    
 
     public function get_user_orders($userId)
     {
@@ -722,44 +820,92 @@ class OrderController extends Controller
             'data' => $averageAcceptedOrderRatio
         ], 200);
     }
+
     //sales summary filter by Date for Dashboard 
     public function SalesSummary(Request $request)
     {
-        $startDate = Carbon::parse($request->from)->startOfDay(); //startOfDay() to ensure entire days specified  not just the exact times given.
-        $endDate = Carbon::parse($request->to)->endOfDay();
-        // dd($startDate);
-        $sales = Order::whereBetween('created_at', [$startDate, $endDate])->get();
-        $salesResponse = $sales->map(function ($sale) {
-            return [
-                'Date' => $sale->created_at,
-                'sales' => $sale->total_cost
-            ];
-        });
-        if ($salesResponse->isEmpty()) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'sales not found'
-            ], 404);
+        $startDate = Carbon::now()->subDays(6)->startOfDay();
+        $endDate = Carbon::now()->endOfDay();
+
+        if ($request->has('from')) {
+            $startDate = Carbon::parse($request->from)->startOfDay();
         }
+        if ($request->has('to')) {
+            $endDate = Carbon::parse($request->to)->endOfDay();
+        }
+
+        $sales = Order::whereBetween('created_at', [$startDate, $endDate])->get();
+
+        $salesResponse = $sales->groupBy(function ($sale) {
+            return Carbon::parse($sale->created_at)->format('Y-m-d');
+        })->map(function ($group) {
+            return [
+                'date' => Carbon::parse($group->first()->created_at)->format('Y-m-d'),
+                'sales' => number_format($group->sum('total_cost'), 2) // Format sum to 2 decimal places
+            ];
+        })->values();
+
+        // Generate date range even for days with no sales
+        $dateRange = [];
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        foreach ($period as $date) {
+            $dateRange[] = $date->format('Y-m-d');
+        }
+
+        // Fill in missing dates with 0.00 sales
+        $finalResponse = [];
+        foreach ($dateRange as $date) {
+            $salesForDate = $salesResponse->firstWhere('Date', $date);
+            $finalResponse[] = [
+                'date' => $date,
+                'sales' => $salesForDate ? $salesForDate['sales'] : '0.00'
+            ];
+        }
+
         return response()->json([
             'status' => 'success',
-            'data' => $salesResponse
+            'data' => $finalResponse
         ], 200);
     }
+
+    public function getCurrentMonthSalesSummary(Request $request)
+    {
+        $currentMonthStart = Carbon::now()->startOfMonth();
+        $currentMonthEnd = Carbon::now()->endOfMonth();
+
+        $salesCount = Order::where('status', 4)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->count();
+
+        $totalSalesAmount = Order::where('status', 4)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->sum('total_cost');
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_orders' => $salesCount,
+                'total_sales_amount' => number_format($totalSalesAmount, 2) 
+            ]
+        ], 200);
+    }
+
+
     //Most Popular Items NOT EMPLEMENT YET 
     public function MostPopularItems()
     {
         $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
 
         $groupAndCount = function($items, $relation, $field) {
-        return $items->flatMap(function ($item) use ($relation, $field) {
-            return $item->$relation->pluck($field);
-        })->groupBy('id')
-        ->map(function ($group) {
-            // Merge item details with the count directly, no separate 'item' key
-            return array_merge($group->first()->toArray(), ['count' => $group->count()]);
-        })->sortByDesc('count')->values();
-    };
+            return $items->flatMap(function ($item) use ($relation, $field) {
+                return $item->$relation->pluck($field);
+            })->groupBy('id')
+            ->map(function ($group) {
+                // Merge item details with the count directly, no separate 'item' key
+                return array_merge($group->first()->toArray(), ['count' => $group->count()]);
+            })->sortByDesc('count')->values();
+        };
         
         // Get meals, addons, and extras occurrences
         $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
@@ -810,7 +956,7 @@ class OrderController extends Controller
         }
         $ordersData=$orders->map(function($order){
             return [
-                "id"=> $order->id,
+            "id"=> $order->id,
             "customer_id"=> $order->customer_id ?? null,
             "DiningTable_id"=> $order->diningtable_id??null,
             "location"=>$order->location??null,
@@ -832,41 +978,59 @@ class OrderController extends Controller
     /**
      * Generate Items Report 
      */
-     public function ItemsReport()
-     {
-        $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
-        if($order->isEmpty())
-        {
+    public function ItemsReport()
+    {
+        // Fetch all orders with related meals, addons, and extras
+        $orders = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
+    
+        // Check if no orders were found
+        if ($orders->isEmpty()) {
             return response()->json([
-                'status'=>'failed',
-                'message'=>'No order found'
-            ],404);
+                'status' => 'failed',
+                'message' => 'No order found'
+            ], 404);
         }
+    
         // Reusable function for grouping, counting, and sorting
-        $groupAndCount = function($items, $relation, $field) {
-            return $items->flatMap(function ($item) use ($relation,$field) {
-                return $item->$relation->pluck($field);
+        $groupAndCount = function($items, $relation, $field, $tableName) {
+            return $items->flatMap(function ($item) use ($relation, $field) {
+                return $item->$relation->map(function ($related) use ($field) {
+                    return [
+                        'id' => $related->$field->id, // Assuming related model has 'id'
+                        'name' => $related->$field->name, // Assuming related model has 'name'
+                        'status' => $related->$field->status, // Assuming related model has 'status'
+                        'image' => $related->$field->image, // Assuming related model has 'image'
+                    ];
+                });
             })->groupBy('id')
-            ->map(function ($group) {
+            ->map(function ($group) use ($tableName) {
+                $item = $group->first(); // Get the first item details
                 return [
-                    'item' => $group->first(), // Get the item details
-                    'count' => $group->count()  // Count occurrences
+                    'id' => $item['id'], // Add item id
+                    'name' => $item['name'], // Add item name
+                    'status' => $item['status'], // Add item status
+                    'image' => $item['image'], // Add item image
+                    'count' => $group->count(), // Count occurrences
+                    'table_name' => $tableName // Add table name
                 ];
             })->sortByDesc('count')->values();
         };
-        
-        // Get meals, addons, and extras occurrences
-        $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
-        $addonsWithCount = $groupAndCount($order, 'orderAddons','addon');
-        $extrasWithCount = $groupAndCount($order, 'orderExtras','extra');
-        
+    
+        // Get occurrences of meals, addons, and extras with table name
+        $mealsWithCount = $groupAndCount($orders, 'orderMeals', 'meal', 'meals');
+        $addonsWithCount = $groupAndCount($orders, 'orderAddons', 'addon', 'addons');
+        $extrasWithCount = $groupAndCount($orders, 'orderExtras', 'extra', 'extras');
+    
+        // Merge all occurrences into one collection
+        $mergedData = $mealsWithCount->merge($addonsWithCount)->merge($extrasWithCount);
+    
         return response()->json([
             'status' => 'success',
-            'meals_occurences' => $mealsWithCount,
-            'addons_occurences' => $addonsWithCount,
-            'extras_occurences' => $extrasWithCount
+            'items_occurrences' => $mergedData // Return merged data
         ], 200);
-     }
+    }
+    
+    
     // change pay to paid if casher checked that customer paid cashed
     public function checkPaid(Request $request ,$id)
     {

@@ -160,6 +160,25 @@ class CategoriesController extends Controller
         ], 200);
     }
 
+    //count Total Items
+    public function countTotalItems()
+    {
+        $mealsCount = Meal::where('status', 1)->count();
+
+        $addonsCount = Addon::where('status', 1)->count();
+
+        $extrasCount = Extra::where('status', 1)->count();
+
+        $totalCount = $mealsCount + $addonsCount + $extrasCount;
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_count' => $totalCount,
+            ],
+        ], 200);
+    }
+
     
 
     public function index(Request $request){
@@ -213,7 +232,7 @@ class CategoriesController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['sometimes','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u',Rule::unique('categories')->ignore($id)],
             'description' => ['sometimes', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
         ]);
     
         if ($validator->fails()) {
@@ -228,14 +247,14 @@ class CategoriesController extends Controller
         $data = $request->only('name', 'description','status');
     
      
-        if ($request->hasFile('image_file')) {
+        if ($request->hasFile('image')) {
         
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
             }
             
             
-            $data['image'] = $request->file('image_file')->store('categories', 'public');
+            $data['image'] = $request->file('image')->store('categories', 'public');
         }
     
         $category->update($data);

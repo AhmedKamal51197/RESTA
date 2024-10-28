@@ -91,7 +91,7 @@ class MealController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name' => ['required', 'string', 'regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u', 'unique:meals'],
+            'name' => ['required', 'string', 'min:3','max:50' ,'unique:meals'],
             'description' => ['required', 'string', 'min:10', 'max:255', 'regex:/^\s*\S(?:.*\S)?\s*$/u'],
             'type' => 'required|in:vegetarian,non-vegetarian',
             'category_id' => 'required|exists:categories,id',
@@ -128,7 +128,7 @@ class MealController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             // return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-            return response()->json(['status' => 'error', 'message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+            return response()->json(['status' => 'error', 'message' => 'Internal server error: ' . $e->getMessage()], 422);
         }
     }
 

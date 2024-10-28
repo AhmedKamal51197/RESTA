@@ -183,6 +183,20 @@ class CustomerController extends Controller
             'message' => 'deleted done'
         ], 200);
     }
+
+    //count customers active  
+    public function countActiveCustomers()
+    {
+        $activeCustomerCount = Customer::where('status', 1)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' =>[
+                'total_count' => $activeCustomerCount,
+            ],
+        ], 200);
+    }
+
     //update customers data  
     public function update(Request $request, $id = null)
     {
