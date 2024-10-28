@@ -840,12 +840,10 @@ class OrderController extends Controller
             return Carbon::parse($sale->created_at)->format('Y-m-d');
         })->map(function ($group) {
             return [
-                'date' => Carbon::parse($group->first()->created_at)->format('Y-m-d'),
-                'sales' => number_format($group->sum('total_cost'), 2) // Format sum to 2 decimal places
+                'Date' => Carbon::parse($group->first()->created_at)->format('Y-m-d'),
+                'sales' => number_format($group->sum('total_cost'), 2)
             ];
         })->values();
-
-        // Generate date range even for days with no sales
         $dateRange = [];
         $period = CarbonPeriod::create($startDate, $endDate);
 
@@ -853,7 +851,6 @@ class OrderController extends Controller
             $dateRange[] = $date->format('Y-m-d');
         }
 
-        // Fill in missing dates with 0.00 sales
         $finalResponse = [];
         foreach ($dateRange as $date) {
             $salesForDate = $salesResponse->firstWhere('Date', $date);
@@ -896,32 +893,36 @@ class OrderController extends Controller
     public function MostPopularItems()
     {
         $order = Order::with(['orderMeals.meal', 'orderAddons.addon', 'orderExtras.extra'])->get();
-
-        $groupAndCount = function($items, $relation, $field) {
+    
+        $groupAndCount = function($items, $relation, $field, $tableName) {
             return $items->flatMap(function ($item) use ($relation, $field) {
                 return $item->$relation->pluck($field);
             })->groupBy('id')
-            ->map(function ($group) {
-                // Merge item details with the count directly, no separate 'item' key
-                return array_merge($group->first()->toArray(), ['count' => $group->count()]);
+            ->map(function ($group) use ($tableName) {
+                return array_merge($group->first()->toArray(), [
+                    'count' => $group->count(),
+                    'table_name' => $tableName
+                ]);
             })->sortByDesc('count')->values();
         };
         
-        // Get meals, addons, and extras occurrences
-        $mealsWithCount = $groupAndCount($order, 'orderMeals','meal');
-        $addonsWithCount = $groupAndCount($order, 'orderAddons','addon');
-        $extrasWithCount = $groupAndCount($order, 'orderExtras','extra');
+        // Get meals, addons, and extras occurrences with table names
+        $mealsWithCount = $groupAndCount($order, 'orderMeals', 'meal', 'meals');
+        $addonsWithCount = $groupAndCount($order, 'orderAddons', 'addon', 'addons');
+        $extrasWithCount = $groupAndCount($order, 'orderExtras', 'extra', 'extras');
       
         $items = array_merge(
             $mealsWithCount->toArray(), 
             $addonsWithCount->toArray(), 
             $extrasWithCount->toArray()
         );
+    
         return response()->json([
             'status' => 'success',
-             'data'=>$items
+            'data' => $items
         ], 200);
     }
+    
     //update order status  
     public function changeStatus(Request $request, $id)
     {
@@ -991,7 +992,6 @@ class OrderController extends Controller
             ], 404);
         }
     
-        // Reusable function for grouping, counting, and sorting
         $groupAndCount = function($items, $relation, $field, $tableName) {
             return $items->flatMap(function ($item) use ($relation, $field) {
                 return $item->$relation->map(function ($related) use ($field) {
@@ -1026,7 +1026,7 @@ class OrderController extends Controller
     
         return response()->json([
             'status' => 'success',
-            'items_occurrences' => $mergedData // Return merged data
+            'data' => $mergedData // Return merged data
         ], 200);
     }
     

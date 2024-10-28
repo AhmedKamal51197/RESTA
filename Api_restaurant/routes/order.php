@@ -37,7 +37,6 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('admin/MostPopularItems',[OrderController::class,'MostPopularItems']);
     Route::get('admin/orders/invoice/{id}',[OrderController::class,'showInvoiceById']);
 
-
 });
 Route::get('callback',[OrderController::class,'paymentCallBack'])->name('payments.success');
 Route::get('callbackError',[OrderController::class,'callbackError'])->name('payments.cancel');
