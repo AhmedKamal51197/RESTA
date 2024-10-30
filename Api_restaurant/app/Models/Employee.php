@@ -71,5 +71,9 @@ class Employee extends Authenticatable implements JWTSubject
     {
         return Carbon::parse($value)->format('Y-m-d H:i:s');
     }
+    public function withdrawals()
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
     use HasFactory;
 }

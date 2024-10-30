@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\WithdrawController;
+
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +39,12 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
      //get all employees
      Route::get('admin/employees',[EmployeeController::class,'indexEmployee']);
 
+    Route::post('admin/withdrawals', [WithdrawController::class, 'store']);
+    Route::get('admin/withdrawals', [WithdrawController::class, 'index']);
+    Route::get('admin/current-balance', [WithdrawController::class, 'getCurrentBalance']);
+
+
+
 });
 
 Route::group(['middleware'=>'auth:admin-api'],function(){
@@ -45,4 +53,5 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::patch('admin/employees/change-password',[EmployeeController::class,'changePassword']);
     Route::patch('admin/employees/change-email',[EmployeeController::class,'changeEmail']);
     Route::get('admin/refresh',[EmployeeController::class,'refresh']);
+
 });

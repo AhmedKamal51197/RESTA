@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 28, 2024 at 10:35 PM
+-- Generation Time: Oct 30, 2024 at 02:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -57,7 +57,7 @@ INSERT INTO `addons` (`id`, `name`, `category_id`, `cost`, `description`, `type`
 (11, 'Soda Can', 11, 1, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/8WygOThujOmQaqR9kU6mKk36LvBeJzjviLX34WPv.jpeg', 1, '2024-06-27 18:59:41', '2024-06-27 18:59:41'),
 (12, 'Soda  Bottle', 11, 1, 'Victorian Inn Mocha Hot Cappuccino 2 lb. Bag EACH', 'vegetarian', 'addons/lbnuhNZ1rdeL7MncJj4HKxCco90BsfRQWPrHBjN4.jpg', 1, '2024-06-27 19:00:30', '2024-06-27 19:00:30'),
 (13, 'addon', 2, 2, 'dddddddddd qwwww', 'vegetarian', 'addons/v01HsUlU3Z49I9rWCFeTTGfTIie3ybG3a1IrRXQ4.png', 1, '2024-08-11 19:07:17', '2024-08-11 19:07:17'),
-(14, 'extrass', 1, 7.7, 'dd nnnnnn nnnnnnnnnnnnn', 'non-vegetarian', 'addons/t1h7rvk0JWHWz5XXjm6A0wvrmZXdLXh4K3zRIETv.jpg', 0, '2024-08-25 16:08:08', '2024-08-25 16:09:51');
+(14, 'extrass', 1, 7.7, 'dd nnnnnn nnnnnnnnnnnnn', 'non-vegetarian', 'addons/bJkOvlfRdfkjUY2pT2eL8sHQFsGKQZfU3fUsm1r8.png', 0, '2024-08-25 16:08:08', '2024-10-29 01:34:55');
 
 -- --------------------------------------------------------
 
@@ -840,7 +840,10 @@ INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `sta
 (84, 10, NULL, NULL, 4, NULL, 'dd', '010306210992', 1.75, 10, 14.25, '2024-10-28 15:14:01', '2024-10-28 15:14:01', 'cashed', 0, 1),
 (85, 10, NULL, NULL, 4, NULL, 'test', '01030621099', 0.35, 12, 14.85, '2024-10-28 15:18:41', '2024-10-28 15:18:41', 'cashed', 0, 1),
 (86, 8, 2, NULL, 4, NULL, NULL, NULL, 0.35, NULL, 2.85, '2024-10-28 15:36:13', '2024-10-28 15:36:13', 'cashed', 0, 1),
-(87, 10, NULL, NULL, 4, NULL, 'test', '010306210992', 0.84, 12, 18.84, '2024-10-28 15:40:16', '2024-10-28 15:40:16', 'cashed', 0, 1);
+(87, 10, NULL, NULL, 4, NULL, 'test', '010306210992', 0.84, 12, 18.84, '2024-10-28 15:40:16', '2024-10-28 15:40:16', 'cashed', 0, 1),
+(88, 8, 3, NULL, 1, NULL, NULL, NULL, 3.08, NULL, 25.08, '2024-10-29 14:43:19', '2024-10-29 14:43:19', 'cashed', 0, 1),
+(90, 13, 1, NULL, 1, 'no comment', NULL, NULL, 20.32, NULL, 262.34, '2024-10-30 11:18:16', '2024-10-30 11:18:16', 'cashed', 0, 1),
+(91, 51, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 1640, '2024-10-30 11:22:34', '2024-10-30 11:22:34', 'cashed', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -953,8 +956,9 @@ INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantit
 (88, 84, 3, 10, 5, '2024-10-28 15:14:01', '2024-10-28 15:14:01'),
 (89, 84, 4, 2.5, 1, '2024-10-28 15:14:01', '2024-10-28 15:14:01'),
 (90, 85, 4, 2.5, 1, '2024-10-28 15:18:41', '2024-10-28 15:18:41'),
-(91, 86, 4, 2.5, 1, '2024-10-28 15:36:13', '2024-10-28 15:36:13'),
-(92, 87, 3, 6, 3, '2024-10-28 15:40:16', '2024-10-28 15:40:16');
+(91, 41, 4, 2.5, 1, '2024-10-28 15:36:13', '2024-10-28 15:36:13'),
+(92, 41, 3, 6, 3, '2024-10-28 15:40:16', '2024-10-28 15:40:16'),
+(94, 90, 1, 10, 10, '2024-10-30 11:18:16', '2024-10-30 11:18:16');
 
 -- --------------------------------------------------------
 
@@ -1033,8 +1037,11 @@ INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `quantity`, `total_cos
 (54, 77, 1, 10, 10, '2024-10-27 17:49:48', '2024-10-27 17:49:48'),
 (55, 78, 1, 10, 10, '2024-10-27 17:52:08', '2024-10-27 17:52:08'),
 (56, 79, 1, 10, 10, '2024-10-27 18:27:31', '2024-10-27 18:27:31'),
-(57, 80, 1, 10, 10, '2024-10-27 19:25:07', '2024-10-27 19:25:07'),
-(58, 82, 2, 2, 4, '2024-10-27 22:42:12', '2024-10-27 22:42:12');
+(57, 88, 1, 10, 10, '2024-10-27 19:25:07', '2024-10-27 19:25:07'),
+(58, 82, 2, 2, 4, '2024-10-27 22:42:12', '2024-10-27 22:42:12'),
+(59, 88, 2, 1, 2, '2024-10-29 14:43:19', '2024-10-29 14:43:19'),
+(61, 90, 1, 10, 10, '2024-10-30 11:18:16', '2024-10-30 11:18:16'),
+(62, 91, 1, 10, 150, '2024-10-30 11:22:34', '2024-10-30 11:22:34');
 
 -- --------------------------------------------------------
 
@@ -1152,7 +1159,8 @@ INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `size`, `tot
 (77, 76, 2, 10, 4, 40, '2024-10-27 17:34:41', '2024-10-27 17:34:41'),
 (78, 77, 1, 10, 1, 10, '2024-10-27 17:49:48', '2024-10-27 17:49:48'),
 (79, 77, 2, 10, 4, 40, '2024-10-27 17:49:48', '2024-10-27 17:49:48'),
-(80, 82, 4, 2, 2, 5, '2024-10-27 22:42:12', '2024-10-27 22:42:12');
+(80, 82, 4, 2, 2, 5, '2024-10-27 22:42:12', '2024-10-27 22:42:12'),
+(81, 88, 4, 1, 3, 20, '2024-10-29 14:43:19', '2024-10-29 14:43:19');
 
 -- --------------------------------------------------------
 
@@ -1207,7 +1215,8 @@ INSERT INTO `order_offers` (`id`, `offer_id`, `order_id`, `quantity`, `total_cos
 (30, 4, 78, 1, 202, NULL, '2024-10-27 17:52:08', '2024-10-27 17:52:08'),
 (31, 4, 79, 1, 202, NULL, '2024-10-27 18:27:31', '2024-10-27 18:27:31'),
 (32, 4, 80, 1, 202, NULL, '2024-10-27 19:25:07', '2024-10-27 19:25:07'),
-(33, 6, 81, 2, 18.6, NULL, '2024-10-27 22:27:52', '2024-10-27 22:27:52');
+(33, 6, 81, 2, 18.6, NULL, '2024-10-27 22:27:52', '2024-10-27 22:27:52'),
+(35, 4, 90, 1, 202, NULL, '2024-10-30 11:18:16', '2024-10-30 11:18:16');
 
 -- --------------------------------------------------------
 
@@ -1264,6 +1273,26 @@ CREATE TABLE `sessions` (
   `payload` longtext NOT NULL,
   `last_activity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_balance`
+--
+
+CREATE TABLE `system_balance` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `balance` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_balance`
+--
+
+INSERT INTO `system_balance` (`id`, `balance`, `created_at`, `updated_at`) VALUES
+(1, 39000.00, '2024-10-30 11:18:16', '2024-10-30 12:42:01');
 
 -- --------------------------------------------------------
 
@@ -1353,7 +1382,40 @@ INSERT INTO `transactions` (`id`, `customer_id`, `order_id`, `payment_method`, `
 (64, 10, 84, 'cashed', 14.25, NULL, '2024-10-28 15:14:01', '2024-10-28 15:14:01'),
 (65, 10, 85, 'cashed', 14.85, NULL, '2024-10-28 15:18:41', '2024-10-28 15:18:41'),
 (66, 8, 86, 'cashed', 2.85, NULL, '2024-10-28 15:36:13', '2024-10-28 15:36:13'),
-(67, 10, 87, 'cashed', 18.84, NULL, '2024-10-28 15:40:16', '2024-10-28 15:40:16');
+(67, 10, 87, 'cashed', 18.84, NULL, '2024-10-28 15:40:16', '2024-10-28 15:40:16'),
+(68, 8, 88, 'cashed', 25.08, NULL, '2024-10-29 14:43:19', '2024-10-29 14:43:19'),
+(70, 13, 90, 'cashed', 262.34, NULL, '2024-10-30 11:18:16', '2024-10-30 11:18:16'),
+(71, 51, 91, 'cashed', 1640, NULL, '2024-10-30 11:22:34', '2024-10-30 11:22:34');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `withdrawals`
+--
+
+CREATE TABLE `withdrawals` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `employee_id` bigint(20) UNSIGNED NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `withdrawals`
+--
+
+INSERT INTO `withdrawals` (`id`, `employee_id`, `amount`, `created_at`, `updated_at`) VALUES
+(1, 1, 0.33, '2024-10-30 12:02:41', '2024-10-30 12:02:41'),
+(2, 13, 0.33, '2024-10-30 12:03:08', '2024-10-30 12:03:08'),
+(3, 1, 0.33, '2024-10-30 12:22:23', '2024-10-30 12:22:23'),
+(4, 1, 11.00, '2024-10-30 12:37:13', '2024-10-30 12:37:13'),
+(5, 1, 100.00, '2024-10-30 12:40:14', '2024-10-30 12:40:14'),
+(6, 1, 100.00, '2024-10-30 12:40:44', '2024-10-30 12:40:44'),
+(7, 1, 100.34, '2024-10-30 12:41:10', '2024-10-30 12:41:10'),
+(8, 1, 100.34, '2024-10-30 12:41:22', '2024-10-30 12:41:22'),
+(9, 1, 100.66, '2024-10-30 12:41:43', '2024-10-30 12:41:43'),
+(10, 1, 341.00, '2024-10-30 12:42:01', '2024-10-30 12:42:01');
 
 --
 -- Indexes for dumped tables
@@ -1553,10 +1615,23 @@ ALTER TABLE `reset_password_tokens`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `system_balance`
+--
+ALTER TABLE `system_balance`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `transactions`
 --
 ALTER TABLE `transactions`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `withdrawals`
+--
+ALTER TABLE `withdrawals`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `employee_id` (`employee_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -1581,6 +1656,12 @@ ALTER TABLE `diningtables`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
+-- AUTO_INCREMENT for table `employees`
+--
+ALTER TABLE `employees`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
 -- AUTO_INCREMENT for table `extras`
 --
 ALTER TABLE `extras`
@@ -1602,37 +1683,59 @@ ALTER TABLE `meals_size_cost`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `order_addons`
 --
 ALTER TABLE `order_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT for table `order_extras`
 --
 ALTER TABLE `order_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `order_meals`
 --
 ALTER TABLE `order_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
 
 --
 -- AUTO_INCREMENT for table `order_offers`
 --
 ALTER TABLE `order_offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+--
+-- AUTO_INCREMENT for table `system_balance`
+--
+ALTER TABLE `system_balance`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+
+--
+-- AUTO_INCREMENT for table `withdrawals`
+--
+ALTER TABLE `withdrawals`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `withdrawals`
+--
+ALTER TABLE `withdrawals`
+  ADD CONSTRAINT `withdrawals_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

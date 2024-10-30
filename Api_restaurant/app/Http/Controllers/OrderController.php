@@ -9,6 +9,7 @@ use App\Http\Requests\OrderRequest;
 use App\Models\Customer;
 use App\Models\DiningTable;
 use App\Models\Addon;
+use App\Models\SystemBalance;
 use App\Models\Extra;
 use App\Models\Meal;
 use App\Models\Offer;
@@ -133,7 +134,7 @@ class OrderController extends Controller
     }
     public function show($id)
     {
-        $order = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->find($id);
+        $order = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra','orderOffers.offer'])->find($id);
         if (!$order) return response()->json([
             'status' => 'failed',
             'message' => 'No Order Found'
@@ -389,7 +390,14 @@ class OrderController extends Controller
                 'amount' => $order->total_cost
             ]);
 
+            $systemBalance = SystemBalance::first();
 
+            if ($systemBalance) {
+                $systemBalance->balance += $order->total_cost;
+                $systemBalance->save();
+            } else {
+                SystemBalance::create(['balance' => $order->total_cost]);
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -657,14 +665,25 @@ class OrderController extends Controller
                 }
             }
     
-            DB::commit();
-    
             Transaction::create([
                 'customer_id' => $customerId,
                 'order_id' => $order->id,
                 'payment_method' => 'cashed',
                 'amount' => $order->total_cost
             ]);
+
+            $systemBalance = SystemBalance::first();
+
+            if ($systemBalance) {
+                $systemBalance->balance += $order->total_cost;
+                $systemBalance->save();
+            } else {
+                SystemBalance::create(['balance' => $order->total_cost]);
+            }
+            
+            DB::commit();
+    
+           
     
             return response()->json($response, 201);
     
