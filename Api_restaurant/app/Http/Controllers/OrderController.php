@@ -316,6 +316,7 @@ class OrderController extends Controller
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
+        $tax = number_format($validatedData['total_cost'] * 0.14, 2);
         //  dd($validatedData['diningtable_id']) ;  
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
@@ -336,8 +337,9 @@ class OrderController extends Controller
                 'customer_id' => auth('api')->id(),
                 'location_id' => $validatedData['location_id'] ?? null,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
-                'total_cost' => $validatedData['total_cost'],
+                'total_cost' => number_format($validatedData['total_cost'] + $tax, 2),
                 'notes' => $validatedData['notes'] ?? null,
+                'tax' => $tax ?? 0,
                 'PaymentType' => "cashed",
             ]);
             foreach ($offerIds as $offerId) {
@@ -358,6 +360,7 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'meal_id' => $mealId['id'],
                     'quantity' => $mealId['quantity'],
+                    'size' => $mealId['size'],
                     'total_cost' => $mealId['cost'] * $mealId['quantity'],
                 ]);
             }
