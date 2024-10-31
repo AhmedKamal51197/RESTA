@@ -424,7 +424,24 @@ class MealController extends Controller
     {
         return Auth::guard('admin-api')->check() || $meal->status;
     }
-
+    
+    //all meals with size
+    public function indexMealWithSizes(Request $request)
+    {
+        $mealsData = Meal::with('mealSizeCosts')->get();
+        
+        $formattedMeals = $mealsData->map(function ($meal) {
+            return [
+                'id' => $meal->id,
+                'name' => $meal->name,
+                'size' => $meal->mealSizeCosts->map(function ($sizeCost) {
+                    return $sizeCost->size ?? null; 
+                })->sort()->values() 
+            ];
+        });
+        
+        return response()->json(['status' => 'success', 'data' => $formattedMeals], 200);
+    }
     // filter meals by ID
     public function filterMeal(Request $request)
     {

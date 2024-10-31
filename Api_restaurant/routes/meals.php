@@ -27,6 +27,7 @@ Route::group(['middleware' => 'checkAdminToken'], function () {
     Route::put('admin/meals/size-cost/{id}', [MealController::class, 'updateMealSizeCost']);
     Route::get('admin/meals-filter', [MealController::class, 'filterMeal']);
     Route::get('admin/meals/{mealId}/size-costs', [MealController::class, 'showSizeCost']);
+    Route::get('admin/meals-with-sizes', [MealController::class, 'indexMealWithSizes']);
 
 });
 // Route::get('/admin/meals', [MealController::class, 'index']);

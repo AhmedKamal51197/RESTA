@@ -154,8 +154,8 @@ class OfferController extends Controller
             'name' => $offer->name,
             'discount' => $offer->discount,
             'status' => $offer->status,
-            'start_date' => $offer->startDate,
-            'end_date' => $offer->endDate,
+            'startDate' => $offer->startDate,
+            'endDate' => $offer->endDate,
             'image' => $offer->image,
         ];
 
@@ -206,8 +206,9 @@ class OfferController extends Controller
                 'name' => $offer->name,
                 'discount' => $offer->discount,
                 'status' => $offer->status,
-                'start_date' => $offer->startDate,
-                'end_date' => $offer->endDate,
+                'startDate' => $offer->startDate,
+                'endDate' => $offer->endDate,
+                'image' => $offer->image,
             ];
         });
 
@@ -268,15 +269,15 @@ class OfferController extends Controller
                 'discount' => $request->validated('discount'),
                 'startDate' => $request->validated('startDate'),
                 'endDate' => $request->validated('endDate'),
-                'status' => $request->validated('status'),
+                // 'status' => $request->validated('status'),
                 'image' => $imagePath
             ]);
     
-            // Create ExpiredOffer entry
-            ExpiredOffer::create([
-                'offer_id' => $offer->id,
-                'expired_Date' => $offer->endDate
-            ]);
+            // // Create ExpiredOffer entry
+            // ExpiredOffer::create([
+            //     'offer_id' => $offer->id,
+            //     'expired_Date' => $offer->endDate
+            // ]);
     
             DB::commit();
     
@@ -350,30 +351,33 @@ class OfferController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(OfferUpdateRequest $request,  $id)
+    public function update(OfferUpdateRequest $request, $id)
     {
         $offer = Offer::find($id);
-        if (!$offer) return response()->json([
-            'status' => 'failed',
-            'message' => 'offer not found'
-        ], 404);
+        if (!$offer) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'offer not found'
+            ], 404);
+        }
+    
         $validatedData = $request->validated();
+        
         if ($request->hasFile('image')) {
             $this->deleteOldImage($offer);
+            $validatedData['image'] = $this->handleImageUpload($request);
+        } else {
+            unset($validatedData['image']);
         }
-        if ($request->has('endDate')) {
-            ExpiredOffer::where('offer_id', $id)->first()->update([
-                'expired_Date' => $offer->endDate
-            ], 200);
-        }
-        $validatedData['image'] = $this->handleImageUpload($request);
+    
         $offer->update($validatedData);
+    
         return response()->json([
             'status' => 'success',
             'message' => 'updated done successfully'
         ], 200);
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */
