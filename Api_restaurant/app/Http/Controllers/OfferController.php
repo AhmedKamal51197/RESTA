@@ -134,7 +134,7 @@ class OfferController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'Items' => $offerItems
+            'data' => $offerItems
         ], 200);
     }
 
@@ -326,20 +326,12 @@ class OfferController extends Controller
             ], 404);
         }
 
-        if (!Auth::guard('admin-api')->check()) {
-            $offer = Offer::where('id', $id)->where('status', true)->with(['addons', 'meals', 'extras'])->first();
-        } else {
-            $offer = Offer::with(['addons', 'meals', 'extras'])->find($id);
-        }
+       
+        $offer = Offer::with(['addons', 'meals', 'extras'])->find($id);
+        
 
-        if (!$offer) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Offer ID ' . $id . ' not found.'
-            ], 404);
-        }
-
-        $formattedOffer = $offer->showOfferItems($id);
+       
+        $formattedOffer = $offer->showOfferDetails($id);
 
         return response()->json([
             'status' => 'success',
@@ -582,12 +574,6 @@ class OfferController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Offer meal quantity updated successfully',
-            // 'data' => [
-            //     'id' => $offerMeal->id,
-            //     'meal_id' => $offerMeal->meal_id, 
-            //     'meal_quantity' => $offerMeal->meal_quantity,
-            //     'meal_size' => $offerMeal->meal_size,
-            // ]
         ], 200);
     }    
     //add extra
@@ -647,8 +633,6 @@ class OfferController extends Controller
             'message' => 'Offer meal deleted successfully'
         ], 200);
     }
-
-
 
     // show all extras by offer id
     public function showOfferExtras($id)
@@ -721,9 +705,6 @@ class OfferController extends Controller
         ], 200);
     }
 
-
-
-
     //add addon
     public function storeAddon(OfferAddonRequest $request)
     {
@@ -794,6 +775,7 @@ class OfferController extends Controller
             ]
         ], 200);
     }
+
     // show all addons by offer id
     public function showOfferAddons($id)
     {
@@ -833,8 +815,6 @@ class OfferController extends Controller
         ], 200);
     }
 
-
-    
 
     //check for existing addons,meals,extras
     private function checkAddon($id)

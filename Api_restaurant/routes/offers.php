@@ -20,7 +20,7 @@ use App\Http\Controllers\OfferController;
 Route::group(['middleware'=>'checkAdminToken'],function(){
     Route::post('admin/offers',[OfferController::class,'store']);
     Route::get('admin/offers',[OfferController::class,'index']);
-    Route::get('admin/offers/{id}',[OfferController::class,'show']);
+    Route::get('admin/offers/{id}',[OfferController::class,'showOfferItems']);
 
     Route::post('admin/addItems/{id}',[OfferController::class,'addItems']);
     Route::put('admin/offers/{id}',[OfferController::class,'update']);
@@ -49,7 +49,7 @@ Route::group(['middleware'=>'checkAdminToken'],function(){
 });
 // Route::get('/test-update-offers', [OfferController::class, 'updateExpiredOffers']);
 
-Route::get('offers/items/{id}',[OfferController::class,'showOfferItems']);
+// Route::get('offers/items/{id}',[OfferController::class,'showOfferItems']);
 
 Route::get('offers/items',[OfferController::class,'items']);
 

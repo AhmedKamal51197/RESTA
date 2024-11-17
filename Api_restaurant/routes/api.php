@@ -41,12 +41,12 @@ Route::delete('admin/customers/{id}',[CustomerController::class,'destroy']);
 Route::put('admin/customers/{id}',[CustomerController::class,'update']);
 Route::get('admin/customers/{id}',[CustomerController::class,'show']);
 Route::get('admin/customers',[CustomerController::class,'index']);
-Route::get('admin/customers-active',[CustomerController::class,'indexActive']);
 
 Route::get('admin/customer/{name}',[CustomerController::class,'filterByName']);
 Route::get('admin/countActiveCustomers',[CustomerController::class,'countActiveCustomers']);
+
 });
 // this for Super Admin
-Route::group(['middleware'=>'checkAdminToken'],function(){
-    
+Route::group(['middleware'=>'checkAdminToken'],function(){    
 });
+Route::get('admin/customers-active',[CustomerController::class,'indexActive']);

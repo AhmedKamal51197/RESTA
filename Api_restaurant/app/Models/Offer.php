@@ -204,6 +204,66 @@ class Offer extends Model
         ];
     }
 
+    public function showOfferDetails($id)
+    {
+        $totalPriceBeforeDiscount = 0;
+
+        $addons = $this->addons->map(function ($offerAddon) use (&$totalPriceBeforeDiscount) {
+            $addonPrice = $offerAddon->addon->cost * $offerAddon->addon_quantity;
+            $totalPriceBeforeDiscount += $addonPrice;
+
+            return $offerAddon->addon_quantity . ' ' . $offerAddon->addon->name;
+        })->join(' + ');
+
+        $mealSizeMap = [
+            1 => 'small',
+            2 => 'medium',
+            3 => 'big',
+            4 => 'family',
+        ];
+
+        $meals = $this->meals->map(function ($offerMeal) use (&$totalPriceBeforeDiscount, $mealSizeMap) {
+            $mealSize = $offerMeal->meal_size;
+            $mealCostRecord = $offerMeal->meal->mealSizeCosts()->where('size', $mealSize)->first();
+            $mealPrice = ($mealCostRecord ? $mealCostRecord->cost : 0) * $offerMeal->meal_quantity;
+            $totalPriceBeforeDiscount += $mealPrice;
+
+            $sizeName = $mealSizeMap[$mealSize] ?? 'unknown';
+
+            return $offerMeal->meal_quantity . ' ' . $offerMeal->meal->name . ' (' . $sizeName . ')';
+        })->join(' + ');
+
+        $extras = $this->extras->map(function ($offerExtra) use (&$totalPriceBeforeDiscount) {
+            $extraPrice = $offerExtra->extra->cost * $offerExtra->extra_quantity;
+            $totalPriceBeforeDiscount += $extraPrice;
+
+            return $offerExtra->extra_quantity . ' ' . $offerExtra->extra->name;
+        })->join(' + ');
+
+        $fixedDiscount = $this->discount;
+        $totalPriceAfterDiscount = max(0, $totalPriceBeforeDiscount - $fixedDiscount);
+
+        $items = collect([$addons, $meals, $extras])
+                    ->filter()
+                    ->join(' + ');
+
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'discount' => $this->discount,
+            'image' => $this->image,
+            'status' => $this->status,
+            'startDate' => $this->startDate,
+            'endDate' => $this->endDate,
+            'total_price_before_discount' => $totalPriceBeforeDiscount,
+            'total_price_after_discount' => $totalPriceAfterDiscount,
+            'items' => $items,
+            'table_name' => "offers",
+        ];
+    }
+
+
+
     public function getEndDateAttribute($value)
     {
         return Carbon::parse($value)->format('Y-m-d');

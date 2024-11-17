@@ -48,10 +48,14 @@ return [
     'allowed_methods' => ['*'],  // Allow all HTTP methods
  
     'allowed_origins' => [
+        'https://5bf1-197-38-191-128.ngrok-free.app',  // Your frontend URL
         'http://localhost',         // Allow from localhost
         'http://127.0.0.1',         // Allow from 127.0.0.1
         'http://localhost:3000',    // Typical port for React development server
         'http://127.0.0.1:3000',    // Typical port for React development server
+        'https://f541-197-38-253-51.ngrok-free.app',
+        'https://262eaa7cd83999cae1bb3041dba128c0.serveo.net'
+        
         // Add other specific origins if necessary
     ],
  

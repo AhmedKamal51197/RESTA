@@ -46,6 +46,72 @@ class OrderController extends Controller
         $this->thawaniServices = $thawaniServices;
     }
 
+    public function showInvoiceBy_id($id)
+    {
+        $order = Order::with(['orderAddons', 'orderExtras', 'orderMeals', 'orderOffers.offer'])->find($id);
+    
+        if (!$order) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Order not found'
+            ], 404);
+        }
+    
+        $response = [
+            'status' => 'success',
+            'data' => [
+                'order' => [
+                    'id' => $order->id,
+                    'sub_total' => $order->total_cost - $order->delivery_fee - $order->tax,
+                    'total_cost' => $order->total_cost,
+                    'tax' => $order->tax,
+                    'delivery_fee' => $order->delivery_fee,
+                    'payment_type' => $order->PaymentType,
+                    'created_at' => $order->created_at,
+                ],
+                'offers' => $order->orderOffers->map(function ($orderOffer) {
+                    $offer = $orderOffer->offer; // Retrieve the related Offer instance
+                    $offerDetails = $offer->showOfferDetails($offer->id); // Call showOffer on the Offer instance
+    
+                    return [
+                        'id' => $orderOffer->id,
+                        'name' => $offer->name,
+                        'quantity' => $orderOffer->quantity,
+                        'cost' => $orderOffer->total_cost,
+                        'items' => $offerDetails['items'],
+                    ];
+                })->toArray(),
+                'meals' => $order->orderMeals->map(function ($meal) {
+                    return [
+                        'id' => $meal->id,
+                        'name' => $meal->meal->name,
+                        'quantity' => $meal->quantity,
+                        'cost' => $meal->total_cost,
+                        'size' => $this->getSizeLabel($meal->size)
+                    ];
+                })->toArray(),
+                'addons' => $order->orderAddons->map(function ($addon) {
+                    return [
+                        'id' => $addon->id,
+                        'name' => $addon->addon->name,
+                        'quantity' => $addon->quantity,
+                        'cost' => $addon->total_cost,
+                    ];
+                })->toArray(),
+                'extras' => $order->orderExtras->map(function ($extra) {
+                    return [
+                        'id' => $extra->id,
+                        'name' => $extra->extra->name,
+                        'quantity' => $extra->quantity,
+                        'cost' => $extra->total_cost,
+                    ];
+                })->toArray(),
+            ],
+        ];
+    
+        return response()->json($response);
+    }
+    
     public function index()
     {
 
@@ -67,6 +133,7 @@ class OrderController extends Controller
 
         ], 200);
     }
+
     public function get_order_meals($id)
     {
         $order_meals = OrderMeal::where('order_id', $id)->get();
@@ -88,7 +155,6 @@ class OrderController extends Controller
 
         ], 200);
     }
-
 
     public function get_order_addons($id)
     {
@@ -112,6 +178,7 @@ class OrderController extends Controller
 
         ], 200);
     }
+
     public function get_order_extras($id)
     {
         $orders = OrderExtra::where('order_id', $id)->get();
@@ -132,20 +199,40 @@ class OrderController extends Controller
 
         ], 200);
     }
+
     public function show($id)
     {
-        $order = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra','orderOffers.offer'])->find($id);
-        if (!$order) return response()->json([
-            'status' => 'failed',
-            'message' => 'No Order Found'
-        ], 404);
-
-
+        $order = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra', 'orderOffers.offer'])->find($id);
+        
+        if (!$order) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No Order Found'
+            ], 404);
+        }
+    
+        $orderOffers = $order->orderOffers->map(function ($orderOffer) {
+            $offer = $orderOffer->offer; 
+            $offerDetails = $offer->showOfferDetails($offer->id); 
+    
+            return [
+                'id' => $orderOffer->id,
+                'name' => $offer->name,
+                'quantity' => $orderOffer->quantity,
+                'cost' => $orderOffer->total_cost,
+                'items' => $offerDetails['items'] 
+            ];
+        });
+    
         return response()->json([
             'status' => 'success',
-            'data' => $order
+            'data' => [
+                'order' => $order, 
+                'order_offers' => $orderOffers 
+            ]
         ], 200);
     }
+    
     
     // // order with online payment
     // public function payOrder(OrderRequest $request)
@@ -310,13 +397,13 @@ class OrderController extends Controller
     // order without payment online 
     public function store(OrderRequest $request)
     {
-
         $validatedData = $request->validated();
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
-        $tax = number_format($validatedData['total_cost'] * 0.14, 2);
+        // log\info("total_cost",$validatedData['total_cost']);
+        $tax = round($validatedData['total_cost'] * 0.14, 2);
         //  dd($validatedData['diningtable_id']) ;  
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
@@ -337,7 +424,7 @@ class OrderController extends Controller
                 'customer_id' => auth('api')->id(),
                 'location_id' => $validatedData['location_id'] ?? null,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
-                'total_cost' => number_format($validatedData['total_cost'] + $tax, 2),
+                'total_cost' => round($validatedData['total_cost'] + $tax, 2),
                 'notes' => $validatedData['notes'] ?? null,
                 'tax' => $tax ?? 0,
                 'PaymentType' => "cashed",
@@ -414,6 +501,7 @@ class OrderController extends Controller
             ], 400);
         }
     }
+
     // retrieve all customers to Dashboard Create order 
     public function retrieveCustomers()
     {
@@ -724,14 +812,18 @@ class OrderController extends Controller
                     'created_at' => $order->created_at,
                 ],
                 
-                'offers' => $order->orderOffers->map(function ($offer) {
-                    return [
-                        'id' => $offer->id,
-                        'name' => $offer->offer->name,
-                        'quantity' => $offer->quantity,
-                        'cost' => $offer->total_cost 
-                    ];
-                })->toArray(),
+                'offers' => $order->orderOffers->map(function ($orderOffer) { 
+                $offer = $orderOffer->offer; 
+                $offerDetails = $offer->showOfferDetails($offer->id); 
+
+                return [
+                    'id' => $offer->id,
+                    'name' => $offer->name,
+                    'quantity' => $orderOffer->quantity, 
+                    'cost' => $orderOffer->total_cost, 
+                    'items' => $offerDetails['items'],
+                ];
+            })->toArray(),
                 'meals' => $order->orderMeals->map(function ($meal) {
                     return [
                         'id' => $meal->id,

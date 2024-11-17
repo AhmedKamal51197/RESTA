@@ -57,6 +57,18 @@ class Order extends Model
     {
         return $this->hasMany(OrderAddon::class);
     }
+    // public function orderOfferMeals()
+    // {
+    //     return $this->hasMany(Offer_meal::class);
+    // }
+    // public function orderOfferAddons()
+    // {
+    //     return $this->hasMany(Offer_addon::class);
+    // }
+    // public function orderOfferExtras()
+    // {
+    //     return $this->hasMany(Offer_extra::class);
+    // }
     
     public function orderMeals()
     {

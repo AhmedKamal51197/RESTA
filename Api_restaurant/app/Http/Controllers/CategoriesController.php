@@ -206,7 +206,7 @@ class CategoriesController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required','string','regex:/^(?=(?:[\p{L}\s\'&]{0,}[\p{L}]){3,50}$)[\p{L}\s\'&]*$/u','unique:categories'],
             'description' => ['required', 'string', 'min:10','max:255','regex:/^\s*\S(?:.*\S)?\s*$/u'],
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg', 
             'status' => 'required|boolean', 
         ]);
     
@@ -217,8 +217,8 @@ class CategoriesController extends Controller
         $data = $request->only('name', 'description' ,'status');
     
         // Handle image file from form data
-        if ($request->hasFile('image_file')) {
-            $data['image'] = $request->file('image_file')->store('categories', 'public');
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('categories', 'public');
         }
     
         $newCategory = Category::create($data);
@@ -304,7 +304,7 @@ class CategoriesController extends Controller
         $addons = $meal->MealWithAddon->map(function ($mealWithAddon) {
             $addon = $mealWithAddon->addon; // all addons
             
-            if (Auth::guard('admin-api')->check() || $addon->status) { 
+            if ($addon->status === 1) { 
                 return [
                     'id' => $addon->id,
                     'name' => $addon->name,
@@ -320,7 +320,7 @@ class CategoriesController extends Controller
         })->filter()->values();
 
         $extras = $meal->extras->map(function ($extra) {
-            if (Auth::guard('admin-api')->check() || $extra->status) {
+            if ($extra->status === 1) {
                 return [
                     'id' => $extra->id,
                     'name' => $extra->name,

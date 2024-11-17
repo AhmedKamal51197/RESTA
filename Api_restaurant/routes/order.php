@@ -12,13 +12,14 @@ Route::group(['middleware'=>'auth:api'],function(){
 
 });
 Route::group(['middleware'=>'checkAdminToken'],function(){
-    Route::get('admin/sales',[OrderController::class,'SalesSummary']);
-    Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
-    Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
-    Route::get('admin/sales-reports',[OrderController::class,'SalesReport']);
-    Route::get('admin/orders/currentMonthSalesSummary',[OrderController::class,'getCurrentMonthSalesSummary']);
-
+   
 });
+Route::get('admin/sales',[OrderController::class,'SalesSummary']);
+Route::get('admin/Accepted-Orders',[OrderController::class,'AcceptedOrders']);
+Route::get('admin/items-reports',[OrderController::class,'ItemsReport']);
+Route::get('admin/sales-reports',[OrderController::class,'SalesReport']);
+Route::get('admin/orders/currentMonthSalesSummary',[OrderController::class,'getCurrentMonthSalesSummary']);
+
 Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('admin/retrieve-items',[OrderController::class,'AllItems']);
     Route::get('admin/retrieve-customers',[OrderController::class,'retrieveCustomers']);
@@ -40,3 +41,4 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
 });
 Route::get('callback',[OrderController::class,'paymentCallBack'])->name('payments.success');
 Route::get('callbackError',[OrderController::class,'callbackError'])->name('payments.cancel');
+Route::get('invoice/{id}',[OrderController::class,'showInvoiceBy_id']);

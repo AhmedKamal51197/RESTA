@@ -19,11 +19,10 @@ Route::group(['middleware'=>'auth:admin-api'],function(){
     Route::get('/admin/meals/{meal_id}/addons', [AddonController::class, 'getAddonsByMeal']);// Done test
     Route::get('admin/addons-filter', [AddonController::class, 'filterAddon']);// Done test
     Route::get('admin/meals/{meal_id}/options-addons', [AddonController::class, 'indexMealAddon']);
-    
+    Route::get('/addons/{id}', [AddonController::class, 'show']);// Done test
 
 }); 
 
-Route::get('/addons/{id}', [AddonController::class, 'show']);// Done test
 
 
 
