@@ -1078,7 +1078,7 @@ class OrderController extends Controller
             "status"=>$order->status ??"pendding",
             "notes"=>$order->notes??null,
             "total_cost"=>$order->total_cost ??0,
-            "created_at"=>Carbon::parse($order->created_at)->format('d-m-Y'),
+            "created_at"=>Carbon::parse($order->created_at)->format('Y-m-d'),
             "PaymentType"=>$order->PaymentType ,
             "pay"=>$order->pay,
             "created_by"=>$order->created_by===0?$order->customer->name:'casher'
