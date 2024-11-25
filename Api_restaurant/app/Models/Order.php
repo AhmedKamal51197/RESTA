@@ -9,7 +9,12 @@ use Carbon\Carbon;
 class Order extends Model
 {
     //status field => [1 => processing 2=>out of delivery,3=>done,4=>cancled]
-    protected $fillable = ['delivery_fee','tax','customer_id','location_id','address','phone','DiningTable_id','total_cost','status','notes','created_at','pay','PaymentType','created_by'];
+    protected $fillable = [
+        'delivery_fee','tax','customer_id','location_id',
+        'address','phone','DiningTable_id','total_cost',
+        'status','notes','created_at','pay',
+        'PaymentType','created_by','discount'
+    ];
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -91,6 +96,11 @@ class Order extends Model
     {
         return $this->hasMany(Order_offer::class);
     }
+    public function loyaltyPoints()
+    {
+        return $this->hasOne(CustomerLoyaltyPoint::class, 'order_id', 'id');
+    }
+
     
     use HasFactory;
 }

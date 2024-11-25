@@ -16,17 +16,14 @@ class OrderRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            // 'customer_id' => ['required'],
             'location_id' => ['nullable', 'integer'],
             'diningtable_id' => ['nullable', 'integer'],
-            'total_cost'=>['required','numeric','min:1'],
-            
+            'total_cost' => ['required', 'numeric', 'min:1'],
+
             'offer_ids' => ['array', 'nullable'],
             'offer_ids.*.id' => ['required', 'integer'],
             'offer_ids.*.quantity' => ['required', 'integer', 'min:1'],
@@ -36,7 +33,7 @@ class OrderRequest extends FormRequest
             'meal_ids.*.id' => ['required', 'integer'],
             'meal_ids.*.quantity' => ['required', 'integer', 'min:1'],
             'meal_ids.*.cost' => ['required', 'numeric', 'min:1'],
-            'meal_ids.*.size' => ['required', 'numeric', 'min:1','max:4'],
+            'meal_ids.*.size' => ['required', 'numeric', 'min:1', 'max:4'],
 
             'addon_ids' => ['array', 'nullable'],
             'addon_ids.*.id' => ['required', 'integer'],
@@ -48,26 +45,33 @@ class OrderRequest extends FormRequest
             'extra_ids.*.quantity' => ['required', 'integer', 'min:1'],
             'extra_ids.*.cost' => ['required', 'numeric', 'min:1'],
 
-            'notes'=>['string','nullable']
+            'notes' => ['string', 'nullable'],
         ];
     }
 
-    
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
             $data = $this->all();
-    
+
             if (empty($data['location_id']) && empty($data['diningtable_id'])) {
-                $validator->errors()->add('location_id_OR_diningtable_id', 'Either location_id (for delivery) or diningtable_id (for in-restaurant) must be provided.');
+                $validator->errors()->add(
+                    'location_id_OR_diningtable_id',
+                    'Either location_id (for delivery) or diningtable_id (for in-restaurant) must be provided.'
+                );
             } elseif (!empty($data['location_id']) && !empty($data['diningtable_id'])) {
-                $validator->errors()->add('location_id_OR_diningtable_id', 'You cannot provide both location_id and diningtable_id. Provide only one location_id (for delivery) or diningtable_id (for in-restaurant).');
+                $validator->errors()->add(
+                    'location_id_OR_diningtable_id',
+                    'You cannot provide both location_id and diningtable_id. Provide only one location_id (for delivery) or diningtable_id (for in-restaurant).'
+                );
             }
-    
-            if (empty($data['meal_ids']) && empty($data['addon_ids']) && empty($data['extra_ids'])&& empty($data['offer_ids'])) {
-                $validator->errors()->add('meal_ids_OR_addon_ids_OR_extra_ids', 'meal_ids or addon_ids or extra_ids or offer_ids must be provided.');
+
+            if (empty($data['meal_ids']) && empty($data['addon_ids']) && empty($data['extra_ids']) && empty($data['offer_ids'])) {
+                $validator->errors()->add(
+                    'meal_ids_OR_addon_ids_OR_extra_ids',
+                    'At least one of meal_ids, addon_ids, extra_ids, or offer_ids must be provided.'
+                );
             }
         });
     }
-
 }

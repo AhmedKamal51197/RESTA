@@ -391,5 +391,30 @@ class CustomerController extends Controller
             'status' => 'success',
             'data' => $customers
         ], 200);
+    } 
+    
+    public function refresh(Request $request)
+    {
+        $id = auth('api')->user()->id;
+        try {
+
+            $user = Customer::findOrFail($id);
+            $transformUser = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'loyalty_points' => $user->loyalty_points,
+            ];
+            return response()->json([
+                'status' => 'success',
+                'data' => $transformUser
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'unauthoried'
+            ], 400);
+        }
     }
+
+
 }

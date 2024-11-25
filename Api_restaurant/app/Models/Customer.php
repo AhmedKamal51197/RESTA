@@ -21,7 +21,8 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
         'password',
         'phone',
         'email_verified_at',
-        'status'
+        'status',
+        'loyalty_points'
     ];
     protected $hidden = [
         'password',
@@ -68,5 +69,11 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function loyaltyPoints()
+    {
+        return $this->hasMany(CustomerLoyaltyPoint::class);
+    }
+
     use HasFactory;
 }

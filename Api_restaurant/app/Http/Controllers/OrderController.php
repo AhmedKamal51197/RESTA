@@ -20,6 +20,10 @@ use App\Models\OrderExtra;
 use App\Models\OrderMeal;
 use App\Models\Transaction;
 use App\Models\OrderLocation;
+use App\Models\CustomerLoyaltyPoint;
+use App\Models\LoyaltySetting;
+use App\Models\Setting;
+
 
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +33,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 // use function PHPSTORM_META\map;
 
@@ -394,17 +399,71 @@ class OrderController extends Controller
     //     ], 404);
     // }
    
-    // order without payment online 
     public function store(OrderRequest $request)
     {
+        $get_tax = Setting::where('tax', '!=', null)->first();
         $validatedData = $request->validated();
+
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
-        // log\info("total_cost",$validatedData['total_cost']);
-        $tax = round($validatedData['total_cost'] * 0.14, 2);
-        //  dd($validatedData['diningtable_id']) ;  
+        $convertedPoints = $request->input('converted_points', null); 
+        $loyaltyPointsDiscount = 0;
+
+        $tax = $get_tax ? round($validatedData['total_cost'] * (floatval($get_tax->tax) / 100), 2) : 0;
+
+        $user = auth('api')->user();
+        if (!$user) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'User not authenticated.',
+            ], 401);
+        }
+
+        if ($convertedPoints !== null) {
+            if ($user->loyalty_points < $convertedPoints) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Insufficient loyalty points.',
+                ], 400);
+            }
+
+            $loyaltySettings = LoyaltySetting::first();
+
+            if ($loyaltySettings) {
+                $min_point_convert = $loyaltySettings->loyalty_min_redeem_points ?? 0;
+                $max_point_convert = $loyaltySettings->loyalty_max_redeem_points ?? 0;
+                $max_discount_rate = $loyaltySettings->loyalty_max_discount_rate ?? 0;
+
+                if ($convertedPoints < $min_point_convert) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'message' => 'The points to redeem are less than the minimum allowed.',
+                    ], 400);
+                }
+
+                if ($convertedPoints > $max_point_convert) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'message' => 'The points to redeem exceed the maximum allowed.',
+                    ], 400);
+                }
+
+                $loyaltyPointsDiscount = $convertedPoints / ($loyaltySettings->price_per_point ?? 1);
+                $max_allowed_discount = ($max_discount_rate / 100) * $validatedData['total_cost'];
+
+                if ($loyaltyPointsDiscount > $max_allowed_discount) {
+                    return response()->json([
+                        'status' => 'failed',
+                        'message' => 'The discount exceeds the allowed limit.',
+                    ], 400);
+                }
+            }
+        }
+
+        // $finalCost = round($validatedData['total_cost'] + $tax - $loyaltyPointsDiscount, 2);
+
         if (isset($validatedData['diningtable_id'])) {
             $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
             if ($diningtable instanceof JsonResponse) return $diningtable;
@@ -413,22 +472,20 @@ class OrderController extends Controller
             $location = $this->checkLocation($validatedData['location_id']);
             if ($location instanceof JsonResponse) return $location;
         }
-        // if (isset($validatedData['customer_id'])) {
-        //     $customer = $this->checkCustomer($validatedData['customer_id']);
-        //     if ($customer instanceof JsonResponse) return $customer;
-        // }
+
         DB::beginTransaction();
         try {
-
             $order = Order::create([
                 'customer_id' => auth('api')->id(),
                 'location_id' => $validatedData['location_id'] ?? null,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
-                'total_cost' => round($validatedData['total_cost'] + $tax, 2),
+                'total_cost' => $validatedData['total_cost'] + $tax,
                 'notes' => $validatedData['notes'] ?? null,
-                'tax' => $tax ?? 0,
+                'tax' => $tax,
                 'PaymentType' => "cashed",
+                'discount' =>$loyaltyPointsDiscount,
             ]);
+
             foreach ($offerIds as $offerId) {
                 $offer = $this->checkOffer($offerId);
                 if ($offer instanceof JsonResponse) return $offer;
@@ -439,9 +496,9 @@ class OrderController extends Controller
                     'total_cost' => $offerId['cost'] * $offerId['quantity']
                 ]);
             }
+
             foreach ($mealIds as $mealId) {
-                // dd(Meal::find($mealId['id']));
-                $meal =  $this->checkMeal($mealId['id']);
+                $meal = $this->checkMeal($mealId['id']);
                 if ($meal instanceof JsonResponse) return $meal;
                 OrderMeal::create([
                     'order_id' => $order->id,
@@ -451,8 +508,9 @@ class OrderController extends Controller
                     'total_cost' => $mealId['cost'] * $mealId['quantity'],
                 ]);
             }
+
             foreach ($addonIds as $addonId) {
-                $addon =  $this->checkAddon($addonId['id']);
+                $addon = $this->checkAddon($addonId['id']);
                 if ($addon instanceof JsonResponse) return $addon;
                 OrderAddon::create([
                     'order_id' => $order->id,
@@ -461,10 +519,10 @@ class OrderController extends Controller
                     'total_cost' => $addonId['cost'] * $addonId['quantity'],
                 ]);
             }
+
             foreach ($extraIds as $extraId) {
                 $extra = $this->checkExtra($extraId['id']);
-                if ($extra instanceof JsonResponse)
-                    return $extra;
+                if ($extra instanceof JsonResponse) return $extra;
                 OrderExtra::create([
                     'order_id' => $order->id,
                     'extra_id' => $extraId['id'],
@@ -472,7 +530,7 @@ class OrderController extends Controller
                     'total_cost' => $extraId['cost'] * $extraId['quantity']
                 ]);
             }
-            DB::commit();
+
             Transaction::create([
                 'customer_id' => auth('api')->id(),
                 'order_id' => $order->id,
@@ -480,28 +538,177 @@ class OrderController extends Controller
                 'amount' => $order->total_cost
             ]);
 
-            $systemBalance = SystemBalance::first();
-
-            if ($systemBalance) {
-                $systemBalance->balance += $order->total_cost;
-                $systemBalance->save();
-            } else {
-                SystemBalance::create(['balance' => $order->total_cost]);
+            // خصم النقاط بعد نجاح الطلب
+            if ($convertedPoints !== null) {
+                $user->decrement('loyalty_points', $convertedPoints);
             }
+
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Order created successfully'
+                'message' => 'Order created successfully.',
             ], 201);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'status' => 'failed',
-                'message' => $e->getMessage()
-            ], 400);
+                'message' => 'An error occurred while creating the order.',
+            ], 500);
         }
     }
 
+
+    // order without payment online 
+    // public function store(OrderRequest $request)
+    // {
+    //     $get_tax = Setting::where('tax', '!=', null)->first(); 
+    //     $validatedData = $request->validated();
+    //     $mealIds = $validatedData['meal_ids'] ?? [];
+    //     $addonIds = $validatedData['addon_ids'] ?? [];
+    //     $extraIds = $validatedData['extra_ids'] ?? [];
+    //     $offerIds = $validatedData['offer_ids'] ?? [];
+    //     $loyaltyPoints = 0;
+
+    //     $tax = $get_tax ? round($validatedData['total_cost'] * (floatval($get_tax->tax) / 100), 2) : 0;
+
+    //     $check_points = LoyaltySetting::first();
+
+    //     $min_point_convert = $check_points->loyalty_min_redeem_points;
+    //     $max_point_convert = $check_points->loyalty_max_redeem_points;
+    //     $max_discount = $check_points->loyalty_max_discount_rate;
+    //     $check_discount = $request->$converted_points / $check_points->price_per_point;
+    //     $max_discount_expected= ($max_discount/100)*$validatedData['total_cost'];
+
+    //     if( $check_discount > $max_discount_expected){
+    //       return [
+    //         'status' => 'failed',
+    //         'message' => $e->getMessage()
+    //       ,404]; 
+    //     }
+
+
+
+    //     if (isset($validatedData['diningtable_id'])) {
+    //         $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
+    //         if ($diningtable instanceof JsonResponse) return $diningtable;
+    //     }
+    //     if (isset($validatedData['location_id'])) {
+    //         $location = $this->checkLocation($validatedData['location_id']);
+    //         if ($location instanceof JsonResponse) return $location;
+    //     }
+
+    //     // $check_add_points = LoyaltySetting::where('min_order_price_for_points', '!=', null)->first();
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $order = Order::create([
+    //             'customer_id' => auth('api')->id(),
+    //             'location_id' => $validatedData['location_id'] ?? null,
+    //             'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
+    //             'total_cost' => round($validatedData['total_cost'] + $tax, 2),
+    //             'notes' => $validatedData['notes'] ?? null,
+    //             'tax' => $tax,
+    //             'PaymentType' => "cashed",
+    //         ]);
+
+    //         foreach ($offerIds as $offerId) {
+    //             $offer = $this->checkOffer($offerId);
+    //             if ($offer instanceof JsonResponse) return $offer;
+    //             Order_offer::create([
+    //                 'order_id' => $order->id,
+    //                 'offer_id' => $offerId['id'],
+    //                 'quantity' => $offerId['quantity'],
+    //                 'total_cost' => $offerId['cost'] * $offerId['quantity']
+    //             ]);
+    //         }
+
+    //         foreach ($mealIds as $mealId) {
+    //             $meal = $this->checkMeal($mealId['id']);
+    //             if ($meal instanceof JsonResponse) return $meal;
+    //             OrderMeal::create([
+    //                 'order_id' => $order->id,
+    //                 'meal_id' => $mealId['id'],
+    //                 'quantity' => $mealId['quantity'],
+    //                 'size' => $mealId['size'],
+    //                 'total_cost' => $mealId['cost'] * $mealId['quantity'],
+    //             ]);
+    //         }
+
+    //         foreach ($addonIds as $addonId) {
+    //             $addon = $this->checkAddon($addonId['id']);
+    //             if ($addon instanceof JsonResponse) return $addon;
+    //             OrderAddon::create([
+    //                 'order_id' => $order->id,
+    //                 'addon_id' => $addonId['id'],
+    //                 'quantity' => $addonId['quantity'],
+    //                 'total_cost' => $addonId['cost'] * $addonId['quantity'],
+    //             ]);
+    //         }
+
+    //         foreach ($extraIds as $extraId) {
+    //             $extra = $this->checkExtra($extraId['id']);
+    //             if ($extra instanceof JsonResponse) return $extra;
+    //             OrderExtra::create([
+    //                 'order_id' => $order->id,
+    //                 'extra_id' => $extraId['id'],
+    //                 'quantity' => $extraId['quantity'],
+    //                 'total_cost' => $extraId['cost'] * $extraId['quantity']
+    //             ]);
+    //         }
+
+    //         // if ($check_add_points && $order->total_cost >= $check_add_points->min_order_price_for_points) {
+    //         //     $loyaltyPoints = floor($order->total_cost / $check_add_points->price_per_point);
+    //         //     $customer = auth('api')->user();
+    //         //     if ($customer) {
+    //         //         $customer->loyalty_points += $loyaltyPoints;
+    //         //         $customer->save();
+    //         //     }
+
+    //         //     $this->addPoints(auth('api')->id(), $loyaltyPoints, $check_add_points->loyalty_points_expiry_days);
+    //         // }
+
+    //         Transaction::create([
+    //             'customer_id' => auth('api')->id(),
+    //             'order_id' => $order->id,
+    //             'payment_method' => 'cashed',
+    //             'amount' => $order->total_cost
+    //         ]);
+
+    //         $systemBalance = SystemBalance::first();
+    //         if ($systemBalance) {
+    //             $systemBalance->balance += $order->total_cost;
+    //             $systemBalance->save();
+    //         } else {
+    //             SystemBalance::create(['balance' => $order->total_cost]);
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'Order created successfully'
+    //         ], 201);
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json([
+    //             'status' => 'failed',
+    //             'message' => $e->getMessage()
+    //         ], 400);
+    //     }
+    // }
+
+    
+    // private function addPoints($customerId, $points, $expiryDays) {
+    //     if ($points > 0) {
+    //         CustomerLoyaltyPoint::create([
+    //             'customer_id' => $customerId,
+    //             'points' => $points,
+    //             'expiry_date' => now()->addDays($expiryDays),
+    //         ]);
+    //     }
+    // }
     // retrieve all customers to Dashboard Create order 
     public function retrieveCustomers()
     {
@@ -805,8 +1012,9 @@ class OrderController extends Controller
                 'order' => [
                     'id' => $order->id,
                     'sub_total' => $order->total_cost - $order->delivery_fee - $order->tax,
-                    'total_cost' => $order->total_cost,
+                    'total_cost' => $order->total_cost - $order->discount,
                     'tax' => $order->tax,
+                    'discount' =>$order->discount,
                     'delivery_fee' => $order->delivery_fee,
                     'payment_type' => $order->PaymentType,
                     'created_at' => $order->created_at,

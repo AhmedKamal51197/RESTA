@@ -23,6 +23,8 @@ Route::group(['middleware' => 'auth:api','verified'], function() {
     Route::get('test',[CustomerController::class,'test']);
     Route::post('auth/logout', [CustomerController::class, 'logout']);
     Route::put('auth/customers',[CustomerController::class,'update']);
+    Route::get('/customers',[CustomerController::class,'refresh']);
+
 });
 Route::post('auth/register', [CustomerController::class, 'register']);
 Route::post('auth/login', [CustomerController::class, 'login']);
