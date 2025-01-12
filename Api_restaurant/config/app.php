@@ -74,7 +74,10 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Kuwait',
+    // 'timezone' => 'Asia/Kuwait',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Muscat'),
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -188,6 +191,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        App\Providers\UpdateBalanceServiceProvider::class,
 
 
         /*

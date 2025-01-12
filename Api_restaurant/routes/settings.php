@@ -9,7 +9,9 @@ Route::group(['middleware' => 'auth:admin-api'], function () {
     Route::get('/admin/settings', [SettingController::class, 'indexSetting']);  
     
     Route::post('/admin/loyalty-settings', [SettingController::class, 'storeLoyaltySetting']);
-    Route::get('/admin/loyalty-settings', [SettingController::class, 'indexLoyaltySetting']);   
+    Route::get('/admin/loyalty-settings', [SettingController::class, 'indexLoyaltySetting']); 
+    Route::put('/admin/settings/logo', [SettingController::class, 'updateLogo']);  
+    Route::get('/admin/settings/logo', [SettingController::class, 'showLogo']);   
 });
 
 Route::get('/settings', [SettingController::class, 'indexSetting']);  

@@ -75,5 +75,10 @@ class Customer extends Authenticatable implements JWTSubject,MustVerifyEmail
         return $this->hasMany(CustomerLoyaltyPoint::class);
     }
 
+    public function OrderPointTransfer()
+    {
+        return $this->hasMany(OrderPointTransfer::class);
+    }
+
     use HasFactory;
 }

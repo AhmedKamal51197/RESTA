@@ -101,6 +101,11 @@ class Order extends Model
         return $this->hasOne(CustomerLoyaltyPoint::class, 'order_id', 'id');
     }
 
+    public function OrderPointTransfer()
+    {
+        return $this->hasOne(OrderPointTransfer::class, 'order_id', 'id');
+    }
+
     
     use HasFactory;
 }

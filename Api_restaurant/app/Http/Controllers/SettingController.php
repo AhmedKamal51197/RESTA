@@ -12,9 +12,21 @@ class SettingController extends Controller
     public function indexSetting()
     {
         $settings = Setting::first();
+        // dd($setting);
         return response()->json([
             'status' => 'success', 
             'data' => $settings
+        ], 200);
+    }
+
+    public function showLogo()
+    {
+        $settings = Setting::first();
+        return response()->json([
+            'status' => 'success', 
+            'data' => [
+                'image' => $settings->logo,
+            ]
         ], 200);
     }
 
@@ -26,8 +38,6 @@ class SettingController extends Controller
             'data' => $loyaltySettings
         ], 200);
     }
-
-    
 
     public function storeSetting(Request $request)
     {
@@ -48,7 +58,7 @@ class SettingController extends Controller
         $imageName = $setting?->logo;
         if ($request->hasFile('logo')) {
             $image = $request->file('logo');
-            $newImageName = 'logos/' . time() . '.' . $image->getClientOriginalExtension();
+            $newImageName = 'logo/' . time() . '.' . $image->getClientOriginalExtension();
 
             if ($imageName && Storage::exists('public/' . $imageName)) {
                 Storage::delete('public/' . $imageName);
@@ -80,7 +90,6 @@ class SettingController extends Controller
         return response()->json(['status' => 'success', 'message' => $message], 200);
     }
 
-    // دالة لإضافة أو تحديث إعدادات الولاء (LoyaltySetting)
     public function storeLoyaltySetting(Request $request)
     {
         $request->validate([
@@ -115,4 +124,41 @@ class SettingController extends Controller
 
         return response()->json(['status' => 'success', 'message' => $message], 200);
     }
+
+    public function updateLogo(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+    
+        $setting = Setting::first();
+    
+        if (!$setting) {
+            return response()->json(['status' => 'error', 'message' => 'Settings not found.'], 404);
+        }
+    
+        $oldLogo = $setting->logo;
+    
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');  // ✅ تعديل هنا: image بدلاً من logo
+            $newLogoName = 'logo/' . time() . '.' . $image->getClientOriginalExtension();
+    
+            // حذف الشعار القديم إذا كان موجودًا
+            if ($oldLogo && Storage::exists('public/' . $oldLogo)) {
+                Storage::delete('public/' . $oldLogo);
+            }
+    
+            // حفظ الشعار الجديد
+            $image->storeAs('public', $newLogoName);
+    
+            // تحديث السجل في قاعدة البيانات
+            $setting->update(['logo' => $newLogoName]);
+    
+            return response()->json(['status' => 'success', 'message' => 'Logo updated successfully.'], 200);
+        }
+    
+        return response()->json(['status' => 'error', 'message' => 'No logo file uploaded.'], 400);
+    }
+    
+
 }

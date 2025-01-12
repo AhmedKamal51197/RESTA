@@ -19,11 +19,13 @@ class Kernel extends ConsoleKernel
     // }
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command(UpdateLoyaltyPoints::class)->dailyAt('00:00'); 
 
-        $schedule->call(function () {
-            app(OfferController::class)->updateExpiredOffers();
-        })->everyMinute(); 
+        $schedule->command('loyalty:updatePoints')->dailyAt('00:00'); 
+
+        
+        // $schedule->call(function () {
+        //     app(OfferController::class)->updateExpiredOffers();
+        // })->everyMinute(); 
     }
     
     /**

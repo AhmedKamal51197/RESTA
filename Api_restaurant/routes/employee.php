@@ -29,6 +29,8 @@ Route::group(['middleware' => 'checkAdminToken'], function () {
     // Withdrawal routes
     Route::post('admin/withdrawals', [WithdrawController::class, 'store']);
     Route::get('admin/withdrawals', [WithdrawController::class, 'index']);
+    Route::get('admin/current-balance', [WithdrawController::class, 'getCurrentBalance']);
+
 });
 
 // Admin self-management routes
@@ -39,5 +41,4 @@ Route::group(['middleware' => 'auth:admin-api'], function () {
     Route::patch('admin/employees/change-email', [EmployeeController::class, 'changeEmail']);
     Route::get('admin/refresh', [EmployeeController::class, 'refresh']);
 });
-Route::get('admin/current-balance', [WithdrawController::class, 'getCurrentBalance']);
 

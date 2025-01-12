@@ -22,6 +22,7 @@ use App\Models\Transaction;
 use App\Models\OrderLocation;
 use App\Models\CustomerLoyaltyPoint;
 use App\Models\LoyaltySetting;
+use App\Models\OrderPointTransfer;
 use App\Models\Setting;
 
 
@@ -120,7 +121,7 @@ class OrderController extends Controller
     public function index()
     {
 
-        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->get();
+        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->orderBy('created_at', 'desc')->get();
 
 
         if ($orders->isEmpty()) {
@@ -403,16 +404,16 @@ class OrderController extends Controller
     {
         $get_tax = Setting::where('tax', '!=', null)->first();
         $validatedData = $request->validated();
-
+    
         $mealIds = $validatedData['meal_ids'] ?? [];
         $addonIds = $validatedData['addon_ids'] ?? [];
         $extraIds = $validatedData['extra_ids'] ?? [];
         $offerIds = $validatedData['offer_ids'] ?? [];
         $convertedPoints = $request->input('converted_points', null); 
         $loyaltyPointsDiscount = 0;
-
+    
         $tax = $get_tax ? round($validatedData['total_cost'] * (floatval($get_tax->tax) / 100), 2) : 0;
-
+    
         $user = auth('api')->user();
         if (!$user) {
             return response()->json([
@@ -420,7 +421,7 @@ class OrderController extends Controller
                 'message' => 'User not authenticated.',
             ], 401);
         }
-
+    
         if ($convertedPoints !== null) {
             if ($user->loyalty_points < $convertedPoints) {
                 return response()->json([
@@ -428,31 +429,31 @@ class OrderController extends Controller
                     'message' => 'Insufficient loyalty points.',
                 ], 400);
             }
-
+    
             $loyaltySettings = LoyaltySetting::first();
-
+    
             if ($loyaltySettings) {
                 $min_point_convert = $loyaltySettings->loyalty_min_redeem_points ?? 0;
                 $max_point_convert = $loyaltySettings->loyalty_max_redeem_points ?? 0;
                 $max_discount_rate = $loyaltySettings->loyalty_max_discount_rate ?? 0;
-
+    
                 if ($convertedPoints < $min_point_convert) {
                     return response()->json([
                         'status' => 'failed',
                         'message' => 'The points to redeem are less than the minimum allowed.',
                     ], 400);
                 }
-
+    
                 if ($convertedPoints > $max_point_convert) {
                     return response()->json([
                         'status' => 'failed',
                         'message' => 'The points to redeem exceed the maximum allowed.',
                     ], 400);
                 }
-
+    
                 $loyaltyPointsDiscount = $convertedPoints / ($loyaltySettings->price_per_point ?? 1);
                 $max_allowed_discount = ($max_discount_rate / 100) * $validatedData['total_cost'];
-
+    
                 if ($loyaltyPointsDiscount > $max_allowed_discount) {
                     return response()->json([
                         'status' => 'failed',
@@ -461,31 +462,20 @@ class OrderController extends Controller
                 }
             }
         }
-
-        // $finalCost = round($validatedData['total_cost'] + $tax - $loyaltyPointsDiscount, 2);
-
-        if (isset($validatedData['diningtable_id'])) {
-            $diningtable = $this->checkDiningTable($validatedData['diningtable_id']);
-            if ($diningtable instanceof JsonResponse) return $diningtable;
-        }
-        if (isset($validatedData['location_id'])) {
-            $location = $this->checkLocation($validatedData['location_id']);
-            if ($location instanceof JsonResponse) return $location;
-        }
-
+    
         DB::beginTransaction();
         try {
             $order = Order::create([
                 'customer_id' => auth('api')->id(),
                 'location_id' => $validatedData['location_id'] ?? null,
                 'DiningTable_id' => $validatedData['diningtable_id'] ?? null,
-                'total_cost' => $validatedData['total_cost'] + $tax,
+                'total_cost' => $validatedData['total_cost'] + $tax - $loyaltyPointsDiscount,
                 'notes' => $validatedData['notes'] ?? null,
                 'tax' => $tax,
                 'PaymentType' => "cashed",
                 'discount' =>$loyaltyPointsDiscount,
             ]);
-
+    
             foreach ($offerIds as $offerId) {
                 $offer = $this->checkOffer($offerId);
                 if ($offer instanceof JsonResponse) return $offer;
@@ -496,7 +486,7 @@ class OrderController extends Controller
                     'total_cost' => $offerId['cost'] * $offerId['quantity']
                 ]);
             }
-
+    
             foreach ($mealIds as $mealId) {
                 $meal = $this->checkMeal($mealId['id']);
                 if ($meal instanceof JsonResponse) return $meal;
@@ -508,7 +498,7 @@ class OrderController extends Controller
                     'total_cost' => $mealId['cost'] * $mealId['quantity'],
                 ]);
             }
-
+    
             foreach ($addonIds as $addonId) {
                 $addon = $this->checkAddon($addonId['id']);
                 if ($addon instanceof JsonResponse) return $addon;
@@ -519,7 +509,7 @@ class OrderController extends Controller
                     'total_cost' => $addonId['cost'] * $addonId['quantity'],
                 ]);
             }
-
+    
             foreach ($extraIds as $extraId) {
                 $extra = $this->checkExtra($extraId['id']);
                 if ($extra instanceof JsonResponse) return $extra;
@@ -530,34 +520,34 @@ class OrderController extends Controller
                     'total_cost' => $extraId['cost'] * $extraId['quantity']
                 ]);
             }
-
-            Transaction::create([
-                'customer_id' => auth('api')->id(),
-                'order_id' => $order->id,
-                'payment_method' => 'cashed',
-                'amount' => $order->total_cost
-            ]);
-
-            // خصم النقاط بعد نجاح الطلب
+    
             if ($convertedPoints !== null) {
                 $user->decrement('loyalty_points', $convertedPoints);
+    
+                OrderPointTransfer::create([
+                    'order_id' => $order->id,
+                    'customer_id' => auth('api')->id(),
+                    'points' => $convertedPoints,
+                    'transfer_date' => now(),
+                ]);
             }
-
+    
             DB::commit();
-
+    
             return response()->json([
                 'status' => 'success',
                 'message' => 'Order created successfully.',
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-
+    
             return response()->json([
                 'status' => 'failed',
                 'message' => 'An error occurred while creating the order.',
             ], 500);
         }
     }
+    
 
 
     // order without payment online 
@@ -894,6 +884,8 @@ class OrderController extends Controller
                 'phone' => $validatedData['phone'] ?? null,
                 'address' => $validatedData['address'] ?? null,
                 'tax' => $validatedData['tax'] ?? 0,
+                'discount' => 0,
+
                 'delivery_fee' => $validatedData['delivery_fee'] ?? null,
                 'PaymentType' => "cashed",
                 'created_by' => 1,
@@ -962,13 +954,6 @@ class OrderController extends Controller
                     ]);
                 }
             }
-    
-            Transaction::create([
-                'customer_id' => $customerId,
-                'order_id' => $order->id,
-                'payment_method' => 'cashed',
-                'amount' => $order->total_cost
-            ]);
 
             $systemBalance = SystemBalance::first();
 
@@ -1011,8 +996,8 @@ class OrderController extends Controller
             'data' => [
                 'order' => [
                     'id' => $order->id,
-                    'sub_total' => $order->total_cost - $order->delivery_fee - $order->tax,
-                    'total_cost' => $order->total_cost - $order->discount,
+                    'sub_total' => $order->total_cost - $order->delivery_fee - $order->tax + $order->discount,
+                    'total_cost' => $order->total_cost,
                     'tax' => $order->tax,
                     'discount' =>$order->discount,
                     'delivery_fee' => $order->delivery_fee,
@@ -1082,7 +1067,10 @@ class OrderController extends Controller
     public function get_user_orders($userId)
     {
 
-        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])->where('customer_id', $userId)->get();
+        $orders = Order::with(['customer', 'orderAddons.addon', 'orderMeals.meal', 'orderExtras.extra'])
+        ->where('customer_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->get();        
         //  dd($orders->isEmpty());
         if ($orders->isEmpty()) return response()->json([
             'status' => 'failed',
@@ -1097,7 +1085,7 @@ class OrderController extends Controller
 
     public function getAllTransactions()
     {
-        $transactions = Transaction::all();
+        $transactions = Transaction::latest()->get();
 
 
         if ($transactions->isEmpty()) {
@@ -1248,21 +1236,83 @@ class OrderController extends Controller
     //update order status  
     public function changeStatus(Request $request, $id)
     {
+
         $validatedData = $request->validate([
             'status' => ['required', 'in:Not Started,In Progress,Cancelled,Accepted']
         ]);
-        $order = Order::find($id);
-        if (!$order) return response()->json([
-            'status' => 'failed',
-            'message' => 'Order not found'
-        ], 404);
-        $order->status = $validatedData['status'];
-        $order->save();
-        return response()->json([
-            'status' => 'success',
-            'message' => 'change status successfully'
-        ], 200);
+
+        DB::beginTransaction();
+
+        try {
+            $order = Order::find($id);
+        
+            if (!$order) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Order not found'
+                ], 404);
+            }
+
+            $loyaltyPoints = OrderPointTransfer::where('order_id', $order->id)->first();
+
+            // Log::info("Processing Order ID: {$order->id} - Current Status: {$order->status} - New Status: {$validatedData['status']}");
+
+            if ($validatedData['status'] === 'Cancelled' && $order->status !== 'Cancelled') {
+                // Log::info("Attempting to Cancel Order ID: {$order->id} - Loyalty Points Deducted: {$loyaltyPoints->is_deducted}");
+
+                if ($loyaltyPoints && $loyaltyPoints->is_deducted === 1) {
+                    // Log::info("Reverting loyalty points for Order ID: {$order->id}");
+                    $loyaltyPoints->is_deducted = false; 
+                    $loyaltyPoints->save();
+
+                    $customer = Customer::find($order->customer_id);
+                    if ($customer) {
+                        $customer->increment('loyalty_points', $loyaltyPoints->points);
+                    }
+                }
+            }
+
+            if ($validatedData['status'] !== 'Cancelled' && $loyaltyPoints) {
+                // Log::info("Attempting to update order status for Order ID: {$order->id} to {$validatedData['status']} - Loyalty Points Deducted: {$loyaltyPoints->is_deducted}");
+
+                if ($loyaltyPoints->is_deducted === 0) {
+                    // Log::info("Deducting loyalty points for Order ID: {$order->id}.");
+                    $loyaltyPoints->is_deducted = true;
+                    $loyaltyPoints->save();
+
+                    $customer = Customer::find($order->customer_id);
+                    if ($customer) {
+                        $customer->decrement('loyalty_points', $loyaltyPoints->points);
+                    }
+                }
+            }
+
+            $order->status = $validatedData['status'];
+            $order->save();
+
+            // Log::info("Order ID: {$order->id} - Status successfully updated to: {$validatedData['status']}");
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Status changed successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log::error("Error occurred while changing status for Order ID: {$id} - Error: {$e->getMessage()}");
+
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'An error occurred while changing status: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+    
+
+    
     /**
      * Generate Sales Report
      */
@@ -1354,23 +1404,102 @@ class OrderController extends Controller
     
     
     // change pay to paid if casher checked that customer paid cashed
-    public function checkPaid(Request $request ,$id)
+    public function checkPaid(Request $request, $id) 
     {
         $validatedData = $request->validate([
-            'pay'=>'in:0,1'
+            'pay' => 'in:0,1'
         ]);
-        $order = Order::find($id);
-        if(!$order) return response()->json([
-            'status'=>'failed',
-            'message'=>'No order found'
-        ],404);
-        $order->pay=$validatedData['pay'];
-        $order->save();
-        return response()->json([
-            'status'=>'success',
-            'message'=>'change paid status success'
-        ],200);
+
+        DB::beginTransaction();  
+
+        try {
+            $order = Order::find($id);
+            if (!$order) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'No order found'
+                ], 404);
+            }
+
+            $previousPay = $order->pay;
+            $order->pay = $validatedData['pay'];
+            $order->save();
+
+            $balanceRecord = SystemBalance::first();
+            $balance = $balanceRecord ? $balanceRecord->balance : 0;
+
+            if ($previousPay == 0 && $validatedData['pay'] == 1) {
+                $check_add_points = LoyaltySetting::where('min_order_price_for_points', '!=', null)->first();
+                if ($check_add_points && $order->total_cost >= $check_add_points->min_order_price_for_points) {
+                    $points = floor($order->total_cost / $check_add_points->price_per_point);
+                    $expiryDate = Carbon::parse($order->created_at)->addDays($check_add_points->loyalty_points_expiry_days);
+
+                    if ($expiryDate >= Carbon::now()) {
+                        CustomerLoyaltyPoint::create([
+                            'customer_id' => $order->customer_id,
+                            'order_id' => $order->id,
+                            'points' => $points,
+                            'expiry_date' => $expiryDate,
+                        ]);
+
+                        $customer = Customer::find($order->customer_id);
+                        if ($customer) {
+                            $customer->increment('loyalty_points', $points);
+                        }
+                    }
+                }
+
+                Transaction::create([
+                    'customer_id' => $order->customer_id,
+                    'order_id' => $order->id,
+                    'payment_method' => 'cashed',
+                    'amount' => $order->total_cost,
+                ]);
+
+                $balance += $order->total_cost;
+                $balanceRecord->update(['balance' => $balance]);
+            }
+
+            if ($previousPay == 1 && $validatedData['pay'] == 0) {
+                $transaction = Transaction::where('order_id', $order->id)->first();
+                if ($transaction) {
+                    $transaction->delete();
+                }
+
+                $loyaltyPoints = CustomerLoyaltyPoint::where('order_id', $order->id)->first();
+
+                if ($loyaltyPoints) {
+                    $loyaltyPoints->delete();
+
+                    $customer = Customer::find($order->customer_id);
+                    if ($customer) {
+                        $customer->decrement('loyalty_points', $loyaltyPoints->points);
+                    }
+                }
+
+                $balance -= $order->total_cost;
+                $balanceRecord->update(['balance' => $balance]);
+            }
+
+            DB::commit();  
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Change paid status, points, transaction, and balance handled successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();  
+
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
     }
+
+    
+    
     // to use it in make order to check if ids that come from request existing in DB
     private function checkCustomer($id)
     {

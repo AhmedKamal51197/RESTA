@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class WithdrawController extends Controller
 {
+
     public function store(Request $request)
     {
         // Validate amount input
@@ -72,7 +73,7 @@ class WithdrawController extends Controller
     {
         $this->authorizeAdmin();
 
-        $withdrawals = Withdrawal::with('employee')->get();
+        $withdrawals = Withdrawal::with('employee')->orderByDesc('created_at') ->get();
         $formattedWithdrawals = $withdrawals->map(function ($withdrawal) {
             return [
                 'id' => $withdrawal->id,
@@ -93,7 +94,7 @@ class WithdrawController extends Controller
         $balanceRecord = SystemBalance::first();
         $balance = $balanceRecord ? $balanceRecord->balance : 0;
 
-        Log::info("Current Balance: " . $balance);
+        // Log::info("Current Balance: " . $balance);
 
         return response()->json([
             'status' => 'success',
@@ -109,4 +110,25 @@ class WithdrawController extends Controller
             ]);
         }
     }
+
+    public function updateBalance()
+    {
+        $totalTransactions = Transaction::sum('amount');
+        $totalWithdrawals = Withdrawal::sum('amount');
+        $balance = $totalTransactions - $totalWithdrawals;
+
+        $balanceRecord = SystemBalance::first();
+        if ($balanceRecord) {
+            $balanceRecord->update(['balance' => $balance]);
+        } else {
+            SystemBalance::create(['balance' => $balance]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Balance updated successfully',
+            'data' => $balance
+        ], 200);
+    }
+
 }

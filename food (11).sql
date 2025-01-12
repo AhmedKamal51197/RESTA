@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 25, 2024 at 08:08 PM
+-- Generation Time: Jan 12, 2025 at 07:20 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -27,8 +27,8 @@ SET time_zone = "+00:00";
 -- Table structure for table `addons`
 --
 
-CREATE TABLE `addons` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `addons` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `category_id` bigint(20) UNSIGNED DEFAULT NULL,
   `cost` double NOT NULL,
@@ -37,8 +37,11 @@ CREATE TABLE `addons` (
   `image` varchar(255) NOT NULL,
   `status` tinyint(1) NOT NULL COMMENT 'true = active , false = inactive',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `category_id` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `addons`
@@ -67,15 +70,16 @@ INSERT INTO `addons` (`id`, `name`, `category_id`, `cost`, `description`, `type`
 -- Table structure for table `categories`
 --
 
-CREATE TABLE `categories` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
-  `status` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `categories`
@@ -106,8 +110,8 @@ INSERT INTO `categories` (`id`, `name`, `description`, `image`, `created_at`, `u
 -- Table structure for table `customers`
 --
 
-CREATE TABLE `customers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `customers` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `phone` varchar(255) NOT NULL,
@@ -116,15 +120,16 @@ CREATE TABLE `customers` (
   `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'true = active , false =inactive',
   `loyalty_points` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `customers`
 --
 
 INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_verified_at`, `status`, `loyalty_points`, `created_at`, `updated_at`) VALUES
-(8, 'ali', 'eng.ahmedkamal357@gmail.com', '01066056969', '$2a$12$pAJFamvsbj5U0tVGdYpq9.Ih7iF.hYscZR.GS83eG.TZXwXhlWQ7q\n', NULL, 1, 44, '2024-06-04 15:26:32', '2024-11-22 04:04:19'),
+(8, 'ali', 'eng.ahmedkamal357@gmail.com', '01066056969', '$2a$12$pAJFamvsbj5U0tVGdYpq9.Ih7iF.hYscZR.GS83eG.TZXwXhlWQ7q\n', NULL, 1, 0, '2024-06-04 15:26:32', '2024-12-31 15:03:51'),
 (10, 'aahmed', 'sonbaty1937@gmail.com', '01066056996125', '$2y$10$55eWKYgsveJHBUZeoqWlyekVf7Zf7M0GMg38mwHPIXsNHeqS3wyNK', NULL, 1, 0, '2024-06-04 15:31:48', '2024-08-19 11:05:20'),
 (11, 'aahmed', 'sonbaty193s7@gmail.com', '01066056996125', '$2y$10$8BC3GLpdh81mXOVLCgfTae6vZRYsyANGAsOk2iZ1yDhbggbXIWnIq', NULL, 1, 0, '2024-06-04 15:46:26', '2024-08-19 11:05:28'),
 (12, 'aahmed', 'sonbaty193ds7@gmail.com', '01066056996125', '$2y$10$LARlU4WkG0fjJNGrCs/9eepg8nyBWWrp1x5MAGRoPFBglriPkrfse', NULL, 1, 0, '2024-06-04 15:47:29', '2024-08-19 11:05:35'),
@@ -150,9 +155,9 @@ INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_veri
 (33, 'aahmed', 'e850f489a3@emailcbox.pro', '01066056996125', '$2y$10$dTVMqj8rv3nEkr3QkvaAiehfMWY.EEpWZEPfmVEDySzy4IffnnFRC', NULL, 0, 0, '2024-06-07 12:45:41', '2024-06-07 12:45:41'),
 (35, 'aahmed', 'asamtabrahym870@gmail.com', '01066056996125', '$2y$10$ZN0yySWuAjcDVKALsZVCxe/PJ7dJuqibYAVR2rCmYeQ6VkLyHBSpq', NULL, 0, 0, '2024-06-08 10:35:06', '2024-06-08 10:35:06'),
 (39, 'aahmed', 'mostafaesam300@gmail.com', '01066056996125', '$2y$10$6T2uJT/JrZy.TJaUvJAXR.m.jRG4Iggc7h4MAfwQ9QDhPV2CrbPFi', NULL, 0, 0, '2024-06-08 12:29:41', '2024-06-08 12:29:41'),
-(51, 'mostafa', 'mostafaesam1300@gmail.com', '01066056996125', '$2y$10$qu42sYiziCL2i74Q3VIVhOOx.fMUjTV52hUq0nWZcinpTLOmL/4XO', '2024-07-17 20:28:49', 1, 11800, '2024-07-17 17:28:24', '2024-11-22 22:22:12'),
+(51, 'mostafa', 'mostafaesam1300@gmail.com', '01066056996125', '$2y$10$qu42sYiziCL2i74Q3VIVhOOx.fMUjTV52hUq0nWZcinpTLOmL/4XO', '2024-07-17 20:28:49', 1, 10600, '2024-07-17 17:28:24', '2025-01-07 15:19:17'),
 (52, 'teset', 'twst@gmail.com', '201030621099', '$2y$10$nKCNbS8T4qo.PUQP4xdx4u654dBf/Fc.5suFyfQjo1azo/uxu3wUa', NULL, 1, 0, '2024-08-25 17:17:09', '2024-08-25 17:17:09'),
-(53, 'mostafa', 'ebtesam132015@gmail.com', '01066056996125', '$2y$10$ks.vshhPebD72RStyMnaHezUUnD4FtxVlYnYuebV3ehPFzDhC01yW', NULL, 1, 0, '2024-10-31 16:02:37', '2024-10-31 16:02:37'),
+(53, 'ebtsam', 'ebtesam132015@gmail.com', '010660569961', '$2y$10$ks.vshhPebD72RStyMnaHezUUnD4FtxVlYnYuebV3ehPFzDhC01yW', NULL, 1, 0, '2024-10-31 16:02:37', '2024-12-28 14:45:53'),
 (55, 'Ebtesam Roshdy', 'sam1038867@gmail.com', '+201030621099', '$2y$10$4GiRmD7Vzg66RvwsDMRGhO8PQ8bFnffsr6P.lS4H0HK.iAQ.RGksC', '2024-11-01 07:00:18', 1, 0, '2024-11-01 08:00:18', '2024-11-01 08:00:18'),
 (56, 'Ebtesam Roshdy', 'ebtesam13tt2015@gmail.com', '010306210992', '$2y$10$DPyin635fQIlTw1prmbvn.XCGs2l70nhbFFhhdYmGoxlZvVgXpQMy', '2024-11-01 20:08:17', 1, 0, '2024-11-01 21:08:17', '2024-11-01 21:08:17'),
 (57, 'salima', 'saleemaalkhusaibi@icloud.com', '+96876916812', '$2y$10$7DnUAn4Zof0fIpr3ATgOC.2mf.3CXU0F6FjsGY68eUDpfDlKqz5Jq', '2024-11-16 19:37:34', 1, 0, '2024-11-16 20:37:34', '2024-11-16 20:37:34'),
@@ -166,25 +171,26 @@ INSERT INTO `customers` (`id`, `name`, `email`, `phone`, `password`, `email_veri
 -- Table structure for table `customer_loyalty_points`
 --
 
-CREATE TABLE `customer_loyalty_points` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `customer_loyalty_points` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `points` int(11) UNSIGNED NOT NULL,
   `expiry_date` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `customer_id` (`customer_id`),
+  KEY `order_id` (`order_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `customer_loyalty_points`
 --
 
 INSERT INTO `customer_loyalty_points` (`id`, `customer_id`, `order_id`, `points`, `expiry_date`, `created_at`, `updated_at`) VALUES
-(16, 8, 45, 22, '2024-11-23', '2024-11-22 04:03:24', '2024-11-22 04:03:24'),
-(17, 51, 109, 6, '2024-12-02', '2024-11-22 04:03:24', '2024-11-22 04:03:24'),
-(18, 8, 45, 22, '2024-11-23', '2024-11-22 04:04:19', '2024-11-22 04:04:19'),
-(19, 51, 109, 6, '2024-12-02', '2024-11-22 04:04:19', '2024-11-22 04:04:19');
+(24, 51, 170, 24, '2025-01-30', '2024-12-31 15:01:13', '2024-12-31 15:01:13'),
+(28, 51, 171, 10, '2025-02-06', '2025-01-07 15:19:17', '2025-01-07 15:19:17');
 
 -- --------------------------------------------------------
 
@@ -192,16 +198,18 @@ INSERT INTO `customer_loyalty_points` (`id`, `customer_id`, `order_id`, `points`
 -- Table structure for table `diningtables`
 --
 
-CREATE TABLE `diningtables` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `diningtables` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `floor` int(11) NOT NULL,
   `size` int(11) NOT NULL,
   `num` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'true = active , false = inactive',
   `qr_code` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `diningtables_floor_num_unique` (`floor`,`num`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `diningtables`
@@ -229,14 +237,15 @@ INSERT INTO `diningtables` (`id`, `floor`, `size`, `num`, `status`, `qr_code`, `
 -- Table structure for table `email_verification_tokens`
 --
 
-CREATE TABLE `email_verification_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `email_verification_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
   `expired_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `email_verification_tokens`
@@ -284,8 +293,8 @@ INSERT INTO `email_verification_tokens` (`id`, `email`, `token`, `expired_at`, `
 -- Table structure for table `employees`
 --
 
-CREATE TABLE `employees` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `employees` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `Role` int(11) NOT NULL DEFAULT 3,
   `phone` varchar(255) DEFAULT NULL,
@@ -294,8 +303,11 @@ CREATE TABLE `employees` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp(),
   `identity_card` varchar(255) DEFAULT NULL,
-  `status` tinyint(1) DEFAULT 1 COMMENT 'true = active  , false = inactive'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `status` tinyint(1) DEFAULT 1 COMMENT 'true = active  , false = inactive',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `employees_email_unique` (`email`),
+  UNIQUE KEY `identity_card` (`identity_card`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `employees`
@@ -333,12 +345,14 @@ INSERT INTO `employees` (`id`, `name`, `Role`, `phone`, `email`, `password`, `cr
 -- Table structure for table `expired_offers`
 --
 
-CREATE TABLE `expired_offers` (
+CREATE TABLE IF NOT EXISTS `expired_offers` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `expired_Date` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `offer_id` (`offer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -368,8 +382,8 @@ INSERT INTO `expired_offers` (`id`, `offer_id`, `expired_Date`, `created_at`, `u
 -- Table structure for table `extras`
 --
 
-CREATE TABLE `extras` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `extras` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `category_id` bigint(20) UNSIGNED DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL,
@@ -378,8 +392,10 @@ CREATE TABLE `extras` (
   `type` enum('vegetarian','non-vegetarian') NOT NULL DEFAULT 'vegetarian',
   `cost` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `category_id` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `extras`
@@ -410,8 +426,8 @@ INSERT INTO `extras` (`id`, `name`, `category_id`, `description`, `image`, `stat
 -- Table structure for table `loyalty_settings`
 --
 
-CREATE TABLE `loyalty_settings` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `loyalty_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `loyalty_points_expiry_days` int(11) DEFAULT NULL,
   `loyalty_min_redeem_points` int(11) DEFAULT NULL,
   `loyalty_max_redeem_points` int(11) DEFAULT NULL,
@@ -420,8 +436,9 @@ CREATE TABLE `loyalty_settings` (
   `price_per_point` decimal(10,0) DEFAULT NULL,
   `currency_per_point` float UNSIGNED DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `loyalty_settings`
@@ -436,8 +453,8 @@ INSERT INTO `loyalty_settings` (`id`, `loyalty_points_expiry_days`, `loyalty_min
 -- Table structure for table `meals`
 --
 
-CREATE TABLE `meals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `meals` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `category_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text NOT NULL,
@@ -445,8 +462,10 @@ CREATE TABLE `meals` (
   `status` tinyint(1) NOT NULL COMMENT 'true = active , flase = inactive',
   `image` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `meals_category_id_foreign` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `meals`
@@ -488,15 +507,19 @@ INSERT INTO `meals` (`id`, `category_id`, `name`, `description`, `type`, `status
 -- Table structure for table `meals_size_cost`
 --
 
-CREATE TABLE `meals_size_cost` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `meals_size_cost` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `meal_id` bigint(20) UNSIGNED NOT NULL,
   `size` int(11) DEFAULT NULL COMMENT '1=SMALL, 2=Medium, 3=BIG, 4=FAMILY',
   `cost` double NOT NULL,
   `number_of_pieces` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  UNIQUE KEY `unique_index` (`meal_id`,`cost`,`size`,`number_of_pieces`),
+  KEY `meal_id` (`meal_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `meals_size_cost`
@@ -578,12 +601,14 @@ INSERT INTO `meals_size_cost` (`id`, `meal_id`, `size`, `cost`, `number_of_piece
 -- Table structure for table `meal_extras`
 --
 
-CREATE TABLE `meal_extras` (
-  `meal_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `meal_extras` (
+  `meal_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `extra_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`meal_id`,`extra_id`),
+  KEY `extra_id` (`extra_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `meal_extras`
@@ -614,12 +639,14 @@ INSERT INTO `meal_extras` (`meal_id`, `extra_id`, `created_at`, `updated_at`) VA
 -- Table structure for table `meal_with_addons`
 --
 
-CREATE TABLE `meal_with_addons` (
-  `meal_id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `meal_with_addons` (
+  `meal_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `addon_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`meal_id`,`addon_id`),
+  KEY `meal_with_addons_addon_id_foreign` (`addon_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `meal_with_addons`
@@ -649,11 +676,12 @@ INSERT INTO `meal_with_addons` (`meal_id`, `addon_id`, `created_at`, `updated_at
 -- Table structure for table `migrations`
 --
 
-CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `migrations` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `migrations`
@@ -680,8 +708,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- Table structure for table `offers`
 --
 
-CREATE TABLE `offers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `offers` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `discount` int(11) DEFAULT NULL,
   `type` int(11) DEFAULT NULL,
@@ -691,8 +719,9 @@ CREATE TABLE `offers` (
   `image` varchar(255) DEFAULT NULL,
   `status` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `offers`
@@ -739,14 +768,17 @@ INSERT INTO `offers` (`id`, `name`, `discount`, `type`, `startDate`, `endDate`, 
 -- Table structure for table `offer_addons`
 --
 
-CREATE TABLE `offer_addons` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `offer_addons` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `addon_id` bigint(20) UNSIGNED DEFAULT NULL,
   `addon_quantity` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `addon_id` (`addon_id`),
+  KEY `offer_id` (`offer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `offer_addons`
@@ -765,14 +797,17 @@ INSERT INTO `offer_addons` (`id`, `offer_id`, `addon_id`, `addon_quantity`, `cre
 -- Table structure for table `offer_extras`
 --
 
-CREATE TABLE `offer_extras` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `offer_extras` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `extra_id` bigint(20) UNSIGNED DEFAULT NULL,
   `extra_quantity` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `offer_id` (`offer_id`),
+  KEY `extra_id` (`extra_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `offer_extras`
@@ -792,7 +827,7 @@ INSERT INTO `offer_extras` (`id`, `offer_id`, `extra_id`, `extra_quantity`, `cre
 -- Table structure for table `offer_items`
 --
 
-CREATE TABLE `offer_items` (
+CREATE TABLE IF NOT EXISTS `offer_items` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `meal_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -803,7 +838,12 @@ CREATE TABLE `offer_items` (
   `addon_quantity` int(11) DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `meal_id` (`meal_id`),
+  KEY `extra_id` (`extra_id`),
+  KEY `addon_id` (`addon_id`),
+  KEY `offer_id` (`offer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -820,15 +860,18 @@ INSERT INTO `offer_items` (`id`, `offer_id`, `meal_id`, `meal_quantity`, `extra_
 -- Table structure for table `offer_meals`
 --
 
-CREATE TABLE `offer_meals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `offer_meals` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `meal_id` bigint(20) UNSIGNED DEFAULT NULL,
   `meal_size` enum('1','2','3','4') NOT NULL DEFAULT '1',
   `meal_quantity` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `offer_id` (`offer_id`),
+  KEY `meal_id` (`meal_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `offer_meals`
@@ -852,8 +895,8 @@ INSERT INTO `offer_meals` (`id`, `offer_id`, `meal_id`, `meal_size`, `meal_quant
 -- Table structure for table `orders`
 --
 
-CREATE TABLE `orders` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `orders` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `customer_id` bigint(20) UNSIGNED NOT NULL,
   `DiningTable_id` bigint(20) UNSIGNED DEFAULT NULL,
   `location_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -863,144 +906,166 @@ CREATE TABLE `orders` (
   `phone` varchar(25) DEFAULT NULL,
   `tax` double DEFAULT NULL,
   `delivery_fee` double DEFAULT NULL,
-  `discount` decimal(10,0) UNSIGNED NOT NULL,
-  `total_cost` decimal(10,0) NOT NULL,
+  `discount` decimal(10,2) UNSIGNED NOT NULL,
+  `total_cost` decimal(10,2) NOT NULL,
   `PaymentType` enum('online','cashed') DEFAULT NULL,
   `pay` int(11) NOT NULL DEFAULT 0 COMMENT '0=>Not paid ,\r\n1 => paid\r\n',
   `created_by` int(11) NOT NULL DEFAULT 0 COMMENT '0=> for customers\r\n1=>for casher',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=174 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
 INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `status`, `notes`, `address`, `phone`, `tax`, `delivery_fee`, `discount`, `total_cost`, `PaymentType`, `pay`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 11, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 1, 0, '2024-07-04 06:00:10', '2024-08-28 18:20:51'),
-(2, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 1, 0, '2024-07-06 11:40:47', '2024-11-22 03:49:59'),
-(3, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 11:43:00', '2024-09-09 22:52:57'),
-(4, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 1, 0, '2024-07-06 11:43:20', '2024-11-22 02:54:04'),
-(5, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 1, 0, '2024-07-06 11:44:10', '2024-08-06 20:03:38'),
-(6, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 11:48:17', '2024-08-28 18:47:33'),
-(7, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 11:49:29', '2024-09-24 11:24:37'),
-(8, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 11:55:54', '2024-07-06 11:55:54'),
-(9, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:00:09', '2024-07-06 12:00:09'),
-(10, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:48:11', '2024-07-06 12:48:11'),
-(11, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:52:51', '2024-07-06 12:52:51'),
-(12, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:53:08', '2024-07-06 12:53:08'),
-(13, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:53:32', '2024-07-06 12:53:32'),
-(14, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:54:00', '2024-07-06 12:54:00'),
-(15, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 12:54:52', '2024-07-06 12:54:52'),
-(16, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 13:13:26', '2024-07-06 13:13:26'),
-(17, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 13:14:02', '2024-07-06 13:14:02'),
-(18, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-06 13:22:06', '2024-07-06 13:22:06'),
-(19, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-07 06:12:03', '2024-07-07 06:12:03'),
-(20, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-07 17:01:55', '2024-07-07 17:01:55'),
-(21, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-07 17:14:38', '2024-07-07 17:14:38'),
-(22, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-07 17:38:28', '2024-07-07 17:38:28'),
-(23, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-07-07 17:38:33', '2024-07-07 17:38:33'),
-(24, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 8, '', 0, 0, '2024-07-08 05:47:20', '2024-07-08 05:47:20'),
-(25, 11, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1, '', 0, 0, '2024-07-08 05:51:00', '2024-07-08 05:51:00'),
-(26, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1, '', 0, 0, '2024-07-08 05:56:37', '2024-07-08 05:56:37'),
-(27, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 2, '', 0, 0, '2024-07-08 05:57:25', '2024-07-08 05:57:25'),
-(28, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 8, '', 0, 0, '2024-07-08 08:55:15', '2024-07-08 08:55:15'),
-(29, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 7, '', 0, 0, '2024-07-08 08:58:59', '2024-07-08 08:58:59'),
-(30, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1, '', 0, 0, '2024-07-08 09:00:20', '2024-07-08 09:00:20'),
-(32, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, '', 0, 0, '2024-08-02 11:59:43', '2024-08-02 11:59:43'),
-(33, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, 'cashed', 0, 0, '2024-08-06 20:05:34', '2024-08-06 20:05:34'),
-(34, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0, 1640, 'cashed', 0, 0, '2024-08-06 20:07:54', '2024-08-06 20:07:54'),
-(35, 51, 2, NULL, 4, NULL, '', '', 0, 0, 0, 1640, 'online', 1, 0, '2024-08-06 20:08:35', '2024-08-06 20:10:49'),
-(36, 8, NULL, NULL, 4, '2d', '3d', '222211', 0, 0, 0, 11, NULL, 0, 0, '2024-08-06 12:25:05', NULL),
-(37, 8, NULL, NULL, 4, '2d', '3d', '222211', 0, 0, 0, 11, NULL, 0, 0, '2024-08-06 12:25:44', NULL),
-(41, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0, 10, 'cashed', 1, 1, '2024-10-24 12:53:00', '2024-11-22 02:59:40'),
-(42, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0, 10, 'cashed', 1, 1, '2024-10-24 12:53:32', '2024-11-22 03:51:38'),
-(45, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0, 222, 'cashed', 1, 1, '2024-10-24 12:57:54', '2024-11-22 04:02:52'),
-(46, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0, 222, 'cashed', 0, 1, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
-(47, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0, 232, 'cashed', 0, 1, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
-(48, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 0, 0, 252, 'cashed', 0, 1, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
-(49, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
-(50, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
-(51, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
-(52, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-24 14:15:05', '2024-10-24 14:15:05'),
-(53, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-24 14:15:17', '2024-10-24 14:15:17'),
-(54, 13, NULL, NULL, 4, NULL, NULL, NULL, 0, NULL, 0, 262, 'cashed', 0, 1, '2024-10-24 14:18:37', '2024-10-24 14:18:37'),
-(55, 8, NULL, NULL, 4, NULL, NULL, NULL, 0, NULL, 0, 4, 'cashed', 0, 1, '2024-10-24 14:19:21', '2024-10-24 14:19:21'),
-(56, 13, NULL, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 1, 1, '2024-10-24 14:40:57', '2024-11-17 22:25:47'),
-(57, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 0, 0, '2024-10-25 13:05:12', '2024-10-25 13:05:12'),
-(58, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20, 10, 0, 262, 'cashed', 0, 1, '2024-10-25 13:06:42', '2024-10-25 13:06:42'),
-(59, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:11:06', '2024-10-27 16:11:06'),
-(60, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:15:50', '2024-10-27 16:15:50'),
-(61, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:25:31', '2024-10-27 16:25:31'),
-(62, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:26:08', '2024-10-27 16:26:08'),
-(63, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:30:54', '2024-10-27 16:30:54'),
-(66, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:36:42', '2024-10-27 16:36:42'),
-(68, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:40:29', '2024-10-27 16:40:29'),
-(69, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:42:19', '2024-10-27 16:42:19'),
-(70, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0, 262, 'cashed', 0, 1, '2024-10-27 16:43:47', '2024-10-27 16:43:47'),
-(71, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 16:45:05', '2024-10-27 16:45:05'),
-(72, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 16:45:49', '2024-10-27 16:45:49'),
-(73, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 16:46:14', '2024-10-27 16:46:14'),
-(74, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 17:30:42', '2024-10-27 17:30:42'),
-(75, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.3, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 17:34:34', '2024-10-27 17:34:34'),
-(76, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 17:34:41', '2024-10-27 17:34:41'),
-(77, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 17:49:48', '2024-10-27 17:49:48'),
-(78, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 17:52:08', '2024-10-27 17:52:08'),
-(79, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 18:27:31', '2024-10-27 18:27:31'),
-(80, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-27 19:25:07', '2024-10-27 19:25:07'),
-(81, 10, 7, NULL, 4, 'no', NULL, NULL, 3.75, NULL, 0, 31, 'cashed', 0, 1, '2024-10-27 22:27:52', '2024-10-27 22:27:52'),
-(82, 10, NULL, NULL, 4, NULL, 'ss', '010306210992', 1.26, 12, 0, 10, 'cashed', 0, 1, '2024-10-27 22:42:12', '2024-10-27 22:42:12'),
-(83, 11, NULL, NULL, 4, NULL, 'dd', '12', 0.35, 10, 0, 3, 'cashed', 0, 1, '2024-10-27 22:48:18', '2024-10-27 22:48:18'),
-(84, 10, NULL, NULL, 4, NULL, 'dd', '010306210992', 1.75, 10, 0, 14, 'cashed', 0, 1, '2024-10-28 15:14:01', '2024-10-28 15:14:01'),
-(85, 10, NULL, NULL, 4, NULL, 'test', '01030621099', 0.35, 12, 0, 15, 'cashed', 0, 1, '2024-10-28 15:18:41', '2024-10-28 15:18:41'),
-(86, 8, 2, NULL, 4, NULL, NULL, NULL, 0.35, NULL, 0, 3, 'cashed', 0, 1, '2024-10-28 15:36:13', '2024-10-28 15:36:13'),
-(87, 10, NULL, NULL, 4, NULL, 'test', '010306210992', 0.84, 12, 0, 19, 'cashed', 0, 1, '2024-10-28 15:40:16', '2024-10-28 15:40:16'),
-(88, 8, 3, NULL, 4, NULL, NULL, NULL, 3.08, NULL, 0, 25, 'cashed', 0, 1, '2024-10-29 14:43:19', '2024-11-16 22:36:01'),
-(90, 13, 1, NULL, 1, 'no comment', NULL, NULL, 20.32, NULL, 0, 262, 'cashed', 0, 1, '2024-10-30 11:18:16', '2024-10-30 11:18:16'),
-(91, 51, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 0, 1640, 'cashed', 0, 0, '2024-10-30 11:22:34', '2024-10-30 11:22:34'),
-(92, 51, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 0, 1640, 'cashed', 0, 0, '2024-10-30 16:13:03', '2024-10-30 16:13:03'),
-(93, 51, 1, NULL, 1, NULL, NULL, NULL, 14, NULL, 0, 114, 'cashed', 0, 0, '2024-10-30 16:22:30', '2024-10-30 16:22:30'),
-(94, 51, 1, NULL, 1, NULL, NULL, NULL, 23.8, NULL, 0, 194, 'cashed', 0, 0, '2024-10-30 16:24:05', '2024-10-30 16:24:05'),
-(95, 8, 1, NULL, 1, NULL, NULL, NULL, 9.38, NULL, 0, 76, 'cashed', 0, 1, '2024-10-31 21:04:52', '2024-10-31 21:04:52'),
-(96, 8, 3, NULL, 1, NULL, NULL, NULL, 2.21, NULL, 0, 18, 'cashed', 0, 1, '2024-11-01 14:24:30', '2024-11-01 14:24:30'),
-(97, 53, 2, NULL, 4, NULL, NULL, NULL, 6.34, NULL, 0, 52, 'cashed', 1, 1, '2024-11-01 14:26:43', '2024-11-01 14:58:12'),
-(98, 10, 2, NULL, 1, NULL, NULL, NULL, 0.56, NULL, 0, 5, 'cashed', 0, 1, '2024-11-01 15:38:30', '2024-11-01 15:38:30'),
-(99, 10, 3, NULL, 1, NULL, NULL, NULL, 2.28, NULL, 0, 19, 'cashed', 0, 1, '2024-11-01 17:19:49', '2024-11-01 17:19:49'),
-(100, 8, 2, NULL, 2, NULL, NULL, NULL, 2.6, NULL, 0, 21, 'cashed', 0, 1, '2024-11-01 20:04:12', '2024-11-01 20:05:20'),
-(101, 51, 3, NULL, 1, NULL, NULL, NULL, 1.47, NULL, 0, 12, 'cashed', 0, 0, '2024-11-01 20:19:31', '2024-11-01 20:19:31'),
-(102, 10, NULL, NULL, 1, NULL, 'sohag', '010306210992', 3.68, 20, 0, 50, 'cashed', 0, 1, '2024-11-01 20:24:39', '2024-11-01 20:24:39'),
-(103, 51, 4, NULL, 1, NULL, NULL, NULL, 8.54, NULL, 0, 70, 'cashed', 0, 0, '2024-11-01 21:41:36', '2024-11-01 21:41:36'),
-(104, 51, 3, NULL, 4, NULL, NULL, NULL, 42.81, NULL, 0, 349, 'cashed', 0, 0, '2024-11-01 21:53:45', '2024-11-01 21:54:40'),
-(105, 11, 3, NULL, 1, NULL, NULL, NULL, 173.32, NULL, 0, 1411, 'cashed', 0, 1, '2024-11-01 21:56:28', '2024-11-01 21:56:28'),
-(106, 51, 3, NULL, 1, NULL, NULL, NULL, 168, NULL, 0, 1368, 'cashed', 0, 0, '2024-11-01 22:08:00', '2024-11-01 22:08:00'),
-(107, 51, 4, NULL, 1, NULL, NULL, NULL, 174.62, NULL, 0, 1422, 'cashed', 0, 0, '2024-11-01 22:11:43', '2024-11-01 22:11:43'),
-(108, 10, 2, NULL, 1, NULL, NULL, NULL, 7.97, NULL, 0, 65, 'cashed', 0, 1, '2024-11-02 15:03:49', '2024-11-02 15:03:49'),
-(109, 51, 4, NULL, 4, NULL, NULL, NULL, 7.41, NULL, 0, 60, 'cashed', 1, 0, '2024-11-02 17:02:28', '2024-11-22 03:35:54'),
-(110, 51, 3, NULL, 1, NULL, NULL, NULL, 1.23, NULL, 0, 10, 'cashed', 0, 0, '2024-11-02 17:08:50', '2024-11-02 17:08:50'),
-(111, 51, 2, NULL, 4, NULL, NULL, NULL, 8.61, NULL, 0, 70, 'cashed', 1, 0, '2024-11-04 19:12:59', '2024-11-04 19:14:17'),
-(112, 51, 2, NULL, 4, NULL, NULL, NULL, 11.77, NULL, 0, 96, 'cashed', 0, 0, '2024-11-08 14:15:36', '2024-11-08 14:16:58'),
-(113, 55, 2, NULL, 4, NULL, NULL, NULL, 183.85, NULL, 0, 1497, 'cashed', 0, 1, '2024-11-08 14:20:05', '2024-11-08 14:24:13'),
-(114, 10, NULL, NULL, 4, NULL, 'sohag', '01030621099', 5.73, 20, 0, 67, 'cashed', 0, 1, '2024-11-08 14:22:25', '2024-11-08 14:25:28'),
-(115, 11, 3, NULL, 1, 'no', NULL, NULL, 178.42, NULL, 0, 1453, 'cashed', 0, 1, '2024-11-08 15:10:05', '2024-11-08 15:10:05'),
-(116, 10, 1, NULL, 2, NULL, NULL, NULL, 185.25, NULL, 0, 1508, 'cashed', 1, 1, '2024-11-08 15:14:18', '2024-11-22 02:38:17'),
-(117, 51, 1, NULL, 4, NULL, NULL, NULL, 4.56, NULL, 0, 37, 'cashed', 0, 0, '2024-11-16 18:31:59', '2024-11-16 18:35:13'),
-(118, 51, NULL, NULL, 4, NULL, 'assuit , egypt\r\nassuit ,egypt', '01066056969', 167.36, 10, 0, 1373, 'cashed', 1, 1, '2024-11-16 18:44:02', '2024-11-17 22:16:21'),
-(119, 8, 1, NULL, 4, NULL, NULL, NULL, 6.16, NULL, 0, 50, 'cashed', 1, 1, '2024-11-16 19:29:51', '2024-11-17 22:17:42'),
-(120, 51, 1, NULL, 1, NULL, NULL, NULL, 4.98, NULL, 0, 41, 'cashed', 0, 0, '2024-11-17 20:33:45', '2024-11-17 20:33:45'),
-(121, 58, 1, NULL, 4, NULL, NULL, NULL, 23.45, NULL, 0, 191, 'cashed', 1, 0, '2024-11-17 21:40:36', '2024-11-17 21:43:26'),
-(122, 51, 5, NULL, 1, NULL, NULL, NULL, 1404.2, NULL, 0, 1505, 'cashed', 0, 0, '2024-11-19 15:25:57', '2024-11-19 15:25:57'),
-(123, 51, 1, NULL, 1, NULL, NULL, NULL, 22960, NULL, 0, 24600, 'cashed', 0, 0, '2024-11-19 15:29:36', '2024-11-19 15:29:36'),
-(124, 51, 5, NULL, 1, NULL, NULL, NULL, 1299.2, NULL, 0, 1392, 'cashed', 0, 0, '2024-11-19 15:41:55', '2024-11-19 15:41:55'),
-(125, 51, 5, NULL, 1, NULL, NULL, NULL, 1843.8, NULL, 0, 1976, 'cashed', 0, 0, '2024-11-19 15:43:07', '2024-11-19 15:43:07'),
-(126, 51, 4, NULL, 1, NULL, NULL, NULL, 614.6, NULL, 0, 659, 'cashed', 0, 0, '2024-11-19 15:45:01', '2024-11-19 15:45:01'),
-(127, 51, 4, NULL, 1, NULL, NULL, NULL, 3.51, NULL, 0, 47, 'cashed', 0, 0, '2024-11-19 15:48:05', '2024-11-19 15:48:05'),
-(139, 51, 3, NULL, 2, NULL, NULL, NULL, 6.44, NULL, 0, 87, 'cashed', 1, 0, '2024-11-22 01:35:14', '2024-11-22 02:36:25'),
-(140, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0, 10, 'cashed', 0, 0, '2024-11-22 22:05:20', '2024-11-22 22:05:20'),
-(141, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 1, 10, 'cashed', 0, 0, '2024-11-22 22:09:47', '2024-11-22 22:09:47'),
-(142, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0, 10, 'cashed', 0, 0, '2024-11-22 22:10:39', '2024-11-22 22:10:39'),
-(143, 51, 1, NULL, 1, NULL, NULL, NULL, 8, NULL, 10, 108, 'cashed', 0, 0, '2024-11-22 22:19:38', '2024-11-22 22:19:38'),
-(144, 51, 1, NULL, 1, NULL, NULL, NULL, 8, NULL, 10, 108, 'cashed', 0, 0, '2024-11-22 22:22:12', '2024-11-22 22:22:12'),
-(145, 51, 3, NULL, 4, NULL, NULL, NULL, 3.1, NULL, 0, 42, 'cashed', 0, 0, '2024-11-23 20:47:42', '2024-11-23 20:51:03');
+(1, 11, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 1, 0, '2024-07-04 06:00:10', '2024-08-28 18:20:51'),
+(2, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 1, 0, '2024-07-06 11:40:47', '2024-11-22 03:49:59'),
+(3, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 11:43:00', '2024-09-09 22:52:57'),
+(4, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 1, 0, '2024-07-06 11:43:20', '2024-11-22 02:54:04'),
+(5, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 1, 0, '2024-07-06 11:44:10', '2024-08-06 20:03:38'),
+(6, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 11:48:17', '2024-08-28 18:47:33'),
+(7, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 11:49:29', '2024-09-24 11:24:37'),
+(8, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 11:55:54', '2024-07-06 11:55:54'),
+(9, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:00:09', '2024-07-06 12:00:09'),
+(10, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:48:11', '2024-07-06 12:48:11'),
+(11, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:52:51', '2024-07-06 12:52:51'),
+(12, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:53:08', '2024-07-06 12:53:08'),
+(13, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:53:32', '2024-07-06 12:53:32'),
+(14, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:54:00', '2024-07-06 12:54:00'),
+(15, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 12:54:52', '2024-07-06 12:54:52'),
+(16, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 13:13:26', '2024-07-06 13:13:26'),
+(17, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 13:14:02', '2024-07-06 13:14:02'),
+(18, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-06 13:22:06', '2024-07-06 13:22:06'),
+(19, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-07 06:12:03', '2024-07-07 06:12:03'),
+(20, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-07 17:01:55', '2024-07-07 17:01:55'),
+(21, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-07 17:14:38', '2024-07-07 17:14:38'),
+(22, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-07 17:38:28', '2024-07-07 17:38:28'),
+(23, 8, 2, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-07-07 17:38:33', '2024-07-07 17:38:33'),
+(24, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 8.00, '', 0, 0, '2024-07-08 05:47:20', '2024-07-08 05:47:20'),
+(25, 11, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1.00, '', 0, 0, '2024-07-08 05:51:00', '2024-07-08 05:51:00'),
+(26, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1.00, '', 0, 0, '2024-07-08 05:56:37', '2024-07-08 05:56:37'),
+(27, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 2.00, '', 0, 0, '2024-07-08 05:57:25', '2024-07-08 05:57:25'),
+(28, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 8.00, '', 0, 0, '2024-07-08 08:55:15', '2024-07-08 08:55:15'),
+(29, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 7.00, '', 0, 0, '2024-07-08 08:58:59', '2024-07-08 08:58:59'),
+(30, 8, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1.00, '', 0, 0, '2024-07-08 09:00:20', '2024-07-08 09:00:20'),
+(32, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, '', 0, 0, '2024-08-02 11:59:43', '2024-08-02 11:59:43'),
+(33, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, 'cashed', 0, 0, '2024-08-06 20:05:34', '2024-08-06 20:05:34'),
+(34, 51, 1, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, 'cashed', 0, 0, '2024-08-06 20:07:54', '2024-08-06 20:07:54'),
+(35, 51, 2, NULL, 4, NULL, '', '', 0, 0, 0.00, 1640.00, 'online', 1, 0, '2024-08-06 20:08:35', '2024-08-06 20:10:49'),
+(36, 8, NULL, NULL, 4, '2d', '3d', '222211', 0, 0, 0.00, 11.00, NULL, 0, 0, '2024-08-06 12:25:05', NULL),
+(37, 8, NULL, NULL, 4, '2d', '3d', '222211', 0, 0, 0.00, 11.00, NULL, 0, 0, '2024-08-06 12:25:44', NULL),
+(41, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0.00, 10.00, 'cashed', 1, 1, '2024-10-24 12:53:00', '2024-11-22 02:59:40'),
+(42, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0.00, 10.00, 'cashed', 1, 1, '2024-10-24 12:53:32', '2024-11-22 03:51:38'),
+(45, 8, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0.00, 222.00, 'cashed', 1, 1, '2024-10-24 12:57:54', '2024-11-22 04:02:52'),
+(46, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0.00, 222.00, 'cashed', 0, 1, '2024-10-24 12:58:57', '2024-10-24 12:58:57'),
+(47, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 0, 0, 0.00, 232.00, 'cashed', 0, 1, '2024-10-24 13:00:19', '2024-10-24 13:00:19'),
+(48, 12, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 0, 0.00, 252.00, 'cashed', 0, 1, '2024-10-24 13:29:16', '2024-10-24 13:29:16'),
+(49, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 13:35:13', '2024-10-24 13:35:13'),
+(50, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 14:11:45', '2024-10-24 14:11:45'),
+(51, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 14:14:47', '2024-10-24 14:14:47'),
+(52, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 14:15:05', '2024-10-24 14:15:05'),
+(53, 13, NULL, NULL, 4, NULL, 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 14:15:17', '2024-10-24 14:15:17'),
+(54, 13, NULL, NULL, 4, NULL, NULL, NULL, 0, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-24 14:18:37', '2024-10-24 14:18:37'),
+(55, 8, NULL, NULL, 4, NULL, NULL, NULL, 0, NULL, 0.00, 4.00, 'cashed', 0, 1, '2024-10-24 14:19:21', '2024-10-24 14:19:21'),
+(56, 13, NULL, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 1, 1, '2024-10-24 14:40:57', '2024-11-17 22:25:47'),
+(57, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 0, 0, '2024-10-25 13:05:12', '2024-10-25 13:05:12'),
+(58, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20, 10, 0.00, 262.00, 'cashed', 0, 1, '2024-10-25 13:06:42', '2024-10-25 13:06:42'),
+(59, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:11:06', '2024-10-27 16:11:06'),
+(60, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:15:50', '2024-10-27 16:15:50'),
+(61, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:25:31', '2024-10-27 16:25:31'),
+(62, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:26:08', '2024-10-27 16:26:08'),
+(63, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:30:54', '2024-10-27 16:30:54'),
+(66, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:36:42', '2024-10-27 16:36:42'),
+(68, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:40:29', '2024-10-27 16:40:29'),
+(69, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:42:19', '2024-10-27 16:42:19'),
+(70, 13, NULL, NULL, 4, 'no comment', 'sohag', '01030621099', 20.13, 10.22, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:43:47', '2024-10-27 16:43:47'),
+(71, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:45:05', '2024-10-27 16:45:05'),
+(72, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:45:49', '2024-10-27 16:45:49'),
+(73, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 16:46:14', '2024-10-27 16:46:14'),
+(74, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 17:30:42', '2024-10-27 17:30:42'),
+(75, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.3, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 17:34:34', '2024-10-27 17:34:34'),
+(76, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 17:34:41', '2024-10-27 17:34:41'),
+(77, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 17:49:48', '2024-10-27 17:49:48'),
+(78, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 17:52:08', '2024-10-27 17:52:08'),
+(79, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 18:27:31', '2024-10-27 18:27:31'),
+(80, 13, 1, NULL, 4, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-27 19:25:07', '2024-10-27 19:25:07'),
+(81, 10, 7, NULL, 4, 'no', NULL, NULL, 3.75, NULL, 0.00, 31.00, 'cashed', 0, 1, '2024-10-27 22:27:52', '2024-10-27 22:27:52'),
+(82, 10, NULL, NULL, 4, NULL, 'ss', '010306210992', 1.26, 12, 0.00, 10.00, 'cashed', 0, 1, '2024-10-27 22:42:12', '2024-10-27 22:42:12'),
+(83, 11, NULL, NULL, 4, NULL, 'dd', '12', 0.35, 10, 0.00, 3.00, 'cashed', 0, 1, '2024-10-27 22:48:18', '2024-10-27 22:48:18'),
+(84, 10, NULL, NULL, 4, NULL, 'dd', '010306210992', 1.75, 10, 0.00, 14.00, 'cashed', 0, 1, '2024-10-28 15:14:01', '2024-10-28 15:14:01'),
+(85, 10, NULL, NULL, 4, NULL, 'test', '01030621099', 0.35, 12, 0.00, 15.00, 'cashed', 0, 1, '2024-10-28 15:18:41', '2024-10-28 15:18:41'),
+(86, 8, 2, NULL, 4, NULL, NULL, NULL, 0.35, NULL, 0.00, 3.00, 'cashed', 0, 1, '2024-10-28 15:36:13', '2024-10-28 15:36:13'),
+(87, 10, NULL, NULL, 4, NULL, 'test', '010306210992', 0.84, 12, 0.00, 19.00, 'cashed', 0, 1, '2024-10-28 15:40:16', '2024-10-28 15:40:16'),
+(88, 8, 3, NULL, 4, NULL, NULL, NULL, 3.08, NULL, 0.00, 25.00, 'cashed', 0, 1, '2024-10-29 14:43:19', '2024-11-16 22:36:01'),
+(90, 13, 1, NULL, 1, 'no comment', NULL, NULL, 20.32, NULL, 0.00, 262.00, 'cashed', 0, 1, '2024-10-30 11:18:16', '2024-10-30 11:18:16'),
+(91, 51, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 0.00, 1640.00, 'cashed', 0, 0, '2024-10-30 11:22:34', '2024-10-30 11:22:34'),
+(92, 51, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, 0.00, 1640.00, 'cashed', 0, 0, '2024-10-30 16:13:03', '2024-10-30 16:13:03'),
+(93, 51, 1, NULL, 1, NULL, NULL, NULL, 14, NULL, 0.00, 114.00, 'cashed', 0, 0, '2024-10-30 16:22:30', '2024-10-30 16:22:30'),
+(94, 51, 1, NULL, 1, NULL, NULL, NULL, 23.8, NULL, 0.00, 194.00, 'cashed', 0, 0, '2024-10-30 16:24:05', '2024-10-30 16:24:05'),
+(95, 8, 1, NULL, 1, NULL, NULL, NULL, 9.38, NULL, 0.00, 76.00, 'cashed', 0, 1, '2024-10-31 21:04:52', '2024-10-31 21:04:52'),
+(96, 8, 3, NULL, 1, NULL, NULL, NULL, 2.21, NULL, 0.00, 18.00, 'cashed', 0, 1, '2024-11-01 14:24:30', '2024-11-01 14:24:30'),
+(97, 53, 2, NULL, 4, NULL, NULL, NULL, 6.34, NULL, 0.00, 52.00, 'cashed', 1, 1, '2024-11-01 14:26:43', '2024-11-01 14:58:12'),
+(98, 10, 2, NULL, 1, NULL, NULL, NULL, 0.56, NULL, 0.00, 5.00, 'cashed', 0, 1, '2024-11-01 15:38:30', '2024-11-01 15:38:30'),
+(99, 10, 3, NULL, 1, NULL, NULL, NULL, 2.28, NULL, 0.00, 19.00, 'cashed', 0, 1, '2024-11-01 17:19:49', '2024-11-01 17:19:49'),
+(100, 8, 2, NULL, 2, NULL, NULL, NULL, 2.6, NULL, 0.00, 21.00, 'cashed', 0, 1, '2024-11-01 20:04:12', '2024-11-01 20:05:20'),
+(101, 51, 3, NULL, 1, NULL, NULL, NULL, 1.47, NULL, 0.00, 12.00, 'cashed', 0, 0, '2024-11-01 20:19:31', '2024-11-01 20:19:31'),
+(102, 10, NULL, NULL, 1, NULL, 'sohag', '010306210992', 3.68, 20, 0.00, 50.00, 'cashed', 0, 1, '2024-11-01 20:24:39', '2024-11-01 20:24:39'),
+(103, 51, 4, NULL, 1, NULL, NULL, NULL, 8.54, NULL, 0.00, 70.00, 'cashed', 0, 0, '2024-11-01 21:41:36', '2024-11-01 21:41:36'),
+(104, 51, 3, NULL, 4, NULL, NULL, NULL, 42.81, NULL, 0.00, 349.00, 'cashed', 0, 0, '2024-11-01 21:53:45', '2024-11-01 21:54:40'),
+(105, 11, 3, NULL, 1, NULL, NULL, NULL, 173.32, NULL, 0.00, 1411.00, 'cashed', 0, 1, '2024-11-01 21:56:28', '2024-11-01 21:56:28'),
+(106, 51, 3, NULL, 1, NULL, NULL, NULL, 168, NULL, 0.00, 1368.00, 'cashed', 0, 0, '2024-11-01 22:08:00', '2024-11-01 22:08:00'),
+(107, 51, 4, NULL, 1, NULL, NULL, NULL, 174.62, NULL, 0.00, 1422.00, 'cashed', 0, 0, '2024-11-01 22:11:43', '2024-11-01 22:11:43'),
+(108, 10, 2, NULL, 1, NULL, NULL, NULL, 7.97, NULL, 0.00, 65.00, 'cashed', 0, 1, '2024-11-02 15:03:49', '2024-11-02 15:03:49'),
+(109, 51, 4, NULL, 4, NULL, NULL, NULL, 7.41, NULL, 0.00, 60.00, 'cashed', 1, 0, '2024-11-02 17:02:28', '2024-11-22 03:35:54'),
+(110, 51, 3, NULL, 1, NULL, NULL, NULL, 1.23, NULL, 0.00, 10.00, 'cashed', 0, 0, '2024-11-02 17:08:50', '2024-11-02 17:08:50'),
+(111, 51, 2, NULL, 4, NULL, NULL, NULL, 8.61, NULL, 0.00, 70.00, 'cashed', 1, 0, '2024-11-04 19:12:59', '2024-11-04 19:14:17'),
+(112, 51, 2, NULL, 4, NULL, NULL, NULL, 11.77, NULL, 0.00, 96.00, 'cashed', 0, 0, '2024-11-08 14:15:36', '2024-11-08 14:16:58'),
+(113, 55, 2, NULL, 4, NULL, NULL, NULL, 183.85, NULL, 0.00, 1497.00, 'cashed', 0, 1, '2024-11-08 14:20:05', '2024-11-08 14:24:13'),
+(114, 10, NULL, NULL, 4, NULL, 'sohag', '01030621099', 5.73, 20, 0.00, 67.00, 'cashed', 0, 1, '2024-11-08 14:22:25', '2024-11-08 14:25:28'),
+(115, 11, 3, NULL, 1, 'no', NULL, NULL, 178.42, NULL, 0.00, 1453.00, 'cashed', 0, 1, '2024-11-08 15:10:05', '2024-11-08 15:10:05'),
+(116, 10, 1, NULL, 2, NULL, NULL, NULL, 185.25, NULL, 0.00, 1508.00, 'cashed', 1, 1, '2024-11-08 15:14:18', '2024-11-22 02:38:17'),
+(117, 51, 1, NULL, 4, NULL, NULL, NULL, 4.56, NULL, 0.00, 37.00, 'cashed', 0, 0, '2024-11-16 18:31:59', '2024-11-16 18:35:13'),
+(118, 51, NULL, NULL, 4, NULL, 'assuit , egypt\r\nassuit ,egypt', '01066056969', 167.36, 10, 0.00, 1373.00, 'cashed', 1, 1, '2024-11-16 18:44:02', '2024-11-17 22:16:21'),
+(119, 8, 1, NULL, 4, NULL, NULL, NULL, 6.16, NULL, 0.00, 50.00, 'cashed', 1, 1, '2024-11-16 19:29:51', '2024-11-17 22:17:42'),
+(120, 51, 1, NULL, 1, NULL, NULL, NULL, 4.98, NULL, 0.00, 41.00, 'cashed', 0, 0, '2024-11-17 20:33:45', '2024-11-17 20:33:45'),
+(121, 58, 1, NULL, 4, NULL, NULL, NULL, 23.45, NULL, 0.00, 191.00, 'cashed', 1, 0, '2024-11-17 21:40:36', '2024-11-17 21:43:26'),
+(122, 51, 5, NULL, 1, NULL, NULL, NULL, 1404.2, NULL, 0.00, 1505.00, 'cashed', 0, 0, '2024-11-19 15:25:57', '2024-11-19 15:25:57'),
+(123, 51, 1, NULL, 1, NULL, NULL, NULL, 22960, NULL, 0.00, 24600.00, 'cashed', 0, 0, '2024-11-19 15:29:36', '2024-11-19 15:29:36'),
+(124, 51, 5, NULL, 1, NULL, NULL, NULL, 1299.2, NULL, 0.00, 1392.00, 'cashed', 0, 0, '2024-11-19 15:41:55', '2024-11-19 15:41:55'),
+(125, 51, 5, NULL, 1, NULL, NULL, NULL, 1843.8, NULL, 0.00, 1976.00, 'cashed', 0, 0, '2024-11-19 15:43:07', '2024-11-19 15:43:07'),
+(126, 51, 4, NULL, 1, NULL, NULL, NULL, 614.6, NULL, 0.00, 659.00, 'cashed', 0, 0, '2024-11-19 15:45:01', '2024-11-19 15:45:01'),
+(127, 51, 4, NULL, 1, NULL, NULL, NULL, 3.51, NULL, 0.00, 47.00, 'cashed', 0, 0, '2024-11-19 15:48:05', '2024-11-19 15:48:05'),
+(139, 51, 3, NULL, 2, NULL, NULL, NULL, 6.44, NULL, 0.00, 87.00, 'cashed', 1, 0, '2024-11-22 01:35:14', '2024-11-22 02:36:25'),
+(140, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 10.00, 'cashed', 0, 0, '2024-11-22 22:05:20', '2024-11-22 22:05:20'),
+(141, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 1.00, 10.00, 'cashed', 0, 0, '2024-11-22 22:09:47', '2024-11-22 22:09:47'),
+(142, 51, 1, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 10.00, 'cashed', 0, 0, '2024-11-22 22:10:39', '2024-11-22 22:10:39'),
+(143, 51, 1, NULL, 1, NULL, NULL, NULL, 8, NULL, 10.00, 108.00, 'cashed', 0, 0, '2024-11-22 22:19:38', '2024-11-22 22:19:38'),
+(144, 51, 1, NULL, 1, NULL, NULL, NULL, 8, NULL, 10.00, 108.00, 'cashed', 0, 0, '2024-11-22 22:22:12', '2024-11-22 22:22:12'),
+(145, 51, 3, NULL, 4, NULL, NULL, NULL, 3.1, NULL, 0.00, 42.00, 'cashed', 0, 0, '2024-11-23 20:47:42', '2024-11-23 20:51:03'),
+(146, 51, 5, NULL, 1, NULL, NULL, NULL, 8.02, NULL, 10.00, 108.00, 'cashed', 0, 0, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(147, 51, 3, NULL, 1, NULL, NULL, NULL, 8, NULL, 0.00, 108.00, 'cashed', 0, 0, '2024-12-28 12:36:14', '2024-12-28 12:36:14'),
+(148, 51, 3, NULL, 1, NULL, NULL, NULL, 8, NULL, 0.00, 108.00, 'cashed', 0, 0, '2024-12-28 12:36:54', '2024-12-28 12:36:54'),
+(149, 51, 4, NULL, 1, NULL, NULL, NULL, 8, NULL, 10.00, 108.00, 'cashed', 0, 0, '2024-12-28 12:40:06', '2024-12-28 12:40:06'),
+(150, 11, 11, NULL, 1, NULL, NULL, NULL, 1.6, NULL, 0.00, 22.00, 'cashed', 0, 1, '2024-12-28 13:22:24', '2024-12-28 13:22:24'),
+(151, 8, 12, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 11.00, 'cashed', 0, 1, '2024-12-28 13:24:29', '2024-12-28 13:24:29'),
+(152, 52, 13, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 11.00, 'cashed', 0, 1, '2024-12-28 13:27:57', '2024-12-28 13:27:57'),
+(153, 11, 12, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 11.00, 'cashed', 0, 1, '2024-12-28 13:35:01', '2024-12-28 13:35:01'),
+(154, 11, 13, NULL, 1, NULL, NULL, NULL, 0.8, NULL, 0.00, 10.80, 'cashed', 0, 1, '2024-12-28 13:42:21', '2024-12-28 13:42:21'),
+(155, 51, 3, NULL, 1, NULL, NULL, NULL, 24, NULL, 0.00, 324.00, 'cashed', 0, 0, '2024-12-28 13:43:51', '2024-12-28 13:43:51'),
+(156, 51, 1, NULL, 1, NULL, NULL, NULL, 12.8, NULL, 10.00, 172.80, 'cashed', 0, 0, '2024-12-28 13:45:33', '2024-12-28 13:45:33'),
+(157, 51, 3, NULL, 4, NULL, NULL, NULL, 10.54, NULL, 0.00, 142.24, 'cashed', 1, 0, '2024-12-28 13:49:05', '2024-12-28 14:28:45'),
+(158, 51, 2, NULL, 1, NULL, NULL, NULL, 10.54, NULL, 10.00, 132.24, 'cashed', 0, 0, '2024-12-28 13:49:35', '2024-12-28 13:49:35'),
+(159, 52, NULL, NULL, 1, NULL, 'test', '010306210992', 8.08, 20, 0.00, 129.08, 'cashed', 0, 1, '2024-12-28 14:03:09', '2024-12-28 14:03:09'),
+(160, 51, 1, NULL, 1, NULL, NULL, NULL, 8.4, NULL, 10.00, 103.40, 'cashed', 0, 0, '2024-12-28 14:40:38', '2024-12-28 14:40:38'),
+(168, 51, 2, NULL, 3, NULL, NULL, NULL, 8, NULL, 10.00, 98.00, 'cashed', 0, 0, '2024-12-31 12:57:49', '2024-12-31 13:36:40'),
+(169, 51, 2, NULL, 3, NULL, NULL, NULL, 21.07, NULL, 20.00, 264.47, 'cashed', 0, 0, '2024-12-31 13:45:03', '2024-12-31 14:02:03'),
+(170, 51, 2, NULL, 1, NULL, NULL, NULL, 19.99, NULL, 22.00, 247.89, 'cashed', 1, 0, '2024-12-31 14:01:33', '2024-12-31 15:01:39'),
+(171, 51, 3, NULL, 4, NULL, NULL, NULL, 8.8, NULL, 11.00, 107.80, 'cashed', 1, 0, '2025-01-07 15:09:30', '2025-01-07 15:19:17'),
+(172, 51, 5, NULL, 1, NULL, NULL, NULL, 4, NULL, 0.00, 54.00, 'cashed', 0, 0, '2025-01-07 16:38:18', '2025-01-07 16:38:18'),
+(173, 51, 3, NULL, 1, NULL, NULL, NULL, 10.54, NULL, 0.00, 142.24, 'cashed', 0, 0, '2025-01-07 16:43:45', '2025-01-07 16:43:45');
 
 -- --------------------------------------------------------
 
@@ -1008,15 +1073,18 @@ INSERT INTO `orders` (`id`, `customer_id`, `DiningTable_id`, `location_id`, `sta
 -- Table structure for table `order_addons`
 --
 
-CREATE TABLE `order_addons` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `order_addons` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) UNSIGNED DEFAULT NULL,
   `addon_id` bigint(20) UNSIGNED DEFAULT NULL,
   `total_cost` double NOT NULL,
   `quantity` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `addon_id` (`addon_id`),
+  KEY `order_id` (`order_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `order_addons`
@@ -1159,7 +1227,15 @@ INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantit
 (151, 139, 2, 7.6, 4, '2024-11-22 01:35:14', '2024-11-22 01:35:14'),
 (152, 139, 4, 2.5, 1, '2024-11-22 01:35:14', '2024-11-22 01:35:14'),
 (153, 145, 1, 6, 2, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
-(154, 145, 4, 5, 2, '2024-11-23 20:47:42', '2024-11-23 20:47:42');
+(154, 145, 4, 5, 2, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
+(155, 146, 2, 1.9, 1, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(156, 150, 3, 20, 10, '2024-12-28 13:22:24', '2024-12-28 13:22:24'),
+(157, 151, 4, 10, 4, '2024-12-28 13:24:29', '2024-12-28 13:24:29'),
+(158, 152, 4, 10, 4, '2024-12-28 13:27:57', '2024-12-28 13:27:57'),
+(159, 153, 4, 10, 4, '2024-12-28 13:35:01', '2024-12-28 13:35:01'),
+(160, 154, 4, 10, 4, '2024-12-28 13:42:21', '2024-12-28 13:42:21'),
+(161, 159, 4, 5, 2, '2024-12-28 14:03:09', '2024-12-28 14:03:09'),
+(162, 160, 1, 9, 3, '2024-12-28 14:40:38', '2024-12-28 14:40:38');
 
 -- --------------------------------------------------------
 
@@ -1167,15 +1243,16 @@ INSERT INTO `order_addons` (`id`, `order_id`, `addon_id`, `total_cost`, `quantit
 -- Table structure for table `order_extras`
 --
 
-CREATE TABLE `order_extras` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `order_extras` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `extra_id` bigint(20) UNSIGNED DEFAULT NULL,
   `quantity` int(11) NOT NULL,
   `total_cost` double NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `order_extras`
@@ -1285,7 +1362,10 @@ INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `quantity`, `total_cos
 (110, 142, 1, 10, 150, '2024-11-22 22:10:39', '2024-11-22 22:10:39'),
 (111, 143, 1, 10, 150, '2024-11-22 22:19:38', '2024-11-22 22:19:38'),
 (112, 144, 1, 10, 150, '2024-11-22 22:22:12', '2024-11-22 22:22:12'),
-(113, 145, 2, 2, 5.8, '2024-11-23 20:47:42', '2024-11-23 20:47:42');
+(113, 145, 2, 2, 5.8, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
+(114, 146, 3, 1, 2, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(115, 160, 3, 3, 6, '2024-12-28 14:40:38', '2024-12-28 14:40:38'),
+(116, 170, 1, 9, 36, '2024-12-31 14:01:33', '2024-12-31 14:01:33');
 
 -- --------------------------------------------------------
 
@@ -1293,7 +1373,7 @@ INSERT INTO `order_extras` (`id`, `order_id`, `extra_id`, `quantity`, `total_cos
 -- Table structure for table `order_locations`
 --
 
-CREATE TABLE `order_locations` (
+CREATE TABLE IF NOT EXISTS `order_locations` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `customer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `street` varchar(255) NOT NULL,
@@ -1309,16 +1389,17 @@ CREATE TABLE `order_locations` (
 -- Table structure for table `order_meals`
 --
 
-CREATE TABLE `order_meals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `order_meals` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `meal_id` bigint(20) UNSIGNED NOT NULL,
   `quantity` int(11) NOT NULL,
   `size` enum('1','2','3','4') NOT NULL DEFAULT '1',
   `total_cost` double NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=170 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `order_meals`
@@ -1461,7 +1542,19 @@ INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `size`, `tot
 (147, 139, 14, 1, '2', 2.5, '2024-11-22 01:35:14', '2024-11-22 01:35:14'),
 (148, 145, 1, 3, '4', 12, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
 (149, 145, 4, 1, '2', 2.5, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
-(150, 145, 14, 3, '2', 7.5, '2024-11-23 20:47:42', '2024-11-23 20:47:42');
+(150, 145, 14, 3, '2', 7.5, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
+(151, 146, 2, 2, '3', 6, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(152, 146, 3, 1, '2', 2.5, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(153, 147, 3, 10, '4', 100, '2024-12-28 12:36:14', '2024-12-28 12:36:14'),
+(154, 148, 3, 10, '4', 100, '2024-12-28 12:36:54', '2024-12-28 12:36:54'),
+(155, 149, 3, 10, '4', 100, '2024-12-28 12:40:06', '2024-12-28 12:40:06'),
+(156, 155, 27, 2, '2', 300, '2024-12-28 13:43:51', '2024-12-28 13:43:51'),
+(157, 156, 27, 2, '1', 160, '2024-12-28 13:45:33', '2024-12-28 13:45:33'),
+(158, 160, 1, 10, '1', 90, '2024-12-28 14:40:38', '2024-12-28 14:40:38'),
+(166, 168, 1, 25, '4', 100, '2024-12-31 12:57:49', '2024-12-31 12:57:49'),
+(167, 170, 3, 17, '4', 170, '2024-12-31 14:01:33', '2024-12-31 14:01:33'),
+(168, 171, 17, 11, '3', 110, '2025-01-07 15:09:30', '2025-01-07 15:09:30'),
+(169, 172, 3, 5, '4', 50, '2025-01-07 16:38:18', '2025-01-07 16:38:18');
 
 -- --------------------------------------------------------
 
@@ -1469,16 +1562,17 @@ INSERT INTO `order_meals` (`id`, `order_id`, `meal_id`, `quantity`, `size`, `tot
 -- Table structure for table `order_offers`
 --
 
-CREATE TABLE `order_offers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `order_offers` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `offer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `order_id` bigint(20) UNSIGNED DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
   `total_cost` double DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `order_offers`
@@ -1543,7 +1637,43 @@ INSERT INTO `order_offers` (`id`, `offer_id`, `order_id`, `quantity`, `total_cos
 (58, 4, 125, 3, 131.7, NULL, '2024-11-19 15:43:07', '2024-11-19 15:43:07'),
 (59, 4, 126, 1, 43.9, NULL, '2024-11-19 15:45:01', '2024-11-19 15:45:01'),
 (60, 4, 127, 1, 43.9, NULL, '2024-11-19 15:48:05', '2024-11-19 15:48:05'),
-(67, 4, 139, 1, 43.9, NULL, '2024-11-22 01:35:14', '2024-11-22 01:35:14');
+(67, 4, 139, 1, 43.9, NULL, '2024-11-22 01:35:14', '2024-11-22 01:35:14'),
+(68, 4, 146, 1, 43.9, NULL, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(69, 36, 146, 2, 44, NULL, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(70, 4, 157, 3, 131.7, NULL, '2024-12-28 13:49:05', '2024-12-28 13:49:05'),
+(71, 4, 158, 3, 131.7, NULL, '2024-12-28 13:49:35', '2024-12-28 13:49:35'),
+(72, 5, 159, 2, 96, NULL, '2024-12-28 14:03:09', '2024-12-28 14:03:09'),
+(73, 4, 169, 6, 263.4, NULL, '2024-12-31 13:45:03', '2024-12-31 13:45:03'),
+(74, 4, 170, 1, 43.9, NULL, '2024-12-31 14:01:33', '2024-12-31 14:01:33'),
+(75, 4, 173, 3, 131.7, NULL, '2025-01-07 16:43:45', '2025-01-07 16:43:45');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_point_transfers`
+--
+
+CREATE TABLE IF NOT EXISTS `order_point_transfers` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `order_id` bigint(20) UNSIGNED NOT NULL,
+  `customer_id` bigint(20) UNSIGNED NOT NULL,
+  `points` int(11) NOT NULL,
+  `transfer_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_deducted` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `customer_id` (`customer_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_point_transfers`
+--
+
+INSERT INTO `order_point_transfers` (`id`, `order_id`, `customer_id`, `points`, `transfer_date`, `is_deducted`, `created_at`, `updated_at`) VALUES
+(3, 170, 51, 220, '2024-12-31 13:01:33', 1, '2024-12-31 14:01:33', '2024-12-31 14:52:12'),
+(4, 171, 51, 110, '2025-01-07 14:09:30', 1, '2025-01-07 15:09:30', '2025-01-07 15:09:30');
 
 -- --------------------------------------------------------
 
@@ -1551,8 +1681,8 @@ INSERT INTO `order_offers` (`id`, `offer_id`, `order_id`, `quantity`, `total_cos
 -- Table structure for table `personal_access_tokens`
 --
 
-CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `personal_access_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `tokenable_type` varchar(255) NOT NULL,
   `tokenable_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -1561,7 +1691,8 @@ CREATE TABLE `personal_access_tokens` (
   `last_used_at` timestamp NULL DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1570,14 +1701,15 @@ CREATE TABLE `personal_access_tokens` (
 -- Table structure for table `reset_password_tokens`
 --
 
-CREATE TABLE `reset_password_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `reset_password_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
   `expired_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `reset_password_tokens`
@@ -1592,7 +1724,7 @@ INSERT INTO `reset_password_tokens` (`id`, `email`, `token`, `expired_at`, `crea
 -- Table structure for table `sessions`
 --
 
-CREATE TABLE `sessions` (
+CREATE TABLE IF NOT EXISTS `sessions` (
   `id` varchar(255) NOT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
   `ip_address` varchar(45) DEFAULT NULL,
@@ -1607,8 +1739,8 @@ CREATE TABLE `sessions` (
 -- Table structure for table `settings`
 --
 
-CREATE TABLE `settings` (
-  `id` int(11) NOT NULL,
+CREATE TABLE IF NOT EXISTS `settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `city` varchar(50) DEFAULT NULL,
   `address` varchar(255) DEFAULT NULL,
@@ -1618,15 +1750,16 @@ CREATE TABLE `settings` (
   `phone1` varchar(20) DEFAULT NULL,
   `phone2` varchar(20) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `settings`
 --
 
 INSERT INTO `settings` (`id`, `name`, `city`, `address`, `tax`, `logo`, `email`, `phone1`, `phone2`, `created_at`, `updated_at`) VALUES
-(1, 'sam Roshdy', 'sohag', 'test', 8.00, 'logos/1731958057.jpg', 'ebtesam132015@gmail.com', '201210626537', '201030621099', '2024-11-18 18:39:33', '2024-11-25 19:35:58');
+(1, 'sam', 'eGYPT', 'test', 8.00, 'logo/1736673413.png', 'ebtesam132015@gmail.com', '201210626537', '201030621099', '2024-11-18 18:39:33', '2025-01-12 11:17:19');
 
 -- --------------------------------------------------------
 
@@ -1634,19 +1767,20 @@ INSERT INTO `settings` (`id`, `name`, `city`, `address`, `tax`, `logo`, `email`,
 -- Table structure for table `system_balance`
 --
 
-CREATE TABLE `system_balance` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `system_balance` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `balance` decimal(10,2) NOT NULL DEFAULT 0.00,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `system_balance`
 --
 
 INSERT INTO `system_balance` (`id`, `balance`, `created_at`, `updated_at`) VALUES
-(1, 82021.76, '2024-10-30 11:18:16', '2024-11-22 01:35:14');
+(1, 84517.06, '2024-10-30 11:18:16', '2025-01-07 16:38:00');
 
 -- --------------------------------------------------------
 
@@ -1654,16 +1788,17 @@ INSERT INTO `system_balance` (`id`, `balance`, `created_at`, `updated_at`) VALUE
 -- Table structure for table `transactions`
 --
 
-CREATE TABLE `transactions` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `customer_id` bigint(20) UNSIGNED DEFAULT NULL,
   `order_id` bigint(20) UNSIGNED DEFAULT NULL,
   `payment_method` enum('cashed','VisaMasterCard','Unpaid') DEFAULT 'Unpaid',
   `amount` double NOT NULL,
   `InvoiceId` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=143 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `transactions`
@@ -1782,7 +1917,26 @@ INSERT INTO `transactions` (`id`, `customer_id`, `order_id`, `payment_method`, `
 (111, 51, 142, 'cashed', 10.4, NULL, '2024-11-22 22:10:39', '2024-11-22 22:10:39'),
 (112, 51, 143, 'cashed', 98, NULL, '2024-11-22 22:19:38', '2024-11-22 22:19:38'),
 (113, 51, 144, 'cashed', 108, NULL, '2024-11-22 22:22:12', '2024-11-22 22:22:12'),
-(114, 51, 145, 'cashed', 41.9, NULL, '2024-11-23 20:47:42', '2024-11-23 20:47:42');
+(114, 51, 145, 'cashed', 41.9, NULL, '2024-11-23 20:47:42', '2024-11-23 20:47:42'),
+(115, 51, 146, 'cashed', 108.32, NULL, '2024-12-28 12:31:11', '2024-12-28 12:31:11'),
+(116, 51, 147, 'cashed', 108, NULL, '2024-12-28 12:36:14', '2024-12-28 12:36:14'),
+(117, 51, 148, 'cashed', 108, NULL, '2024-12-28 12:36:54', '2024-12-28 12:36:54'),
+(118, 51, 149, 'cashed', 108, NULL, '2024-12-28 12:40:06', '2024-12-28 12:40:06'),
+(119, 11, 150, 'cashed', 21.6, NULL, '2024-12-28 13:22:24', '2024-12-28 13:22:24'),
+(120, 8, 151, 'cashed', 10.8, NULL, '2024-12-28 13:24:29', '2024-12-28 13:24:29'),
+(121, 52, 152, 'cashed', 10.8, NULL, '2024-12-28 13:27:57', '2024-12-28 13:27:57'),
+(122, 11, 153, 'cashed', 10.8, NULL, '2024-12-28 13:35:01', '2024-12-28 13:35:01'),
+(123, 11, 154, 'cashed', 10.8, NULL, '2024-12-28 13:42:21', '2024-12-28 13:42:21'),
+(124, 51, 155, 'cashed', 324, NULL, '2024-12-28 13:43:51', '2024-12-28 13:43:51'),
+(125, 51, 156, 'cashed', 172.8, NULL, '2024-12-28 13:45:33', '2024-12-28 13:45:33'),
+(126, 51, 157, 'cashed', 142.24, NULL, '2024-12-28 13:49:05', '2024-12-28 13:49:05'),
+(127, 51, 158, 'cashed', 132.24, NULL, '2024-12-28 13:49:35', '2024-12-28 13:49:35'),
+(128, 52, 159, 'cashed', 129.08, NULL, '2024-12-28 14:03:09', '2024-12-28 14:03:09'),
+(129, 51, 160, 'cashed', 103.4, NULL, '2024-12-28 14:40:38', '2024-12-28 14:40:38'),
+(137, 51, 168, 'cashed', 98, NULL, '2024-12-31 12:57:49', '2024-12-31 12:57:49'),
+(138, 51, 169, 'cashed', 264.47, NULL, '2024-12-31 13:45:03', '2024-12-31 13:45:03'),
+(139, 51, 170, 'cashed', 247.89, NULL, '2024-12-31 14:01:33', '2024-12-31 14:01:33'),
+(142, 51, 171, 'cashed', 107.8, NULL, '2025-01-07 15:19:17', '2025-01-07 15:19:17');
 
 -- --------------------------------------------------------
 
@@ -1790,13 +1944,14 @@ INSERT INTO `transactions` (`id`, `customer_id`, `order_id`, `payment_method`, `
 -- Table structure for table `withdrawals`
 --
 
-CREATE TABLE `withdrawals` (
-  `id` bigint(20) UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS `withdrawals` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `employee_id` bigint(20) UNSIGNED NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `withdrawals`
@@ -1821,402 +1976,8 @@ INSERT INTO `withdrawals` (`id`, `employee_id`, `amount`, `created_at`, `updated
 (16, 13, 1.78, '2024-11-01 20:07:45', '2024-11-01 20:07:45'),
 (17, 13, 1.18, '2024-11-01 21:17:15', '2024-11-01 21:17:15'),
 (18, 13, 60.00, '2024-11-16 18:51:47', '2024-11-16 18:51:47'),
-(19, 13, 500.00, '2024-11-16 19:16:24', '2024-11-16 19:16:24');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `addons`
---
-ALTER TABLE `addons`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `name` (`name`),
-  ADD KEY `category_id` (`category_id`);
-
---
--- Indexes for table `categories`
---
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `customers`
---
-ALTER TABLE `customers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `customer_loyalty_points`
---
-ALTER TABLE `customer_loyalty_points`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `customer_id` (`customer_id`),
-  ADD KEY `order_id` (`order_id`);
-
---
--- Indexes for table `diningtables`
---
-ALTER TABLE `diningtables`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `diningtables_floor_num_unique` (`floor`,`num`);
-
---
--- Indexes for table `email_verification_tokens`
---
-ALTER TABLE `email_verification_tokens`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `employees`
---
-ALTER TABLE `employees`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `employees_email_unique` (`email`),
-  ADD UNIQUE KEY `identity_card` (`identity_card`);
-
---
--- Indexes for table `expired_offers`
---
-ALTER TABLE `expired_offers`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `offer_id` (`offer_id`);
-
---
--- Indexes for table `extras`
---
-ALTER TABLE `extras`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `category_id` (`category_id`);
-
---
--- Indexes for table `loyalty_settings`
---
-ALTER TABLE `loyalty_settings`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `meals`
---
-ALTER TABLE `meals`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `meals_category_id_foreign` (`category_id`);
-
---
--- Indexes for table `meals_size_cost`
---
-ALTER TABLE `meals_size_cost`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id` (`id`),
-  ADD UNIQUE KEY `unique_index` (`meal_id`,`cost`,`size`,`number_of_pieces`),
-  ADD KEY `meal_id` (`meal_id`);
-
---
--- Indexes for table `meal_extras`
---
-ALTER TABLE `meal_extras`
-  ADD PRIMARY KEY (`meal_id`,`extra_id`),
-  ADD KEY `extra_id` (`extra_id`);
-
---
--- Indexes for table `meal_with_addons`
---
-ALTER TABLE `meal_with_addons`
-  ADD PRIMARY KEY (`meal_id`,`addon_id`),
-  ADD KEY `meal_with_addons_addon_id_foreign` (`addon_id`);
-
---
--- Indexes for table `migrations`
---
-ALTER TABLE `migrations`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `offers`
---
-ALTER TABLE `offers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `offer_addons`
---
-ALTER TABLE `offer_addons`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `addon_id` (`addon_id`),
-  ADD KEY `offer_id` (`offer_id`);
-
---
--- Indexes for table `offer_extras`
---
-ALTER TABLE `offer_extras`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `offer_id` (`offer_id`),
-  ADD KEY `extra_id` (`extra_id`);
-
---
--- Indexes for table `offer_items`
---
-ALTER TABLE `offer_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `meal_id` (`meal_id`),
-  ADD KEY `extra_id` (`extra_id`),
-  ADD KEY `addon_id` (`addon_id`),
-  ADD KEY `offer_id` (`offer_id`);
-
---
--- Indexes for table `offer_meals`
---
-ALTER TABLE `offer_meals`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `offer_id` (`offer_id`),
-  ADD KEY `meal_id` (`meal_id`);
-
---
--- Indexes for table `orders`
---
-ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `order_addons`
---
-ALTER TABLE `order_addons`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `addon_id` (`addon_id`),
-  ADD KEY `order_id` (`order_id`);
-
---
--- Indexes for table `order_extras`
---
-ALTER TABLE `order_extras`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `order_meals`
---
-ALTER TABLE `order_meals`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `order_offers`
---
-ALTER TABLE `order_offers`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `personal_access_tokens`
---
-ALTER TABLE `personal_access_tokens`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `reset_password_tokens`
---
-ALTER TABLE `reset_password_tokens`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `settings`
---
-ALTER TABLE `settings`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `system_balance`
---
-ALTER TABLE `system_balance`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `withdrawals`
---
-ALTER TABLE `withdrawals`
-  ADD PRIMARY KEY (`id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `addons`
---
-ALTER TABLE `addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT for table `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- AUTO_INCREMENT for table `customers`
---
-ALTER TABLE `customers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
-
---
--- AUTO_INCREMENT for table `customer_loyalty_points`
---
-ALTER TABLE `customer_loyalty_points`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
---
--- AUTO_INCREMENT for table `diningtables`
---
-ALTER TABLE `diningtables`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
--- AUTO_INCREMENT for table `email_verification_tokens`
---
-ALTER TABLE `email_verification_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
-
---
--- AUTO_INCREMENT for table `employees`
---
-ALTER TABLE `employees`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT for table `extras`
---
-ALTER TABLE `extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
-
---
--- AUTO_INCREMENT for table `loyalty_settings`
---
-ALTER TABLE `loyalty_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `meals`
---
-ALTER TABLE `meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT for table `meals_size_cost`
---
-ALTER TABLE `meals_size_cost`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=82;
-
---
--- AUTO_INCREMENT for table `meal_extras`
---
-ALTER TABLE `meal_extras`
-  MODIFY `meal_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
-
---
--- AUTO_INCREMENT for table `meal_with_addons`
---
-ALTER TABLE `meal_with_addons`
-  MODIFY `meal_id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
-
---
--- AUTO_INCREMENT for table `migrations`
---
-ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `offers`
---
-ALTER TABLE `offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
-
---
--- AUTO_INCREMENT for table `offer_addons`
---
-ALTER TABLE `offer_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `offer_extras`
---
-ALTER TABLE `offer_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT for table `offer_meals`
---
-ALTER TABLE `offer_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- AUTO_INCREMENT for table `orders`
---
-ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
-
---
--- AUTO_INCREMENT for table `order_addons`
---
-ALTER TABLE `order_addons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=155;
-
---
--- AUTO_INCREMENT for table `order_extras`
---
-ALTER TABLE `order_extras`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
-
---
--- AUTO_INCREMENT for table `order_meals`
---
-ALTER TABLE `order_meals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=151;
-
---
--- AUTO_INCREMENT for table `order_offers`
---
-ALTER TABLE `order_offers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
-
---
--- AUTO_INCREMENT for table `personal_access_tokens`
---
-ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `reset_password_tokens`
---
-ALTER TABLE `reset_password_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
-
---
--- AUTO_INCREMENT for table `settings`
---
-ALTER TABLE `settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `system_balance`
---
-ALTER TABLE `system_balance`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `transactions`
---
-ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
-
---
--- AUTO_INCREMENT for table `withdrawals`
---
-ALTER TABLE `withdrawals`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+(19, 13, 500.00, '2024-11-16 19:16:24', '2024-11-16 19:16:24'),
+(20, 13, 1.64, '2025-01-06 11:12:43', '2025-01-06 11:12:43');
 
 --
 -- Constraints for dumped tables
@@ -2227,6 +1988,13 @@ ALTER TABLE `withdrawals`
 --
 ALTER TABLE `customer_loyalty_points`
   ADD CONSTRAINT `customer_loyalty_points_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `order_point_transfers`
+--
+ALTER TABLE `order_point_transfers`
+  ADD CONSTRAINT `order_point_transfers_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_point_transfers_ibfk_2` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
