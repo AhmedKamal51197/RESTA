@@ -24,7 +24,7 @@ class OrderDashboard extends FormRequest
         return [
             'customer_id' => ['required','integer'],
             'address' => ['sometimes', 'string'],
-            'phone' =>['sometimes', 'string'],
+            'phone' => ['sometimes', 'string', 'regex:/^(?:\+968|968|0)?[79]\d{7}$/'],
             'diningtable_id' => ['sometimes', 'integer'],
             'total_cost'=>['required','numeric','min:1'],
             'tax'=>['sometimes','numeric'],

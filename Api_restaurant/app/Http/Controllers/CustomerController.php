@@ -226,7 +226,8 @@ class CustomerController extends Controller
                 Rule::unique('customers', 'email')->ignore($updatedCustomer->id)
             ],
             //'unique:customers,email,' . $updatedCustomer->email],
-            'phone' => ['sometimes', 'string', 'min:8', 'max:12'],
+            'phone' => ['sometimes', 'string', 'regex:/^(?:\+968|968|0)?[79]\d{7}$/'],
+
         ]);
 
         foreach ($data as $key => $value) {

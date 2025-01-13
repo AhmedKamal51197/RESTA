@@ -25,6 +25,7 @@ class RegisterEmployee extends FormRequest
             //
             'name'=>['required','min:3','max:20'],
             'identity_card'=>['required','']
+            
         ];
     }
 }

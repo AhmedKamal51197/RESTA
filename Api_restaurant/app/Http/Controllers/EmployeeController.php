@@ -78,7 +78,7 @@ class EmployeeController extends Controller
         $datavalidated = $request->validate([
             'name' => ['required', 'string', 'min:3', 'max:20'],
             'email' => ['required', 'string', 'email', 'unique:employees,email'],
-            'phone' => ['required', 'string', 'min:8', 'max:12'],
+            'phone' => ['required', 'regex:/^(?:\+968|968|0)?[79]\d{7}$/'],
             'identity_card' => ['required', 'string', 'min:6', 'max:8', 'unique:employees,identity_card'],
             'Role' => ['required', 'string', 'in:chef,admin,casher'],
             'password' => ['required', 'min:8', 'confirmed'],
@@ -258,7 +258,7 @@ class EmployeeController extends Controller
             $vlaidatedData = $request->validate([
                 'name' => ['string', 'min:3', 'max:20'],
                 'email' => ['string', 'email', 'unique:employees,email,' . $employee->id], //'unique:employees,email,'.$employee->id to exclude account itself to donot make confilct if it duplicate with same email
-                'phone' => ['string', 'min:8', 'max:12'],
+                'phone' => ['string', 'min:8', 'max:12', 'regex:/^(?:\+968|968|0)?[79]\d{7}$/'],
                 'identity_card' => ['string', 'min:6', 'max:8', 'unique:employees,identity_card,' . $id], //same thing like email
                 'Role' => ['string', 'in:admin,casher,chef'],
                 'status' => ['boolean']

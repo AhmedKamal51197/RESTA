@@ -26,7 +26,7 @@ class RegistrationRequest extends FormRequest
             'name'=>['required','string','min:3'],
             'email'=>['required','unique:customers,email','email'],//new ValidEmail()],
             'password'=>['required','string','min:8','confirmed'],
-            'phone'=>['string','min:12']
+            'phone' => ['required', 'regex:/^(?:\+968|968|0)?[79]\d{7}$/']
         ];
     }
 }
